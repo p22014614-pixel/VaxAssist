@@ -206,6 +206,28 @@
             transform: translateY(1px);
         }
 
+        .signup-prompt {
+            display: block;
+            width: 100%;
+            margin-top: 20px;
+            color: var(--muted);
+            font-size: 14px;
+            font-family: Arial, sans-serif;
+            line-height: 1.5;
+            text-align: center;
+        }
+
+        .signup-prompt a {
+            font: inherit;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .signup-prompt a:hover,
+            .signup-prompt a:focus-visible {
+            text-decoration: underline;
+        }
+
         .account-note {
             display: flex;
             gap: 11px;
@@ -228,28 +250,6 @@
             color: var(--white);
             text-align: center;
             font-size: 13px;
-        }
-
-        .signup-prompt {
-            display: block;
-            width: 100%;
-            margin-top: 20px;
-            color: var(--muted);
-            font-size: 14px;
-            font-family: Arial, sans-serif;
-            line-height: 1.5;
-            text-align: center;
-        }
-
-        .signup-prompt a {
-            font: inherit;
-            color: var(--primary);
-            text-decoration: none;
-        }
-
-        .signup-prompt a:hover,
-        .signup-prompt a:focus-visible {
-            text-decoration: underline;
         }
 
         @media (max-width: 520px) {
@@ -360,7 +360,7 @@
 
             <p class="signup-prompt">
                 New to VaxAssist?
-                <a class="text-link" href="signup.html">Create an account</a>
+                <a href="signup.html">Create an account</a>
             </p>
 
             <p class="account-note">
