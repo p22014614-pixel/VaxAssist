@@ -3,18 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Appointments - VaxAssist</title>
+    <title>Doctor Dashboard - VaxAssist</title>
     <link rel="stylesheet" href="styles.css">
+    <!-- SheetJS for Excel export & html2pdf for PDF export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
 
     <!-- Navigation -->
     <nav>
-
         <div class="logo">VaxAssist</div>
         <ul>
             <li><a href="home.html">Home</a></li>
-            <li><a href="dashboard.html">Dashboard</a></li>
+            <li><a href="dashboard.html" style="color: var(--primary-color); font-weight: bold;">Dashboard</a></li>
             <li><a href="appointments.html">Appointments</a></li>
             <li><a href="patientRecord.html">Patient Record</a></li>
             <li><a href="communications.html">Communications</a></li>
@@ -22,17 +24,129 @@
         </ul>
     </nav>
 
-    <!-- Hero Section -->
-    <section class="hero">
+    <!-- Header Banner & Print/Export Options -->
+    <div class="page-header-banner">
+        <div>
+            <h1>Doctor Overview Dashboard</h1>
+            <p>Summary of clinic operations, appointments, and quick navigation.</p>
+        </div>
+        <div class="export-btns">
+            <button class="btn-export btn-excel" onclick="exportToExcel()">📊 Export Excel</button>
+            <button class="btn-export btn-pdf" onclick="exportToPDF()">📄 Export PDF</button>
+            <button class="btn-export btn-word" onclick="exportToWord()">📝 Export Word</button>
+        </div>
+    </div>
 
-    </section>   
+    <!-- Printable Content Container -->
+    <div class="dashboard-grid" id="printable-dashboard">
+        
+        /* need to change when linked to database */
+        <!-- Section 1: Summary Stat Sheet --> 
+        <h2 style="color: var(--primary-dark); margin-bottom: 20px;">System Statistics Summary</h2>
+        <div class="stats-row">
+            <div class="stat-card">
+                <h4>Today's Appointments</h4>
+                <div class="value" id="stat-today">6</div>
+            </div>
+            <div class="stat-card">
+                <h4>Weekly Bookings</h4>
+                <div class="value" id="stat-weekly">28</div>
+            </div>
+            <div class="stat-card">
+                <h4>Total Active Patients</h4>
+                <div class="value" id="stat-patients">142</div>
+            </div>
+            <div class="stat-card">
+                <h4>Unread Messages</h4>
+                <div class="value" id="stat-messages">3</div>
+            </div>
+        </div>
 
-  
+        <!-- Section 2: Clickable Navigation Cards -->
+        <h2 style="color: var(--primary-dark); margin-bottom: 20px;">Quick Module Access</h2>
+        <div class="nav-cards-grid">
+            
+            <a href="appointments.html" class="nav-card-link">
+                <div class="nav-card">
+                    <h3>📅 Appointments</h3>
+                    <p>View daily time slots, weekly schedules, and color-coded monthly booking counts.</p>
+                </div>
+            </a>
+
+            <a href="patientRecord.html" class="nav-card-link">
+                <div class="nav-card">
+                    <h3>🩺 Patient Medical Records</h3>
+                    <p>Access patient diagnosis history, enter SOAP notes, and record treatment plans.</p>
+                </div>
+            </a>
+
+            <a href="communications.html" class="nav-card-link">
+                <div class="nav-card">
+                    <h3>💬 Communications</h3>
+                    <p>Chat directly with patients regarding follow-ups, test results, and inquiries.</p>
+                </div>
+            </a>
+
+            <a href="profile.html" class="nav-card-link">
+                <div class="nav-card">
+                    <h3>👤 Doctor Profile & Leave</h3>
+                    <p>Update personal credentials, manage working hours, and request leave approval.</p>
+                </div>
+            </a>
+
+        </div>
+    </div>
+
+    <!-- Export Logic Script -->
+    <script>
+        function exportToExcel() {
+            const data = [
+                ["VaxAssist Doctor Summary Report"],
+                ["Generated Date", new Date().toLocaleDateString()],
+                [],
+                ["Metric", "Value"],
+                ["Today's Appointments", document.getElementById("stat-today").innerText],
+                ["Weekly Bookings", document.getElementById("stat-weekly").innerText],
+                ["Total Active Patients", document.getElementById("stat-patients").innerText],
+                ["Unread Messages", document.getElementById("stat-messages").innerText]
+            ];
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Dashboard Stats");
+            XLSX.writeFile(wb, "VaxAssist_Doctor_Stats.xlsx");
+        }
+
+        function exportToPDF() {
+            const element = document.getElementById("printable-dashboard");
+            const opt = {
+                margin:       0.5,
+                filename:     'VaxAssist_Doctor_Stats.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2 },
+                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save();
+        }
+
+        function exportToWord() {
+            const content = document.getElementById("printable-dashboard").innerHTML;
+            const header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><title>Export Word</title></head><body>";
+            const footer = "</body></html>";
+            const sourceHTML = header + content + footer;
+            const source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
+            const fileDownload = document.createElement("a");
+            document.body.appendChild(fileDownload);
+            fileDownload.href = source;
+            fileDownload.download = 'VaxAssist_Doctor_Stats.doc';
+            fileDownload.click();
+            document.body.removeChild(fileDownload);
+        }
+    </script>
 
     <!-- Footer -->
     <footer>
         <p>&copy; 2026 VaxAssist. All Rights Reserved.</p>
     </footer>
-
+    
 </body>
 </html>
