@@ -3,60 +3,203 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Appointments - VaxAssist</title>
+    <title>Appointments View - VaxAssist</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
     <!-- Navigation -->
     <nav>
-
         <div class="logo">VaxAssist</div>
         <ul>
             <li><a href="home.html">Home</a></li>
             <li><a href="dashboard.html">Dashboard</a></li>
-            <li><a href="appointments.html">Appointments</a></li>
+            <li><a href="appointments.html" style="color: var(--primary-color); font-weight: bold;">Appointments</a></li>
             <li><a href="patientRecord.html">Patient Record</a></li>
             <li><a href="communications.html">Communications</a></li>
             <li><a href="profile.html">Profile</a></li>
         </ul>
     </nav>
 
-    <!-- Hero Section -->
-    <section class="hero">
-        <div class="hero-text">
-            <h1>Book your appointment NOW!</h1>
-            <p>
-                Manage your healthcare appointments with ease using VaxAssist.
-            </p>
-            <div class="buttons">
-                <a href="book-appointment.html" class="btn primary-btn">Book an Appointment</a>
-                <a href="manage-appointments.html" class="btn secondary-btn">Manage Appointments</a>
+    <!-- Header -->
+    <div class="page-header-banner">
+        <div>
+            <h1>Doctor Appointment Schedule</h1>
+            <p>Filter schedule by week or month and inspect booked time slots.</p>
+        </div>
+    </div>
+
+    <div style="padding: 30px 8%;">
+
+        <!-- Filter Controls -->
+        <div class="filter-bar">
+            <div class="filter-group">
+                <label for="view-mode">View Mode:</label>
+                <select id="view-mode" class="filter-select" onchange="toggleViewMode()">
+                    <option value="week">This Week View</option>
+                    <option value="month">Full Month View</option>
+                </select>
+            </div>
+
+            <div class="filter-group" id="year-filter-group">
+                <label for="input-year">Year:</label>
+                <input type="number" id="input-year" class="filter-input" value="2026" min="2024" max="2030" style="width: 90px;">
+            </div>
+
+            <div class="filter-group" id="month-filter-group">
+                <label for="select-month">Month:</label>
+                <select id="select-month" class="filter-select">
+                    <option value="10" selected>October</option>
+                    <option value="11">November</option>
+                    <option value="12">December</option>
+                </select>
+            </div>
+
+            <button class="btn primary-btn" onclick="applyFilter()">Apply Filter</button>
+        </div>
+
+        <!-- VIEW 1: WEEK CALENDAR & DAILY TIMESTAMPS -->
+        <div id="week-view-section">
+            <h3 style="color: var(--primary-dark); margin-bottom: 15px;">Week View (Oct 11, 2026 - Oct 17, 2026)</h3>
+            
+            <div class="week-calendar-container">
+                <!-- Header with Days of Week (Highlighting Today: Sun, Oct 11) -->
+                <div class="week-days-header">
+                    <div class="day-header-cell today-highlight" onclick="selectDay('Sun, Oct 11', '3 Bookings')">
+                        <div class="day-name">Sun</div>
+                        <div class="day-date">11</div>
+                    </div>
+                    <div class="day-header-cell" onclick="selectDay('Mon, Oct 12', '4 Bookings')">
+                        <div class="day-name">Mon</div>
+                        <div class="day-date">12</div>
+                    </div>
+                    <div class="day-header-cell" onclick="selectDay('Tue, Oct 13', '2 Bookings')">
+                        <div class="day-name">Tue</div>
+                        <div class="day-date">13</div>
+                    </div>
+                    <div class="day-header-cell" onclick="selectDay('Wed, Oct 14', '5 Bookings')">
+                        <div class="day-name">Wed</div>
+                        <div class="day-date">14</div>
+                    </div>
+                    <div class="day-header-cell" onclick="selectDay('Thu, Oct 15', '1 Booking')">
+                        <div class="day-name">Thu</div>
+                        <div class="day-date">15</div>
+                    </div>
+                    <div class="day-header-cell" onclick="selectDay('Fri, Oct 16', '6 Bookings')">
+                        <div class="day-name">Fri</div>
+                        <div class="day-date">16</div>
+                    </div>
+                    <div class="day-header-cell" onclick="selectDay('Sat, Oct 17', '0 Bookings')">
+                        <div class="day-name">Sat</div>
+                        <div class="day-date">17</div>
+                    </div>
+                </div>
+
+                <!-- Below Header: Time Stamps for Selected Day -->
+                <div class="time-slots-container">
+                    <h4 id="selected-day-title" style="margin-bottom: 20px; color: var(--primary-color);">Time Slots for Today (Sunday, Oct 11, 2026)</h4>
+
+                    <div class="time-slot-card">
+                        <div class="slot-time">09:00 AM</div>
+                        <div class="slot-details">
+                            <strong>Michael Wong</strong>
+                            <p>Reason: Cardiology Consultation & ECG Check</p>
+                        </div>
+                        <a href="patientRecord.html" class="btn secondary-btn">View Patient File</a>
+                    </div>
+
+                    <div class="time-slot-card">
+                        <div class="slot-time">11:30 AM</div>
+                        <div class="slot-details">
+                            <strong>Sarah Jenkins</strong>
+                            <p>Reason: Influenza Vaccination & Booster</p>
+                        </div>
+                        <a href="patientRecord.html" class="btn secondary-btn">View Patient File</a>
+                    </div>
+
+                    <div class="time-slot-card">
+                        <div class="slot-time">02:15 PM</div>
+                        <div class="slot-details">
+                            <strong>Ahmad Razak</strong>
+                            <p>Reason: Follow-up Joint Pain Review</p>
+                        </div>
+                        <a href="patientRecord.html" class="btn secondary-btn">View Patient File</a>
+                    </div>
+                </div>
             </div>
         </div>
-    </section>
 
-    <!-- Features Section -->
-    <section class="features">
-        <h2>Features</h2>
+        <!-- VIEW 2: MONTH HEATMAP VIEW (Hidden by default, shown via toggle) -->
+        <div id="month-view-section" style="display: none;">
+            <h3 style="color: var(--primary-dark); margin-bottom: 10px;">Monthly Booking Overview: October 2026</h3>
+            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">Color codes indicate total booking load per day.</p>
 
-        <div class="feature-container">
-            <div class="feature-card">
-                <h3>Easy Booking</h3>
-                <p>Book your healthcare appointments quickly and easily with our intuitive booking system.</p>
+            <div class="month-grid">
+                <!-- Weekday Headers -->
+                <div style="font-weight: bold; text-align: center;">Sun</div>
+                <div style="font-weight: bold; text-align: center;">Mon</div>
+                <div style="font-weight: bold; text-align: center;">Tue</div>
+                <div style="font-weight: bold; text-align: center;">Wed</div>
+                <div style="font-weight: bold; text-align: center;">Thu</div>
+                <div style="font-weight: bold; text-align: center;">Fri</div>
+                <div style="font-weight: bold; text-align: center;">Sat</div>
+
+                <!-- Sample Days -->
+                <div class="month-day-cell"><span class="month-day-number">1</span><div class="heatmap-badge heatmap-green">2 Booked</div></div>
+                <div class="month-day-cell"><span class="month-day-number">2</span><div class="heatmap-badge heatmap-yellow">5 Booked</div></div>
+                <div class="month-day-cell"><span class="month-day-number">3</span></div>
+                <div class="month-day-cell"><span class="month-day-number">4</span><div class="heatmap-badge heatmap-green">1 Booked</div></div>
+                <div class="month-day-cell"><span class="month-day-number">5</span><div class="heatmap-badge heatmap-red">7 Booked</div></div>
+                <div class="month-day-cell"><span class="month-day-number">6</span><div class="heatmap-badge heatmap-yellow">4 Booked</div></div>
+                <div class="month-day-cell"><span class="month-day-number">7</span><div class="heatmap-badge heatmap-green">3 Booked</div></div>
+                
+                <div class="month-day-cell"><span class="month-day-number">8</span></div>
+                <div class="month-day-cell"><span class="month-day-number">9</span><div class="heatmap-badge heatmap-yellow">5 Booked</div></div>
+                <div class="month-day-cell"><span class="month-day-number">10</span><div class="heatmap-badge heatmap-green">2 Booked</div></div>
+                <div class="month-day-cell" style="border: 2px solid var(--primary-color);"><span class="month-day-number">11 (Today)</span><div class="heatmap-badge heatmap-green">3 Booked</div></div>
+                <div class="month-day-cell"><span class="month-day-number">12</span><div class="heatmap-badge heatmap-yellow">4 Booked</div></div>
+                <div class="month-day-cell"><span class="month-day-number">13</span><div class="heatmap-badge heatmap-green">2 Booked</div></div>
+                <div class="month-day-cell"><span class="month-day-number">14</span><div class="heatmap-badge heatmap-yellow">5 Booked</div></div>
             </div>
 
-            <div class="feature-card">
-                <h3>Manage Appointments</h3>
-                <p>View, modify, or cancel your appointments at any time with our user-friendly management tools.</p>
+            <!-- Legend Bar -->
+            <div class="legend-bar">
+                <div class="legend-item"><div class="color-box heatmap-green"></div> Green: 1–3 Bookings</div>
+                <div class="legend-item"><div class="color-box heatmap-yellow"></div> Yellow: 4–6 Bookings</div>
+                <div class="legend-item"><div class="color-box heatmap-red"></div> Red: 6–8 Bookings</div>
             </div>
         </div>
-    </section>
 
-    <!-- Footer -->
+    </div>
+
+    <script>
+        function toggleViewMode() {
+            const mode = document.getElementById("view-mode").value;
+            if (mode === "month") {
+                document.getElementById("week-view-section").style.display = "none";
+                document.getElementById("month-view-section").style.display = "block";
+            } else {
+                document.getElementById("week-view-section").style.display = "block";
+                document.getElementById("month-view-section").style.display = "none";
+            }
+        }
+
+        function selectDay(dayText, countText) {
+            document.getElementById("selected-day-title").innerText = "Time Slots for " + dayText + " (" + countText + ")";
+        }
+
+        function applyFilter() {
+            const year = document.getElementById("input-year").value;
+            const monthSelect = document.getElementById("select-month");
+            const monthName = monthSelect.options[monthSelect.selectedIndex].text;
+            alert("Filtering schedule for " + monthName + " " + year);
+        }
+    </script>
+
+        <!-- Footer -->
     <footer>
         <p>&copy; 2026 VaxAssist. All Rights Reserved.</p>
     </footer>
-
+    
 </body>
 </html>
