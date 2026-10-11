@@ -3,33 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Appointments - VaxAssist</title>
+    <title>Patient Records - VaxAssist</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
     <!-- Navigation -->
     <nav>
-
         <div class="logo">VaxAssist</div>
         <ul>
             <li><a href="home.html">Home</a></li>
             <li><a href="dashboard.html">Dashboard</a></li>
             <li><a href="appointments.html">Appointments</a></li>
-            <li><a href="patientRecord.html">Patient Record</a></li>
+            <li><a href="patientRecord.html" style="color: var(--primary-color); font-weight: bold;">Patient Record</a></li>
             <li><a href="communications.html">Communications</a></li>
             <li><a href="profile.html">Profile</a></li>
         </ul>
     </nav>
 
-    <!-- Hero Section -->
-    <section class="hero">
+    <div class="page-header-banner">
+        <div>
+            <h1>Patient Medical Workspace</h1>
+            <p>Look up patient files and write SOAP clinical consultation records.</p>
+        </div>
+    </div>
 
-    </section>   
+    <div style="padding: 30px 8%;">
+        
+        <!-- Patient Search Bar -->
+        <div class="form-card" style="padding: 20px;">
+            <div style="display: flex; gap: 15px;">
+                <input type="text" class="form-control" placeholder="Search by Patient Name, IC Number, or ID (e.g. Michael Wong)...">
+                <button class="btn primary-btn">Search</button>
+            </div>
+        </div>
 
-  
+        <!-- Selected Patient Workspace -->
+        <div class="form-card">
+            <h2 style="color: var(--primary-dark); margin-bottom: 10px;">Michael Wong (ID: P-8832)</h2>
+            <p style="color: var(--text-muted); margin-bottom: 25px;"><strong>Age:</strong> 45 | <strong>Gender:</strong> Male | <strong>Blood Type:</strong> O+ | <strong>Allergies:</strong> Penicillin</p>
 
-    <!-- Footer -->
+            <div class="tab-nav">
+                <button class="tab-btn active">S.O.A.P. Consultation Notes</button>
+                <button class="tab-btn">Prescription E-Form</button>
+                <button class="tab-btn">Past Visit History</button>
+            </div>
+
+            <form action="#" method="POST">
+                <div class="form-group">
+                    <label>Subjective (Patient Complaints)</label>
+                    <textarea class="form-control" placeholder="Describe symptoms, e.g., mild chest tightness for 2 days..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Objective (Vitals & Physical Assessment)</label>
+                    <textarea class="form-control" placeholder="BP: 130/85, Pulse: 72 bpm, Temp: 36.6°C..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Assessment / Diagnosis</label>
+                    <input type="text" class="form-control" placeholder="Primary Diagnosis...">
+                </div>
+
+                <div class="form-group">
+                    <label>Plan & Treatment</label>
+                    <textarea class="form-control" placeholder="Prescribe medication, order blood tests, advice..."></textarea>
+                </div>
+
+                <button type="button" class="btn primary-btn" onclick="alert('Record Saved Successfully!')">Save Medical Record</button>
+            </form>
+        </div>
+
+    </div>
+
     <footer>
         <p>&copy; 2026 VaxAssist. All Rights Reserved.</p>
     </footer>
