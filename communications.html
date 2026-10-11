@@ -3,33 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Appointments - VaxAssist</title>
+    <title>Communications - VaxAssist</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
     <!-- Navigation -->
     <nav>
-
         <div class="logo">VaxAssist</div>
         <ul>
             <li><a href="home.html">Home</a></li>
             <li><a href="dashboard.html">Dashboard</a></li>
             <li><a href="appointments.html">Appointments</a></li>
             <li><a href="patientRecord.html">Patient Record</a></li>
-            <li><a href="communications.html">Communications</a></li>
+            <li><a href="communications.html" style="color: var(--primary-color); font-weight: bold;">Communications</a></li>
             <li><a href="profile.html">Profile</a></li>
         </ul>
     </nav>
 
-    <!-- Hero Section -->
-    <section class="hero">
+    <div class="page-header-banner">
+        <div>
+            <h1>Doctor Messaging Portal</h1>
+            <p>Answer patient inquiries and communicate internally with staff.</p>
+        </div>
+    </div>
 
-    </section>   
+    <div style="padding: 30px 8%;">
+        <div class="chat-layout">
+            <!-- Sidebar: User Conversations -->
+            <div class="chat-sidebar">
+                <h3 style="color: var(--primary-dark); margin-bottom: 15px;">Conversations</h3>
+                <div class="chat-user-item active">
+                    <strong>Sarah Jenkins</strong><br>
+                    <small>Vaccine follow-up query</small>
+                </div>
+                <div class="chat-user-item">
+                    <strong>Michael Wong</strong><br>
+                    <small>ECG report confirmation</small>
+                </div>
+                <div class="chat-user-item">
+                    <strong>Admin Desk</strong><br>
+                    <small>Roster & Leave note</small>
+                </div>
+            </div>
 
-  
+            <!-- Main Chat Panel -->
+            <div class="chat-main">
+                <h3 style="color: var(--primary-dark); margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">Chatting with: Sarah Jenkins</h3>
+                
+                <div class="chat-messages">
+                    <div class="msg-bubble msg-in">
+                        Hello Dr. Alex, I received my flu vaccine yesterday. My arm feels slightly warm and sore. Is this normal?
+                    </div>
+                    <div class="msg-bubble msg-out">
+                        Hi Sarah, yes, mild soreness and warmth at the injection site are common post-vaccine reactions. It should subside in 24 to 48 hours.
+                    </div>
+                </div>
 
-    <!-- Footer -->
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" class="form-control" placeholder="Type your response to the patient...">
+                    <button class="btn primary-btn" onclick="alert('Message Sent!')">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <footer>
         <p>&copy; 2026 VaxAssist. All Rights Reserved.</p>
     </footer>
