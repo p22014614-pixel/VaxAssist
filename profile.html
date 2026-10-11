@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Appointments - VaxAssist</title>
+    <title>Doctor Profile - VaxAssist</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
     <!-- Navigation -->
     <nav>
-
         <div class="logo">VaxAssist</div>
         <ul>
             <li><a href="home.html">Home</a></li>
@@ -18,18 +17,66 @@
             <li><a href="appointments.html">Appointments</a></li>
             <li><a href="patientRecord.html">Patient Record</a></li>
             <li><a href="communications.html">Communications</a></li>
-            <li><a href="profile.html">Profile</a></li>
+            <li><a href="profile.html" style="color: var(--primary-color); font-weight: bold;">Profile</a></li>
         </ul>
     </nav>
 
-    <!-- Hero Section -->
-    <section class="hero">
+    <div class="page-header-banner">
+        <div>
+            <h1>Doctor Profile & Schedule Management</h1>
+            <p>Update personal information and submit leave requests to administrators.</p>
+        </div>
+    </div>
 
-    </section>   
+    <div style="padding: 30px 8%; display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+        
+        <!-- Personal Credentials Form -->
+        <div class="form-card">
+            <h3 style="color: var(--primary-dark); margin-bottom: 20px;">Personal Credentials</h3>
+            <form action="#" method="POST">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" class="form-control" value="Dr. Alex Taylor">
+                </div>
+                <div class="form-group">
+                    <label>Specialization</label>
+                    <input type="text" class="form-control" value="Cardiology & Orthopedic Medicine">
+                </div>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" class="form-control" value="dralex@vaxassist.com">
+                </div>
+                <div class="form-group">
+                    <label>Assigned Consultation Room</label>
+                    <input type="text" class="form-control" value="Room 304">
+                </div>
+                <button type="button" class="btn primary-btn" onclick="alert('Profile Updated!')">Update Profile</button>
+            </form>
+        </div>
 
-  
+        <!-- Apply for Leave Form -->
+        <div class="form-card">
+            <h3 style="color: var(--primary-dark); margin-bottom: 20px;">Request Leave / Time Off</h3>
+            <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">Approved leave automatically disables appointment booking slots for those dates.</p>
+            <form action="#" method="POST">
+                <div class="form-group">
+                    <label>Start Date</label>
+                    <input type="date" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>End Date</label>
+                    <input type="date" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>Reason for Leave</label>
+                    <textarea class="form-control" placeholder="Annual leave, Medical Conference..."></textarea>
+                </div>
+                <button type="button" class="btn primary-btn" onclick="alert('Leave Request Submitted to Admin!')">Submit Leave Request</button>
+            </form>
+        </div>
 
-    <!-- Footer -->
+    </div>
+
     <footer>
         <p>&copy; 2026 VaxAssist. All Rights Reserved.</p>
     </footer>
