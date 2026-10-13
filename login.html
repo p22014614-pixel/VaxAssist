@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>HealthCare Clinic | Patient Login</title>
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom Styling (same palette as index.html) -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8fbfc;
+            color: #183642;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .navbar {
+            background-color: #ffffff !important;
+            border-bottom: 1px solid #e8eef0;
+        }
+
+        .navbar-brand {
+            color: #167d8d !important;
+            font-size: 1.35rem;
+            letter-spacing: -0.5px;
+        }
+
+        .nav-link {
+            color: #52676e !important;
+            margin: 0 8px;
+            font-size: 0.95rem;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: #167d8d !important;
+        }
+
+        .appointment-btn {
+            background-color: #167d8d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+        }
+
+        .appointment-btn:hover {
+            background-color: #126a78;
+            color: white;
+        }
+
+        /* Login */
+        main {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            padding: 60px 0;
+        }
+
+        .login-wrap {
+            max-width: 420px;
+            margin: 0 auto;
+        }
+
+        .login-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 20px;
+            background: #e8f5f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.9rem;
+            margin: 0 auto 24px;
+        }
+
+        .login-wrap h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+
+        .login-wrap .subtext {
+            color: #667980;
+        }
+
+        .login-card {
+            background: white;
+            border: 1px solid #e7edef;
+            border-radius: 16px;
+            padding: 32px;
+        }
+
+        .form-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .form-control {
+            border: 1px solid #dbe5e8;
+            border-radius: 8px;
+            padding: 12px 14px;
+            color: #183642;
+        }
+
+        .form-control:focus {
+            border-color: #167d8d;
+            box-shadow: 0 0 0 0.2rem rgba(22, 125, 141, 0.15);
+        }
+
+        .input-group .form-control {
+            border-radius: 8px 0 0 8px;
+        }
+
+        .toggle-pw {
+            border: 1px solid #dbe5e8;
+            border-left: none;
+            background: white;
+            color: #52676e;
+            font-size: 0.85rem;
+            border-radius: 0 8px 8px 0;
+            padding: 0 16px;
+        }
+
+        .toggle-pw:hover {
+            color: #167d8d;
+        }
+
+        .form-check-input:checked {
+            background-color: #167d8d;
+            border-color: #167d8d;
+        }
+
+        .form-check-input:focus {
+            border-color: #167d8d;
+            box-shadow: 0 0 0 0.2rem rgba(22, 125, 141, 0.15);
+        }
+
+        .text-link {
+            color: #167d8d;
+            text-decoration: none;
+        }
+
+        .text-link:hover {
+            color: #126a78;
+            text-decoration: underline;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px 20px;
+            font-weight: 600;
+        }
+
+        footer {
+            background-color: #183642;
+            color: #c9d7da;
+        }
+
+        footer span {
+            color: #7fc9d2;
+        }
+
+        @media (max-width: 575px) {
+            main {
+                padding: 40px 0;
+            }
+
+            .login-card {
+                padding: 24px 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container py-2">
+
+            <a class="navbar-brand fw-bold" href="index.html">
+                VaxAssist
+            </a>
+
+            <button class="navbar-toggler" type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbarNav"
+                    aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+
+                <ul class="navbar-nav ms-auto align-items-lg-center">
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Home</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="about.html">About</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="services.html">Services</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="contact.html">Contact</a>
+                    </li>
+
+                    <li class="nav-item ms-lg-3 mt-3 mt-lg-0">
+                        <a class="btn appointment-btn" href="contact.html">
+                            Book Appointment
+                        </a>
+                    </li>
+
+                </ul>
+
+            </div>
+        </div>
+    </nav>
+
+
+    <!-- Login -->
+    <main>
+
+        <div class="container">
+
+            <div class="login-wrap">
+
+                <div class="text-center mb-4">
+
+                    <div class="login-icon">💉</div>
+
+                    <h1 class="mb-2">Welcome back</h1>
+
+                    <p class="subtext mb-0">
+                        Log in to view your vaccination schedule.
+                    </p>
+
+                </div>
+
+                <div class="login-card">
+
+                    <form id="loginForm" novalidate>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email address</label>
+                            <input type="email" class="form-control" id="email"
+                                   placeholder="you@example.com"
+                                   autocomplete="username" required>
+                            <div class="invalid-feedback">Enter a valid email address.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <div class="input-group has-validation">
+                                <input type="password" class="form-control" id="password"
+                                       placeholder="Enter your password"
+                                       autocomplete="current-password"
+                                       minlength="6" required>
+                                <button type="button" class="toggle-pw" id="togglePw"
+                                        aria-label="Show password">Show</button>
+                                <div class="invalid-feedback">Password must be at least 6 characters.</div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mb-4 small">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="remember">
+                                <label class="form-check-label text-secondary" for="remember">
+                                    Remember me
+                                </label>
+                            </div>
+                            <a href="#" class="text-link">Forgot password?</a>
+                        </div>
+
+                        <button type="submit" class="btn appointment-btn login-btn">
+                            Log in
+                        </button>
+
+                    </form>
+
+                </div>
+
+                <p class="text-center text-secondary small mt-4 mb-0">
+                    New here?
+                    <a href="register.html" class="text-link">Create an account</a>
+                </p>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <!-- Footer -->
+    <footer class="text-center p-4">
+
+        <p class="mb-0">
+            © 2026 <span>HealthCare Clinic</span> |
+            All Rights Reserved
+        </p>
+
+    </footer>
+
+
+    <!-- Bootstrap JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        const form = document.getElementById("loginForm");
+        const email = document.getElementById("email");
+        const password = document.getElementById("password");
+
+        // Show / hide password
+        document.getElementById("togglePw").addEventListener("click", function () {
+            const hidden = password.type === "password";
+            password.type = hidden ? "text" : "password";
+            this.textContent = hidden ? "Hide" : "Show";
+            this.setAttribute("aria-label", hidden ? "Hide password" : "Show password");
+        });
+
+        // Validation + login
+        form.addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            email.classList.toggle("is-invalid", !email.checkValidity());
+            password.classList.toggle("is-invalid", !password.checkValidity());
+
+            if (!email.checkValidity() || !password.checkValidity()) return;
+
+            // DEMO ONLY: replace with a real backend call.
+            // Any valid-looking email and password logs in for now.
+            window.location.href = "index.html";
+        });
+    </script>
+
+</body>
+</html>
