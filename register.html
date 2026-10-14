@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HealthCare Clinic | Create Account</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8fbfc;
+            color: #183642;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .navbar {
+            background-color: #fff !important;
+            border-bottom: 1px solid #e8eef0;
+        }
+
+        .navbar-brand {
+            color: #167d8d !important;
+            font-size: 1.35rem;
+            letter-spacing: -0.5px;
+        }
+
+        .appointment-btn {
+            background-color: #167d8d;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+        }
+
+        .appointment-btn:hover {
+            background-color: #126a78;
+            color: #fff;
+        }
+
+        main {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            padding: 60px 0;
+        }
+
+        .register-wrap {
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        .register-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 20px;
+            background: #e8f5f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.9rem;
+            margin: 0 auto 24px;
+        }
+
+        .register-wrap h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+
+        .register-wrap .subtext {
+            color: #667980;
+        }
+
+        .register-card {
+            background: #fff;
+            border: 1px solid #e7edef;
+            border-radius: 16px;
+            padding: 32px;
+        }
+
+        .form-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .form-control {
+            border: 1px solid #dbe5e8;
+            border-radius: 8px;
+            padding: 12px 14px;
+            color: #183642;
+        }
+
+        .form-control:focus {
+            border-color: #167d8d;
+            box-shadow: 0 0 0 0.2rem rgba(22, 125, 141, 0.15);
+        }
+
+        .input-group .form-control {
+            border-radius: 8px 0 0 8px;
+        }
+
+        .toggle-pw {
+            border: 1px solid #dbe5e8;
+            border-left: none;
+            background: #fff;
+            color: #52676e;
+            font-size: 0.85rem;
+            border-radius: 0 8px 8px 0;
+            padding: 0 16px;
+        }
+
+        .toggle-pw:hover {
+            color: #167d8d;
+        }
+
+        .form-text {
+            color: #708087;
+            font-size: 0.82rem;
+        }
+
+        .form-check-input:checked {
+            background-color: #167d8d;
+            border-color: #167d8d;
+        }
+
+        .text-link {
+            color: #167d8d;
+            text-decoration: none;
+        }
+
+        .text-link:hover {
+            color: #126a78;
+            text-decoration: underline;
+        }
+
+        .register-btn {
+            width: 100%;
+            padding: 12px 20px;
+            font-weight: 600;
+        }
+
+        footer {
+            background-color: #183642;
+            color: #c9d7da;
+        }
+
+        footer span {
+            color: #7fc9d2;
+        }
+
+        @media (max-width: 575px) {
+            main {
+                padding: 40px 0;
+            }
+
+            .register-card {
+                padding: 24px 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <div class="container">
+            <div class="register-wrap">
+                <div class="text-center mb-4">
+                    <div class="register-icon" aria-hidden="true">💉</div>
+                    <h1 class="mb-2">Create your account</h1>
+                    <p class="subtext mb-0">
+                        Get a personalised vaccination schedule for you and your family.
+                    </p>
+                </div>
+
+                <div class="register-card">
+                    <form
+                        id="registerForm"
+                        action="register.php"
+                        method="post"
+                        novalidate
+                    >
+                        <div class="row g-3 mb-3">
+                            <div class="col-sm-6">
+                                <label for="firstName" class="form-label">First name</label>
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    id="firstName"
+                                    name="firstName"
+                                    placeholder="First name"
+                                    autocomplete="given-name"
+                                    required
+                                >
+                                <div class="invalid-feedback">Enter your first name.</div>
+                            </div>
+
+                            <div class="col-sm-6">
+                                <label for="lastName" class="form-label">Last name</label>
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    id="lastName"
+                                    name="lastName"
+                                    placeholder="Last name"
+                                    autocomplete="family-name"
+                                    required
+                                >
+                                <div class="invalid-feedback">Enter your last name.</div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email address</label>
+                            <input
+                                type="email"
+                                class="form-control"
+                                id="email"
+                                name="email"
+                                placeholder="you@example.com"
+                                autocomplete="email"
+                                required
+                            >
+                            <div class="invalid-feedback">Enter a valid email address.</div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-sm-6">
+                                <label for="phone" class="form-label">Phone number</label>
+                                <input
+                                    type="tel"
+                                    class="form-control"
+                                    id="phone"
+                                    name="phone"
+                                    placeholder="e.g. 012 345 6789"
+                                    autocomplete="tel"
+                                    pattern="[0-9+\s\-]{8,15}"
+                                    required
+                                >
+                                <div class="invalid-feedback">Enter a valid phone number.</div>
+                            </div>
+
+                            <div class="col-sm-6">
+                                <label for="dob" class="form-label">Date of birth</label>
+                                <input
+                                    type="date"
+                                    class="form-control"
+                                    id="dob"
+                                    name="dob"
+                                    autocomplete="bday"
+                                    required
+                                >
+                                <div class="invalid-feedback">Enter a valid date of birth.</div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <div class="input-group">
+                                <input
+                                    type="password"
+                                    class="form-control"
+                                    id="password"
+                                    name="password"
+                                    placeholder="Create a password"
+                                    autocomplete="new-password"
+                                    minlength="8"
+                                    required
+                                >
+                                <button
+                                    type="button"
+                                    class="toggle-pw"
+                                    id="togglePw"
+                                    aria-controls="password"
+                                    aria-label="Show password"
+                                >Show</button>
+                            </div>
+                            <div class="invalid-feedback">
+                                Password must be at least 8 characters.
+                            </div>
+                            <div class="form-text">Use at least 8 characters.</div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="confirmPassword" class="form-label">
+                                Confirm password
+                            </label>
+                            <input
+                                type="password"
+                                class="form-control"
+                                id="confirmPassword"
+                                name="confirmPassword"
+                                placeholder="Re-enter your password"
+                                autocomplete="new-password"
+                                required
+                            >
+                            <div class="invalid-feedback">Passwords don't match.</div>
+                        </div>
+
+                        <div class="form-check mb-4">
+                            <input
+                                class="form-check-input"
+                                type="checkbox"
+                                id="terms"
+                                name="terms"
+                                value="accepted"
+                                required
+                            >
+                            <label
+                                class="form-check-label small text-secondary"
+                                for="terms"
+                            >
+                                I agree to the
+                                <a href="#" class="text-link">Terms of Service</a>
+                                and
+                                <a href="#" class="text-link">Privacy Policy</a>.
+                            </label>
+                            <div class="invalid-feedback">
+                                You need to accept to continue.
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn appointment-btn register-btn">
+                            Create account
+                        </button>
+                    </form>
+                </div>
+
+                <p class="text-center text-secondary small mt-4 mb-0">
+                    Already have an account?
+                    <a href="login.html" class="text-link">Log in</a>
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <footer class="text-center p-4">
+        <p class="mb-0">© 2026 <span>HealthCare Clinic</span> | All Rights Reserved</p>
+    </footer>
+
+    <script>
+        const form = document.getElementById("registerForm");
+        const password = document.getElementById("password");
+        const confirmPassword = document.getElementById("confirmPassword");
+        const dob = document.getElementById("dob");
+
+        dob.max = new Date().toISOString().split("T")[0];
+
+        document.getElementById("togglePw").addEventListener("click", function () {
+            const hidden = password.type === "password";
+            password.type = hidden ? "text" : "password";
+            this.textContent = hidden ? "Hide" : "Show";
+            this.setAttribute(
+                "aria-label",
+                hidden ? "Hide password" : "Show password"
+            );
+        });
+
+        function updatePasswordMatch() {
+            const mismatch =
+                confirmPassword.value !== "" &&
+                confirmPassword.value !== password.value;
+
+            confirmPassword.setCustomValidity(
+                mismatch ? "Passwords don't match." : ""
+            );
+        }
+
+        form.addEventListener("submit", function (event) {
+            event.preventDefault();
+            updatePasswordMatch();
+
+            let valid = true;
+
+            form.querySelectorAll("input").forEach(function (input) {
+                const inputIsValid = input.checkValidity();
+                input.classList.toggle("is-invalid", !inputIsValid);
+
+                if (!inputIsValid) {
+                    valid = false;
+                }
+            });
+
+            if (!valid) return;
+
+            form.submit();
+        });
+
+        form.querySelectorAll("input").forEach(function (input) {
+            input.addEventListener("input", function () {
+                if (input === password || input === confirmPassword) {
+                    updatePasswordMatch();
+
+                    if (confirmPassword.classList.contains("is-invalid")) {
+                        confirmPassword.classList.toggle(
+                            "is-invalid",
+                            !confirmPassword.checkValidity()
+                        );
+                    }
+                }
+
+                if (input.classList.contains("is-invalid")) {
+                    input.classList.toggle("is-invalid", !input.checkValidity());
+                }
+            });
+        });
+    </script>
+</body>
+</html>
