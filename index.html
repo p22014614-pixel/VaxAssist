@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>HealthCare Clinic | Home</title>
+    <title>VaxAssist | Home</title>
 
     <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -79,20 +79,65 @@
             max-width: 520px;
         }
 
-        .hero-card {
+        /* Planner card in hero */
+        .planner-card {
             background: #e8f5f6;
             border-radius: 24px;
-            padding: 60px 30px;
-            text-align: center;
-            min-height: 380px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
+            padding: 40px 34px;
         }
 
-        .hero-icon {
-            font-size: 5rem;
-            margin-bottom: 20px;
+        .planner-card h3 {
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .planner-card .sub {
+            color: #52676e;
+        }
+
+        .planner-switch {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.55);
+            border-radius: 12px;
+            padding: 6px;
+        }
+
+        .planner-tab {
+            border: none;
+            background: transparent;
+            color: #52676e;
+            font-size: 0.92rem;
+            font-weight: 600;
+            padding: 10px 6px;
+            border-radius: 8px;
+            transition: 0.2s ease;
+        }
+
+        .planner-tab.active {
+            background: white;
+            color: #167d8d;
+            box-shadow: 0 2px 8px rgba(24, 54, 66, 0.08);
+        }
+
+        .planner-card .form-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .planner-card .form-control,
+        .planner-card .form-select {
+            border: 1px solid #dbe5e8;
+            border-radius: 8px;
+            padding: 12px 14px;
+            color: #183642;
+        }
+
+        .planner-card .form-control:focus,
+        .planner-card .form-select:focus {
+            border-color: #167d8d;
+            box-shadow: 0 0 0 0.2rem rgba(22, 125, 141, 0.15);
         }
 
         .section-label {
@@ -136,6 +181,39 @@
             line-height: 1.7;
         }
 
+        /* How it works */
+        .step-num {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #e8f5f6;
+            color: #167d8d;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+        }
+
+        .step h6 {
+            font-weight: 600;
+        }
+
+        .step p {
+            color: #708087;
+            font-size: 0.95rem;
+            line-height: 1.7;
+            max-width: 280px;
+            margin: 0 auto;
+        }
+
+        /* Call to action band */
+        .cta-band {
+            background: #e8f5f6;
+            border-radius: 24px;
+            padding: 50px 30px;
+        }
+
         footer {
             background-color: #183642;
             color: #c9d7da;
@@ -154,6 +232,12 @@
                 font-size: 3rem;
             }
         }
+
+        @media (max-width: 575px) {
+            .planner-card {
+                padding: 30px 22px;
+            }
+        }
     </style>
 </head>
 
@@ -169,7 +253,8 @@
 
             <button class="navbar-toggler" type="button"
                     data-bs-toggle="collapse"
-                    data-bs-target="#navbarNav">
+                    data-bs-target="#navbarNav"
+                    aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
@@ -193,9 +278,13 @@
                         <a class="nav-link" href="contact.html">Contact</a>
                     </li>
 
+                    <li class="nav-item">
+                        <a class="nav-link" href="login.html">Log in</a>
+                    </li>
+
                     <li class="nav-item ms-lg-3 mt-3 mt-lg-0">
-                        <a class="btn appointment-btn" href="contact.html">
-                            Book Appointment
+                        <a class="btn appointment-btn" href="register.html">
+                            Create Account
                         </a>
                     </li>
 
@@ -216,22 +305,22 @@
                 <div class="col-lg-6">
 
                     <div class="hero-label">
-                        Your trusted healthcare partner
+                        Vaccination &amp; preventive care
                     </div>
 
                     <h1 class="mb-4">
-                        Your Health,<br>
-                        Our Priority.
+                        Stay protected,<br>
+                        every step.
                     </h1>
 
                     <p class="mb-4">
-                        Providing quality healthcare services for you and your
-                        family.
+                        Find out which vaccines you need before you travel,
+                        and keep your child's booster schedule on track.
                     </p>
 
-                    <a href="contact.html"
+                    <a href="register.html"
                        class="btn appointment-btn me-2">
-                        Book Appointment
+                        Get Started
                     </a>
 
                     <a href="services.html"
@@ -242,22 +331,40 @@
                 </div>
 
 
+                <!-- Planner teaser -->
                 <div class="col-lg-6">
 
-                    <div class="hero-card">
+                    <div class="planner-card">
 
-                        <div class="hero-icon">
-                            🩺
+                        <h3 class="mb-1">Vaccine Planner</h3>
+                        <p class="sub mb-4">See what you need in a few seconds.</p>
+
+                        <div class="planner-switch mb-4" role="tablist" aria-label="Planner type">
+                            <button type="button" class="planner-tab active" data-mode="travel" role="tab" aria-selected="true">Travelling</button>
+                            <button type="button" class="planner-tab" data-mode="child" role="tab" aria-selected="false">My child</button>
                         </div>
 
-                        <h3 class="fw-bold">
-                            Healthcare Made Simple
-                        </h3>
+                        <form id="plannerForm" action="planner.html" method="GET">
 
-                        <p class="text-secondary mb-0">
-                            Professional care, modern facilities and
-                            friendly healthcare professionals.
-                        </p>
+                            <input type="hidden" name="mode" id="plannerMode" value="travel">
+
+                            <div class="mb-4" id="travelField">
+                                <label for="destination" class="form-label">Destination country</label>
+                                <input type="text" class="form-control" id="destination"
+                                       name="destination" placeholder="e.g. Kenya" required>
+                            </div>
+
+                            <div class="mb-4 d-none" id="childField">
+                                <label for="childDob" class="form-label">Child's date of birth</label>
+                                <input type="date" class="form-control" id="childDob"
+                                       name="child_dob">
+                            </div>
+
+                            <button type="submit" class="btn appointment-btn w-100">
+                                Show my schedule
+                            </button>
+
+                        </form>
 
                     </div>
 
@@ -282,7 +389,7 @@
                 </div>
 
                 <h2 class="section-title">
-                    Healthcare that puts you first
+                    Vaccination care for the whole family
                 </h2>
 
             </div>
@@ -295,70 +402,70 @@
                     <div class="service-card">
 
                         <div class="service-icon">
+                            ✈️
+                        </div>
+
+                        <h5>
+                            Travel Vaccines
+                        </h5>
+
+                        <p>
+                            Yellow Fever, Typhoid, Hepatitis A and more,
+                            matched to your destination.
+                        </p>
+
+                        <a href="services.html"
+                           class="btn btn-sm btn-outline-secondary">
+                            Learn More
+                        </a>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-4">
+
+                    <div class="service-card">
+
+                        <div class="service-icon">
+                            👶
+                        </div>
+
+                        <h5>
+                            Childhood Boosters
+                        </h5>
+
+                        <p>
+                            A clear schedule from birth, so you never miss
+                            an important dose.
+                        </p>
+
+                        <a href="services.html"
+                           class="btn btn-sm btn-outline-secondary">
+                            Learn More
+                        </a>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-4">
+
+                    <div class="service-card">
+
+                        <div class="service-icon">
                             🩺
                         </div>
 
                         <h5>
-                            General Consultation
+                            Consultation
                         </h5>
 
                         <p>
-                            Professional consultation for common
-                            health concerns and medical needs.
-                        </p>
-
-                        <a href="services.html"
-                           class="btn btn-sm btn-outline-secondary">
-                            Learn More
-                        </a>
-
-                    </div>
-
-                </div>
-
-
-                <div class="col-md-4">
-
-                    <div class="service-card">
-
-                        <div class="service-icon">
-                            💊
-                        </div>
-
-                        <h5>
-                            Pharmacy
-                        </h5>
-
-                        <p>
-                            Convenient access to prescribed medication
-                            and essential healthcare products.
-                        </p>
-
-                        <a href="services.html"
-                           class="btn btn-sm btn-outline-secondary">
-                            Learn More
-                        </a>
-
-                    </div>
-
-                </div>
-
-
-                <div class="col-md-4">
-
-                    <div class="service-card">
-
-                        <div class="service-icon">
-                            🚑
-                        </div>
-
-                        <h5>
-                            Emergency Care
-                        </h5>
-
-                        <p>
-                            Medical assistance for urgent situations
-                            when you need care the most.
+                            Talk to our doctors about vaccine safety,
+                            side effects and your health history.
                         </p>
 
                         <a href="services.html"
@@ -377,11 +484,85 @@
     </section>
 
 
+    <!-- How it works -->
+    <section class="py-5">
+
+        <div class="container">
+
+            <div class="text-center mb-5">
+
+                <div class="section-label mb-2">
+                    How it works
+                </div>
+
+                <h2 class="section-title">
+                    Three steps to a protected family
+                </h2>
+
+            </div>
+
+            <div class="row g-4 text-center">
+
+                <div class="col-md-4 step">
+                    <div class="step-num">1</div>
+                    <h6>Tell us your plans</h6>
+                    <p>Enter your destination or your child's date of birth.</p>
+                </div>
+
+                <div class="col-md-4 step">
+                    <div class="step-num">2</div>
+                    <h6>Get your schedule</h6>
+                    <p>See which vaccines are required and which are recommended.</p>
+                </div>
+
+                <div class="col-md-4 step">
+                    <div class="step-num">3</div>
+                    <h6>Book your doses</h6>
+                    <p>Pick an available slot and book in one click.</p>
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- Call to action -->
+    <section class="py-5">
+
+        <div class="container">
+
+            <div class="cta-band text-center">
+
+                <h2 class="section-title mb-3">
+                    Ready to plan your vaccinations?
+                </h2>
+
+                <p class="text-secondary mb-4">
+                    Create a free account to save your schedule and book appointments.
+                </p>
+
+                <a href="register.html" class="btn appointment-btn me-2">
+                    Create Account
+                </a>
+
+                <a href="login.html" class="btn btn-outline-secondary">
+                    Log in
+                </a>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
     <!-- Footer -->
     <footer class="text-center p-4 mt-5">
 
         <p class="mb-0">
-            © 2026 <span>HealthCare Clinic</span> |
+            © 2026 <span>VaxAssist</span> |
             All Rights Reserved
         </p>
 
@@ -391,6 +572,43 @@
     <!-- Bootstrap JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+    <script>
+        // Planner teaser: switch between travel and child mode
+        const tabs = document.querySelectorAll(".planner-tab");
+        const mode = document.getElementById("plannerMode");
+        const travelField = document.getElementById("travelField");
+        const childField = document.getElementById("childField");
+        const destination = document.getElementById("destination");
+        const childDob = document.getElementById("childDob");
+
+        // Child's birth date can't be in the future
+        childDob.max = new Date().toISOString().split("T")[0];
+
+        tabs.forEach(function (tab) {
+            tab.addEventListener("click", function () {
+                const isTravel = tab.dataset.mode === "travel";
+
+                tabs.forEach(function (t) {
+                    const active = t === tab;
+                    t.classList.toggle("active", active);
+                    t.setAttribute("aria-selected", active);
+                });
+
+                mode.value = tab.dataset.mode;
+                travelField.classList.toggle("d-none", !isTravel);
+                childField.classList.toggle("d-none", isTravel);
+
+                // Only the visible field is required and submitted
+                destination.required = isTravel;
+                destination.disabled = !isTravel;
+                childDob.required = !isTravel;
+                childDob.disabled = isTravel;
+            });
+        });
+
+        // Start in travel mode
+        childDob.disabled = true;
+    </script>
+
 </body>
 </html>
-```
