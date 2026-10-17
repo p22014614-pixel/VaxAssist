@@ -19,7 +19,7 @@
 }
 
 body {
-    background-color: var(--bg-light);
+    background-color: var(--white);
     color: var(--text-dark);
 }
 
@@ -38,6 +38,7 @@ nav {
     font-size: 26px;
     font-weight: bold;
     color: var(--primary-color);
+    text-decoration: none;
 }
 
 nav ul {

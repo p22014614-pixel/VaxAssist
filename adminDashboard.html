@@ -3,86 +3,402 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VaxAssist - Healthcare Appointment System</title>
+    <title>Admin Dashboard | VaxAssist</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        .admin-content {
+            padding: 30px 8% 60px;
+        }
+
+        .admin-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card,
+        .admin-panel,
+        .shortcut-card {
+            background: var(--white);
+            border-radius: 10px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .stat-card {
+            min-height: 130px;
+            padding: 24px 28px;
+            border: 0;
+            border-left: 6px solid var(--primary-color);
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .stat-card h2 {
+            color: var(--text-muted);
+            font-size: 15px;
+            font-weight: normal;
+            margin-bottom: 12px;
+        }
+
+        .stat-card p {
+            color: var(--primary-dark);
+            font-size: 30px;
+            font-weight: bold;
+        }
+
+        .admin-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 25px;
+        }
+
+        .admin-panel {
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        .admin-panel h2 {
+            color: var(--primary-dark);
+            font-size: 22px;
+            margin-bottom: 8px;
+        }
+
+        .panel-description {
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+
+        .appointment-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        .appointment-table th,
+        .appointment-table td {
+            padding: 13px 10px;
+            border-bottom: 1px solid #e5eaf0;
+        }
+
+        .appointment-table th {
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        .appointment-table td {
+            font-size: 14px;
+        }
+        
+        .dashboard-banner {
+            background: #eaf5ff;
+            padding: 38px 8%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 25px;
+            border-bottom: 1px solid #d2e7f8;
+        }
+
+        .dashboard-banner h1 {
+            font-size: 36px;
+            color: var(--primary-dark);
+            margin-bottom: 7px;
+        }
+
+        .dashboard-banner p {
+            color: var(--text-muted);
+            font-size: 17px;
+        }
+
+        .status {
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .status.pending {
+            color: #a66a00;
+        }
+
+        .shortcut-list,
+        .alert-list,
+        .inventory-list {
+            list-style: none;
+        }
+
+        .shortcut-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .shortcut-card {
+            display: block;
+            padding: 18px;
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: transform 0.2s ease;
+        }
+
+        .shortcut-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .shortcut-card strong {
+            display: block;
+            margin-bottom: 7px;
+        }
+
+        .shortcut-card span {
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        .alert-list li,
+        .inventory-list li {
+            padding: 13px 0;
+            border-bottom: 1px solid #e5eaf0;
+            line-height: 1.5;
+        }
+
+        .alert-list li:last-child,
+        .inventory-list li:last-child {
+            border-bottom: none;
+        }
+
+        .alert-list strong {
+            color: var(--primary-dark);
+        }
+
+        .low-stock {
+            color: #bb4141;
+            font-weight: bold;
+        }
+
+        .in-stock {
+            color: #18845b;
+            font-weight: bold;
+        }
+
+        .admin-footer {
+            margin-top: 0;
+        }
+
+
+        @media (max-width: 900px) {
+            .admin-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .admin-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .admin-heading h1 {
+                font-size: 30px;
+            }
+
+            .admin-content {
+                padding: 30px 5% 40px;
+            }
+
+            .appointment-table {
+                min-width: 650px;
+            }
+
+            .table-wrapper {
+                overflow-x: auto;
+            }
+        }
+
+        @media (max-width: 500px) {
+            .admin-stats {
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
+            }
+
+            .stat-card {
+                padding: 16px;
+            }
+
+            .stat-card p {
+                font-size: 25px;
+            }
+
+            .shortcut-list {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-panel {
+                padding: 18px;
+            }
+        }
+    </style>
 </head>
 <body>
 
-    <!-- Navigation -->
     <nav>
+        <a href="admin-dashboard.html" class="logo">VaxAssist</a>
 
-        <div class="logo">VaxAssist</div>
         <ul>
-            <li><a href="home.html">Home</a></li>
-            <li><a href="dashboard.html">Dashboard</a></li>
-            <li><a href="appointments.html">Appointments</a></li>
-            <li><a href="patientRecord.html">Patient Record</a></li>
-            <li><a href="communications.html">Communications</a></li>
-            <li><a href="profile.html">Profile</a></li>
+            <li><a href="admin-dashboard.html">Dashboard</a></li>
+            <li><a href="#appointments">Appointments</a></li>
+            <li><a href="#patients">Patients</a></li>
+            <li><a href="admin-users.html">Staff &amp; Users</a></li>
+            <li><a href="#inventory">Vaccine Stock</a></li>
         </ul>
     </nav>
 
-    <!-- Hero Section -->
-    <section class="hero">
-        <div class="hero-text">
-            <h1>Your Healthcare, Made Simple.</h1>
-            <p>
-                VaxAssist is a healthcare appointment booking system
-                that helps patients find healthcare services, check
-                available appointments and manage their bookings easily.
-            </p>
-            <div class="buttons">
-                <a href="appointments.html" class="btn primary-btn">
-                    Book an Appointment
-                </a>
-                <a href="vaccine-guide.html" class="btn secondary-btn">
-                    Vaccine Guide
-                </a>
-            </div>
+    <header class="dashboard-banner">
+        <div>
+            <h1>Admin Dashboard</h1>
+            <p>Monitor clinic activity, appointments, staff, and vaccine stock.</p>
         </div>
+    </header>
 
-        <div class="hero-card">
-            <h2>VaxAssist</h2>
-            <p>
-                Find the right healthcare service, choose an available
-                time slot and manage your appointment in one place.
-            </p>
+    <main class="admin-content">
+        <section class="admin-stats" aria-label="Clinic overview">
+            <article class="stat-card">
+                <h2>Appointments Today</h2>
+                <p>38</p>
+            </article>
+
+            <article class="stat-card">
+                <h2>Registered Patients</h2>
+                <p>1,284</p>
+            </article>
+
+            <article class="stat-card">
+                <h2>Active Staff</h2>
+                <p>21</p>
+            </article>
+
+            <article class="stat-card">
+                <h2>Items Needing Attention</h2>
+                <p>3</p>
+            </article>
+        </section>
+
+        <div class="admin-grid">
+            <section>
+                <div class="admin-panel" id="appointments">
+                    <h2>Today's Appointments</h2>
+                    <p class="panel-description">Appointment schedule and assigned clinic staff.</p>
+
+                    <div class="table-wrapper">
+                        <table class="appointment-table">
+                            <thead>
+                                <tr>
+                                    <th>Patient</th>
+                                    <th>Service</th>
+                                    <th>Time</th>
+                                    <th>Staff</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Nur Hana</td>
+                                    <td>Influenza vaccine</td>
+                                    <td>10:30 AM</td>
+                                    <td>Farah Nadia</td>
+                                    <td><span class="status">Confirmed</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Ryan Tan</td>
+                                    <td>Child immunisation</td>
+                                    <td>11:00 AM</td>
+                                    <td>Dr. Sarah Lim</td>
+                                    <td><span class="status pending">Check-in</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Siti Aisyah</td>
+                                    <td>Travel consultation</td>
+                                    <td>11:30 AM</td>
+                                    <td>Dr. Sarah Lim</td>
+                                    <td><span class="status">Confirmed</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Jason Lee</td>
+                                    <td>COVID-19 booster</td>
+                                    <td>12:00 PM</td>
+                                    <td>Farah Nadia</td>
+                                    <td><span class="status pending">Pending</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="admin-panel" id="patients">
+                    <h2>Upcoming Appointments</h2>
+                    <p class="panel-description">Next appointments scheduled for today.</p>
+
+                    <ul class="alert-list">
+                        <li><strong>12:30 PM</strong> — Mei Ling, adult vaccination with Dr. Jason Wong</li>
+                        <li><strong>1:00 PM</strong> — Adam Rahman, child immunisation with Dr. Sarah Lim</li>
+                        <li><strong>1:30 PM</strong> — Priya Kumar, travel consultation with Dr. Jason Wong</li>
+                    </ul>
+                </div>
+            </section>
+
+            <aside>
+                <section class="admin-panel">
+                    <h2>Admin Shortcuts</h2>
+                    <p class="panel-description">Common clinic management tasks.</p>
+
+                    <div class="shortcut-list">
+                        <a class="shortcut-card" href="admin-users.html">
+                            <strong>Manage Staff</strong>
+                            <span>Roles and account access</span>
+                        </a>
+
+                        <a class="shortcut-card" href="#inventory">
+                            <strong>Vaccine Stock</strong>
+                            <span>Inventory and expiry dates</span>
+                        </a>
+
+                        <a class="shortcut-card" href="#patients">
+                            <strong>Patient Records</strong>
+                            <span>Find patient information</span>
+                        </a>
+
+                        <a class="shortcut-card" href="#appointments">
+                            <strong>Clinic Schedule</strong>
+                            <span>Review today's appointments</span>
+                        </a>
+                    </div>
+                </section>
+
+                <section class="admin-panel">
+                    <h2>Needs Attention</h2>
+                    <p class="panel-description">Operational follow-ups for the clinic.</p>
+
+                    <ul class="alert-list">
+                        <li><strong>Low stock:</strong> Influenza vaccine has 8 doses remaining.</li>
+                        <li><strong>Expiry reminder:</strong> 3 vaccine batches expire soon.</li>
+                        <li><strong>Staff invitation:</strong> 1 invitation is awaiting a response.</li>
+                    </ul>
+                </section>
+
+                <section class="admin-panel" id="inventory">
+                    <h2>Vaccine Inventory</h2>
+                    <p class="panel-description">Current stock overview.</p>
+
+                    <ul class="inventory-list">
+                        <li>Influenza — <span class="low-stock">8 doses · Low stock</span></li>
+                        <li>MMR — <span class="in-stock">42 doses · In stock</span></li>
+                        <li>COVID-19 booster — <span class="in-stock">26 doses · In stock</span></li>
+                    </ul>
+                </section>
+
+            </aside>
         </div>
-    </section>
+    </main>
 
-    <!-- Features Section -->
-    <section class="features">
-        <h2>What VaxAssist Offers</h2>
-
-        <div class="feature-container">
-            <div class="feature-card">
-                <h3>Easy Booking</h3>
-                <p>
-                    Patients can select a healthcare service,
-                    choose an available date and book an appointment.
-                </p>
-            </div>
-
-            <div class="feature-card">
-                <h3>Vaccine Guide</h3>
-                <p>
-                    Get simple vaccine information based on your
-                    travel destination or your baby's age.
-                </p>
-            </div>
-
-            <div class="feature-card">
-                <h3>Appointment Management</h3>
-                <p>
-                    Doctors can view their daily appointments while
-                    administrators can manage doctor availability.
-                </p>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer>
+    <footer class="admin-footer">
         <p>&copy; 2026 VaxAssist. All Rights Reserved.</p>
     </footer>
 
