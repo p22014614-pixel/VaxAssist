@@ -5,13 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Doctor Dashboard - VaxAssist</title>
     <link rel="stylesheet" href="styles.css">
-    <!-- SheetJS for Excel export & html2pdf for PDF export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
 
-    <!-- Navigation -->
     <nav>
         <div class="logo">VaxAssist</div>
         <ul>
@@ -24,7 +22,6 @@
         </ul>
     </nav>
 
-    <!-- Header Banner & Print/Export Options -->
     <div class="page-header-banner">
         <div>
             <h1>Doctor Overview Dashboard</h1>
@@ -37,67 +34,76 @@
         </div>
     </div>
 
-    <!-- Printable Content Container -->
     <div class="dashboard-grid" id="printable-dashboard">
-        
-        <!-- Section 1: Summary Stat Sheet --> 
         <h2 style="color: var(--primary-dark); margin-bottom: 20px;">System Statistics Summary</h2>
         <div class="stats-row">
             <div class="stat-card">
                 <h4>Today's Appointments</h4>
-                <div class="value" id="stat-today">6</div>
+                <div class="value" id="stat-today">...</div>
             </div>
             <div class="stat-card">
                 <h4>Weekly Bookings</h4>
-                <div class="value" id="stat-weekly">28</div>
+                <div class="value" id="stat-weekly">...</div>
             </div>
             <div class="stat-card">
                 <h4>Total Active Patients</h4>
-                <div class="value" id="stat-patients">142</div>
+                <div class="value" id="stat-patients">...</div>
             </div>
             <div class="stat-card">
                 <h4>Unread Messages</h4>
-                <div class="value" id="stat-messages">3</div>
+                <div class="value" id="stat-messages">...</div>
             </div>
         </div>
 
-        <!-- Section 2: Clickable Navigation Cards -->
         <h2 style="color: var(--primary-dark); margin-bottom: 20px;">Quick Module Access</h2>
         <div class="nav-cards-grid">
-            
             <a href="appointments.html" class="nav-card-link">
                 <div class="nav-card">
                     <h3>📅 Appointments</h3>
                     <p>View daily time slots, weekly schedules, and color-coded monthly booking counts.</p>
                 </div>
             </a>
-
             <a href="patientRecord.html" class="nav-card-link">
                 <div class="nav-card">
                     <h3>🩺 Patient Medical Records</h3>
                     <p>Access patient diagnosis history, enter SOAP notes, and record treatment plans.</p>
                 </div>
             </a>
-
             <a href="communications.html" class="nav-card-link">
                 <div class="nav-card">
                     <h3>💬 Communications</h3>
                     <p>Chat directly with patients regarding follow-ups, test results, and inquiries.</p>
                 </div>
             </a>
-
             <a href="profile.html" class="nav-card-link">
                 <div class="nav-card">
                     <h3>👤 Doctor Profile & Leave</h3>
                     <p>Update personal credentials, manage working hours, and request leave approval.</p>
                 </div>
             </a>
-
         </div>
     </div>
 
-    <!-- Export Logic Script -->
+    <footer>
+        <p>&copy; 2026 VaxAssist. All Rights Reserved.</p>
+    </footer>
+
     <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch("api_dashboard.php")
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        document.getElementById("stat-today").innerText = data.today;
+                        document.getElementById("stat-weekly").innerText = data.weekly;
+                        document.getElementById("stat-patients").innerText = data.patients;
+                        document.getElementById("stat-messages").innerText = data.messages;
+                    } else {
+                        window.location.href = "login.html";
+                    }
+                });
+        });
+
         function exportToExcel() {
             const data = [
                 ["VaxAssist Doctor Summary Report"],
@@ -117,35 +123,17 @@
 
         function exportToPDF() {
             const element = document.getElementById("printable-dashboard");
-            const opt = {
-                margin:       0.5,
-                filename:     'VaxAssist_Doctor_Stats.pdf',
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2 },
-                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
-            };
-            html2pdf().set(opt).from(element).save();
+            html2pdf().set({ margin: 0.5, filename: 'VaxAssist_Doctor_Stats.pdf' }).from(element).save();
         }
 
         function exportToWord() {
             const content = document.getElementById("printable-dashboard").innerHTML;
-            const header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><title>Export Word</title></head><body>";
-            const footer = "</body></html>";
-            const sourceHTML = header + content + footer;
-            const source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
+            const source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent("<html><body>" + content + "</body></html>");
             const fileDownload = document.createElement("a");
-            document.body.appendChild(fileDownload);
             fileDownload.href = source;
             fileDownload.download = 'VaxAssist_Doctor_Stats.doc';
             fileDownload.click();
-            document.body.removeChild(fileDownload);
         }
     </script>
-
-    <!-- Footer -->
-    <footer>
-        <p>&copy; 2026 VaxAssist. All Rights Reserved.</p>
-    </footer>
-
 </body>
 </html>

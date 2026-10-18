@@ -8,7 +8,6 @@
 </head>
 <body>
 
-    <!-- Navigation -->
     <nav>
         <div class="logo">VaxAssist</div>
         <ul>
@@ -21,7 +20,6 @@
         </ul>
     </nav>
 
-    <!-- Header -->
     <div class="page-header-banner">
         <div>
             <h1>Doctor Appointment Schedule</h1>
@@ -30,8 +28,6 @@
     </div>
 
     <div style="padding: 30px 8%;">
-
-        <!-- Filter Controls -->
         <div class="filter-bar">
             <div class="filter-group">
                 <label for="view-mode">View Mode:</label>
@@ -41,7 +37,6 @@
                 </select>
             </div>
 
-            <!-- Month View Specific Filters (Hidden by default in Week View) -->
             <div class="filter-group" id="year-filter-group" style="display: none;">
                 <label for="input-year">Year:</label>
                 <input type="number" id="input-year" class="filter-input" value="2026" min="2024" max="2030" style="width: 90px;">
@@ -50,74 +45,60 @@
             <div class="filter-group" id="month-filter-group" style="display: none;">
                 <label for="select-month">Month:</label>
                 <select id="select-month" class="filter-select">
-                    <option value="0">January</option>
-                    <option value="1">February</option>
-                    <option value="2">March</option>
-                    <option value="3">April</option>
-                    <option value="4">May</option>
-                    <option value="5">June</option>
-                    <option value="6">July</option>
-                    <option value="7">August</option>
-                    <option value="8">September</option>
-                    <option value="9" selected>October</option>
-                    <option value="10">November</option>
-                    <option value="11">December</option>
+                    <option value="1">January</option><option value="2">February</option><option value="3">March</option>
+                    <option value="4">April</option><option value="5">May</option><option value="6">June</option>
+                    <option value="7">July</option><option value="8">August</option><option value="9">September</option>
+                    <option value="10" selected>October</option><option value="11">November</option><option value="12">December</option>
                 </select>
             </div>
 
             <button class="btn primary-btn" id="apply-filter-btn" style="display: none;" onclick="applyMonthFilter()">Apply Filter</button>
         </div>
 
-        <!-- VIEW 1: THIS WEEK CALENDAR (ALWAYS CURATED TO REAL TODAY) -->
+        <!-- VIEW 1: THIS WEEK CALENDAR -->
         <div id="week-view-section">
             <h3 id="week-range-title" style="color: var(--primary-dark); margin-bottom: 15px;">This Week View</h3>
             
             <div class="week-calendar-container">
-                <!-- Header with Days of Week (Auto-generated for Current Week) -->
                 <div class="week-days-header" id="week-days-header"></div>
 
-                <!-- Fixed 4 Time Blocks below Header -->
                 <div class="time-slots-container">
                     <h4 id="selected-day-title" style="margin-bottom: 20px; color: var(--primary-color);">Time Slots</h4>
 
-                    <!-- Time Slot 1: 8:00 AM - 10:00 AM -->
+                    <!-- Time Slot 1 -->
                     <div class="time-slot-card">
-                        <div class="slot-time">08:00 AM - 10:00 AM</div>
-                        <div class="slot-details" id="slot-1-details">
-                            <strong>Michael Wong</strong>
-                            <p>Reason: Cardiology Routine Review & ECG</p>
+                        <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                            <div class="slot-time" style="margin-bottom: 0;">08:00 AM - 10:00 AM</div>
+                            <div class="slot-details" id="slot-1-details" style="display: flex; align-items: center; gap: 10px;">Loading...</div>
                         </div>
-                        <a href="patientRecord.html" class="btn secondary-btn">View Patient File</a>
+                        <a id="slot-1-btn" class="btn secondary-btn">View Patient File</a>
                     </div>
 
-                    <!-- Time Slot 2: 10:00 AM - 12:00 PM -->
+                    <!-- Time Slot 2 -->
                     <div class="time-slot-card">
-                        <div class="slot-time">10:00 AM - 12:00 PM</div>
-                        <div class="slot-details" id="slot-2-details">
-                            <strong>Sarah Jenkins</strong>
-                            <p>Reason: Influenza Vaccine Consultation</p>
+                        <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                            <div class="slot-time" style="margin-bottom: 0;">10:00 AM - 12:00 PM</div>
+                            <div class="slot-details" id="slot-2-details" style="display: flex; align-items: center; gap: 10px;">Loading...</div>
                         </div>
-                        <a href="patientRecord.html" class="btn secondary-btn">View Patient File</a>
+                        <a id="slot-2-btn" class="btn secondary-btn">View Patient File</a>
                     </div>
 
-                    <!-- Time Slot 3: 1:00 PM - 3:00 PM -->
+                    <!-- Time Slot 3 -->
                     <div class="time-slot-card">
-                        <div class="slot-time">01:00 PM - 03:00 PM</div>
-                        <div class="slot-details" id="slot-3-details">
-                            <strong>Ahmad Razak</strong>
-                            <p>Reason: Orthopedic Joint Checkup</p>
+                        <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                            <div class="slot-time" style="margin-bottom: 0;">01:00 PM - 03:00 PM</div>
+                            <div class="slot-details" id="slot-3-details" style="display: flex; align-items: center; gap: 10px;">Loading...</div>
                         </div>
-                        <a href="patientRecord.html" class="btn secondary-btn">View Patient File</a>
+                        <a id="slot-3-btn" class="btn secondary-btn">View Patient File</a>
                     </div>
 
-                    <!-- Time Slot 4: 3:00 PM - 5:00 PM -->
+                    <!-- Time Slot 4 -->
                     <div class="time-slot-card">
-                        <div class="slot-time">03:00 PM - 05:00 PM</div>
-                        <div class="slot-details" id="slot-4-details">
-                            <strong style="color: #666;">No Booking</strong>
-                            <p>Slot available for walk-in or emergency bookings.</p>
+                        <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                            <div class="slot-time" style="margin-bottom: 0;">03:00 PM - 05:00 PM</div>
+                            <div class="slot-details" id="slot-4-details" style="display: flex; align-items: center; gap: 10px;">Loading...</div>
                         </div>
-                        <button class="btn secondary-btn" disabled style="opacity: 0.5;">Empty</button>
+                        <a id="slot-4-btn" class="btn secondary-btn">View Patient File</a>
                     </div>
                 </div>
             </div>
@@ -127,255 +108,176 @@
         <div id="month-view-section" style="display: none;">
             <h3 id="month-title" style="color: var(--primary-dark); margin-bottom: 10px;">Monthly Booking Overview</h3>
             <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">Color codes indicate total booking load per day.</p>
-
-            <div class="month-grid" id="month-grid-container">
-                <!-- Dynamically generated full month cells via JavaScript -->
-            </div>
-
-            <!-- Legend Bar -->
+            <div class="month-grid" id="month-grid-container"></div>
             <div class="legend-bar">
                 <div class="legend-item"><div class="color-box heatmap-green"></div> Green: 1–3 Bookings</div>
                 <div class="legend-item"><div class="color-box heatmap-yellow"></div> Yellow: 4–6 Bookings</div>
-                <div class="legend-item"><div class="color-box heatmap-red"></div> Red: 6–8 Bookings</div>
+                <div class="legend-item"><div class="color-box heatmap-red"></div> Red: 6+ Bookings</div>
             </div>
         </div>
-
     </div>
 
-    <!-- Footer -->
     <footer>
         <p>&copy; 2026 VaxAssist. All Rights Reserved.</p>
     </footer>
 
-    <!-- Interactive JavaScript Engine -->
     <script>
-        // Mock DB Data matching day names
-        const mockScheduleData = {
-            "Sun": [
-                { name: "Michael Wong", reason: "Cardiology Review" },
-                { name: "Sarah Jenkins", reason: "Flu Shot" },
-                { name: "Ahmad Razak", reason: "Orthopedic Review" },
-                null
-            ],
-            "Mon": [
-                { name: "David Tan", reason: "Routine Health Check" },
-                { name: "Emily Chen", reason: "Vaccination Booster" },
-                { name: "John Doe", reason: "Blood Pressure Monitoring" },
-                { name: "Alice Lim", reason: "General Follow-up" }
-            ],
-            "Tue": [
-                null,
-                { name: "Siti Nurhaliza", reason: "Cardiology Consult" },
-                { name: "Robert Fox", reason: "Joint Pain Review" },
-                null
-            ],
-            "Wed": [
-                { name: "Grace Lee", reason: "Vaccine Consultation" },
-                { name: "Kevin Voo", reason: "Cholesterol Test Review" },
-                null,
-                { name: "Daniel Craig", reason: "ECG Analysis" }
-            ],
-            "Thu": [
-                { name: "Fatimah Ali", reason: "General Consult" },
-                null,
-                null,
-                null
-            ],
-            "Fri": [
-                { name: "Hassan Basri", reason: "Follow-up Visit" },
-                { name: "Jessica Alba", reason: "Vaccination Booster" },
-                { name: "Brian O'Conner", reason: "Heart Rate Check" },
-                { name: "Clara Oswald", reason: "General Wellness" }
-            ],
-            "Sat": [ null, null, null, null ]
-        };
+        const slotKeys = ["08:00 AM - 10:00 AM", "10:00 AM - 12:00 PM", "01:00 PM - 03:00 PM", "03:00 PM - 05:00 PM"];
 
-        // On Page Load Initialization
+        // Format Date object into YYYY-MM-DD local string to prevent timezone day rollback
+        function formatLocalDateString(dateObj) {
+            const year = dateObj.getFullYear();
+            const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+            const day = String(dateObj.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
         window.onload = function() {
             const today = new Date();
-            
-            // Set initial month filter values
             document.getElementById("input-year").value = today.getFullYear();
-            document.getElementById("select-month").value = today.getMonth();
-            
-            // Render Current Live Week (Completely independent of filters)
+            document.getElementById("select-month").value = today.getMonth() + 1;
             buildCurrentLiveWeekCalendar();
-            
-            // Prepare Month Grid
-            renderFullMonthGrid(today.getFullYear(), today.getMonth());
+            renderFullMonthGrid(today.getFullYear(), today.getMonth() + 1);
         };
 
-        // 1. Build Current Week Calendar (Strictly detects today's live date)
         function buildCurrentLiveWeekCalendar() {
             const headerContainer = document.getElementById("week-days-header");
             headerContainer.innerHTML = "";
 
             const now = new Date();
-            const currentDayOfWeek = now.getDay(); // 0 (Sun) to 6 (Sat)
             const sunDate = new Date(now);
-            sunDate.setDate(now.getDate() - currentDayOfWeek); // Move to Sunday of current week
-
-            const satDate = new Date(sunDate);
-            satDate.setDate(sunDate.getDate() + 6); // Move to Saturday of current week
+            sunDate.setDate(now.getDate() - now.getDay());
 
             const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
-            document.getElementById("week-range-title").innerText = 
-                `This Week View (${sunDate.toLocaleDateString('en-US', {month:'short', day:'numeric'})} - ${satDate.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'})})`;
 
             for (let i = 0; i < 7; i++) {
                 let dayDate = new Date(sunDate);
                 dayDate.setDate(sunDate.getDate() + i);
+                
+                const dateStr = formatLocalDateString(dayDate);
 
                 const dayCell = document.createElement("div");
                 dayCell.className = "day-header-cell";
 
-                // Highlight today automatically
                 if (dayDate.toDateString() === now.toDateString()) {
                     dayCell.classList.add("today-highlight");
-                    updateSlotView(daysOfWeek[i], dayDate.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' }));
+                    loadDaySlots(dateStr, dayDate.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' }));
                 }
 
-                dayCell.innerHTML = `
-                    <div class="day-name">${daysOfWeek[i]}</div>
-                    <div class="day-date">${dayDate.getDate()}</div>
-                `;
-
-                // Handle click to move highlight
+                dayCell.innerHTML = `<div class="day-name">${daysOfWeek[i]}</div><div class="day-date">${dayDate.getDate()}</div>`;
                 dayCell.onclick = function() {
                     document.querySelectorAll('.day-header-cell').forEach(cell => cell.classList.remove('today-highlight'));
                     this.classList.add('today-highlight');
-                    updateSlotView(daysOfWeek[i], dayDate.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' }));
+                    loadDaySlots(dateStr, dayDate.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' }));
                 };
-
                 headerContainer.appendChild(dayCell);
             }
         }
 
-        // 2. Update Time Slot Content based on Selected Day Card
-        function updateSlotView(dayName, formattedDateText) {
-            document.getElementById("selected-day-title").innerText = `Time Slots for ${formattedDateText}`;
-            
-            const dayData = mockScheduleData[dayName] || [null, null, null, null];
-            
-            for (let i = 1; i <= 4; i++) {
-                const detailsContainer = document.getElementById(`slot-${i}-details`);
-                const btn = detailsContainer.nextElementSibling;
-                const slotData = dayData[i - 1];
+        function loadDaySlots(dateStr, formattedDate) {
+            document.getElementById("selected-day-title").innerText = `Time Slots for ${formattedDate}`;
 
-                if (slotData) {
-                    detailsContainer.innerHTML = `<strong>${slotData.name}</strong><p>Reason: ${slotData.reason}</p>`;
-                    btn.className = "btn secondary-btn";
-                    btn.innerText = "View Patient File";
-                    btn.removeAttribute("disabled");
-                    btn.style.opacity = "1";
-                    btn.href = "patientRecord.html";
-                } else {
-                    detailsContainer.innerHTML = `<strong style="color: #888;">No Booking</strong><p>Slot available for walk-in or emergency bookings.</p>`;
-                    btn.className = "btn secondary-btn";
-                    btn.innerText = "Empty";
-                    btn.setAttribute("disabled", "true");
-                    btn.style.opacity = "0.5";
-                    btn.removeAttribute("href");
-                }
-            }
+            fetch(`api_appointments.php?action=get_day&date=${dateStr}`)
+                .then(res => res.json())
+                .then(data => {
+                    const appointments = data.data || {};
+                    slotKeys.forEach((key, index) => {
+                        const slotNum = index + 1;
+                        const details = document.getElementById(`slot-${slotNum}-details`);
+                        const btn = document.getElementById(`slot-${slotNum}-btn`);
+                        
+                        if (appointments[key]) {
+                            // Renders full_name right beside slot time, followed by symptoms_notes
+                            details.innerHTML = `<strong>${appointments[key].name}</strong> <span style="color: var(--text-muted); font-size: 14px;">— Reason: ${appointments[key].reason || 'N/A'}</span>`;
+                            btn.className = "btn secondary-btn";
+                            btn.innerText = "View Patient File";
+                            btn.style.opacity = "1";
+                            btn.href = `patientRecord.html?search=${encodeURIComponent(appointments[key].name)}`;
+                        } else {
+                            details.innerHTML = `<strong style="color: #888;">No Booking</strong> <span style="color: #aaa; font-size: 13px;">— Available Slot</span>`;
+                            btn.className = "btn secondary-btn";
+                            btn.innerText = "Empty";
+                            btn.style.opacity = "0.5";
+                            btn.removeAttribute("href");
+                        }
+                    });
+                });
         }
 
-        // 3. Render Full Month Grid (Controlled by Year/Month filters)
-        function renderFullMonthGrid(year, monthIndex) {
+        function renderFullMonthGrid(year, month) {
             const gridContainer = document.getElementById("month-grid-container");
             gridContainer.innerHTML = "";
 
             const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-            const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+            document.getElementById("month-title").innerText = `Monthly Booking Overview: ${monthNames[month - 1]} ${year}`;
 
-            document.getElementById("month-title").innerText = `Monthly Booking Overview: ${monthNames[monthIndex]} ${year}`;
+            fetch(`api_appointments.php?action=get_month&year=${year}&month=${month}`)
+                .then(res => res.json())
+                .then(data => {
+                    const counts = data.data || {};
+                    const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+                    
+                    // Add weekday column headers
+                    daysOfWeek.forEach(day => {
+                        const h = document.createElement("div");
+                        h.style.fontWeight = "bold"; 
+                        h.style.textAlign = "center"; 
+                        h.style.padding = "8px 0";
+                        h.innerText = day;
+                        gridContainer.appendChild(h);
+                    });
 
-            // Add Weekday Column Headers
-            daysOfWeek.forEach(day => {
-                const headerDiv = document.createElement("div");
-                headerDiv.style.fontWeight = "bold";
-                headerDiv.style.textAlign = "center";
-                headerDiv.style.padding = "8px 0";
-                headerDiv.innerText = day;
-                gridContainer.appendChild(headerDiv);
-            });
+                    const firstDayIndex = new Date(year, month - 1, 1).getDay();
+                    const totalDays = new Date(year, month, 0).getDate();
 
-            const firstDayIndex = new Date(year, monthIndex, 1).getDay();
-            const totalDaysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+                    // Blank leading offset cells before day 1 of month
+                    for (let p = 0; p < firstDayIndex; p++) {
+                        const empty = document.createElement("div");
+                        empty.className = "month-day-cell"; 
+                        empty.style.background = "#f1f5f9";
+                        empty.style.opacity = "0.4";
+                        gridContainer.appendChild(empty);
+                    }
 
-            // Render Empty Cells before 1st day of month
-            for (let p = 0; p < firstDayIndex; p++) {
-                const emptyCell = document.createElement("div");
-                emptyCell.className = "month-day-cell";
-                emptyCell.style.background = "#f1f5f9";
-                emptyCell.style.opacity = "0.4";
-                gridContainer.appendChild(emptyCell);
-            }
+                    const today = new Date();
 
-            const today = new Date();
+                    // Render days of the month dynamically
+                    for (let day = 1; day <= totalDays; day++) {
+                        const dayCell = document.createElement("div");
+                        dayCell.className = "month-day-cell";
+                        
+                        // Highlight today if year and month match real date
+                        if (today.getFullYear() === year && (today.getMonth() + 1) === month && today.getDate() === day) {
+                            dayCell.style.border = "2px solid var(--primary-color)";
+                            dayCell.style.backgroundColor = "#eaf5ff";
+                        }
 
-            // Render Days
-            for (let day = 1; day <= totalDaysInMonth; day++) {
-                const dayCell = document.createElement("div");
-                dayCell.className = "month-day-cell";
+                        const c = counts[day] || 0;
+                        let badge = "";
+                        
+                        if (c >= 1 && c <= 3) {
+                            badge = `<div class="heatmap-badge heatmap-green">${c} Booked</div>`;
+                        } else if (c >= 4 && c <= 6) {
+                            badge = `<div class="heatmap-badge heatmap-yellow">${c} Booked</div>`;
+                        } else if (c >= 7) {
+                            badge = `<div class="heatmap-badge heatmap-red">${c} Booked</div>`;
+                        }
 
-                // Highlight today if month and year match real date
-                if (today.getFullYear() == year && today.getMonth() == monthIndex && today.getDate() == day) {
-                    dayCell.style.border = "2px solid var(--primary-color)";
-                    dayCell.style.backgroundColor = "#eaf5ff";
-                }
-
-                const bookingCount = (day * 3 + monthIndex) % 9; 
-
-                let badgeHTML = "";
-                if (bookingCount >= 1 && bookingCount <= 3) {
-                    badgeHTML = `<div class="heatmap-badge heatmap-green">${bookingCount} Booked</div>`;
-                } else if (bookingCount >= 4 && bookingCount <= 6) {
-                    badgeHTML = `<div class="heatmap-badge heatmap-yellow">${bookingCount} Booked</div>`;
-                } else if (bookingCount >= 7) {
-                    badgeHTML = `<div class="heatmap-badge heatmap-red">${bookingCount} Booked</div>`;
-                }
-
-                dayCell.innerHTML = `
-                    <span class="month-day-number">${day}</span>
-                    ${badgeHTML}
-                `;
-
-                gridContainer.appendChild(dayCell);
-            }
+                        dayCell.innerHTML = `<span class="month-day-number">${day}</span>${badge}`;
+                        gridContainer.appendChild(dayCell);
+                    }
+                });
         }
 
-        // 4. Toggle Views and show/hide corresponding filters
         function toggleViewMode() {
             const mode = document.getElementById("view-mode").value;
-            const yearGroup = document.getElementById("year-filter-group");
-            const monthGroup = document.getElementById("month-filter-group");
-            const filterBtn = document.getElementById("apply-filter-btn");
-
-            if (mode === "month") {
-                document.getElementById("week-view-section").style.display = "none";
-                document.getElementById("month-view-section").style.display = "block";
-                
-                // Show Month Filters
-                yearGroup.style.display = "flex";
-                monthGroup.style.display = "flex";
-                filterBtn.style.display = "inline-block";
-            } else {
-                document.getElementById("week-view-section").style.display = "block";
-                document.getElementById("month-view-section").style.display = "none";
-                
-                // Hide Month Filters during Week View
-                yearGroup.style.display = "none";
-                monthGroup.style.display = "none";
-                filterBtn.style.display = "none";
-
-                // Re-render Current Week automatically
-                buildCurrentLiveWeekCalendar();
-            }
+            document.getElementById("week-view-section").style.display = (mode === "week") ? "block" : "none";
+            document.getElementById("month-view-section").style.display = (mode === "month") ? "block" : "none";
+            document.getElementById("year-filter-group").style.display = (mode === "month") ? "flex" : "none";
+            document.getElementById("month-filter-group").style.display = (mode === "month") ? "flex" : "none";
+            document.getElementById("apply-filter-btn").style.display = (mode === "month") ? "inline-block" : "none";
         }
 
-        // 5. Apply Filter specifically for Month View
         function applyMonthFilter() {
             const year = parseInt(document.getElementById("input-year").value);
             const month = parseInt(document.getElementById("select-month").value);
