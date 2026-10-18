@@ -6,22 +6,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email    = trim($_POST['email']);
     $password = $_POST['password'];
 
-    // Look up user in database
-    $stmt = $conn->prepare("SELECT id, first_name, password_hash FROM site_users WHERE email = ?");
+    // Check directly in doctors table
+    $stmt = $conn->prepare("SELECT doctor_id, first_name, password_hash FROM doctors WHERE email = ?");
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $stmt->store_result();
 
     if ($stmt->num_rows > 0) {
-        $stmt->bind_result($id, $firstName, $passwordHash);
+        $stmt->bind_result($doctor_id, $firstName, $passwordHash);
         $stmt->fetch();
 
-        // Verify hashed password
         if (password_verify($password, $passwordHash)) {
-            $_SESSION['user_id'] = $id;
+            $_SESSION['doctor_id'] = $doctor_id;
             $_SESSION['first_name'] = $firstName;
             
-            // Successful login -> Redirect to home.html
             header("Location: home.html");
             exit;
         } else {
@@ -30,16 +28,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             exit;
         }
     } else {
-        $error = "No user account found with that email address.";
+        $error = "No doctor account found with that email address.";
         header("Location: login.html?error=" . urlencode($error));
         exit;
     }
     $stmt->close();
-} else {
-    // Direct GET access redirects back to login page
-    $_SESSION['user_id'] = $id;
-    $_SESSION['first_name'] = $firstName;
-    header("Location: login.html");
-    exit;
 }
 ?>

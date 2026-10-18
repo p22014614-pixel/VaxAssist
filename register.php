@@ -9,26 +9,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $dob       = $_POST['dob'];
     $password  = $_POST['password'];
 
-    // Check if email already exists
-    $checkStmt = $conn->prepare("SELECT id FROM site_users WHERE email = ?");
+    $checkStmt = $conn->prepare("SELECT doctor_id FROM doctors WHERE email = ?");
     $checkStmt->bind_param("s", $email);
     $checkStmt->execute();
     $checkStmt->store_result();
 
     if ($checkStmt->num_rows > 0) {
-        $error = "An account with this email address already exists.";
+        $error = "A doctor account with this email address already exists.";
         header("Location: register.html?error=" . urlencode($error));
         exit;
     } else {
-        // Securely hash the password
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-        // Insert new user into database
-        $stmt = $conn->prepare("INSERT INTO site_users (first_name, last_name, email, phone, dob, password_hash) VALUES (?, ?, ?, ?, ?, ?)");
+        // Register directly into doctors table
+        $stmt = $conn->prepare("INSERT INTO doctors (first_name, last_name, email, phone, dob, password_hash) VALUES (?, ?, ?, ?, ?, ?)");
         $stmt->bind_param("ssssss", $firstName, $lastName, $email, $phone, $dob, $hashedPassword);
 
         if ($stmt->execute()) {
-            $message = "Account created successfully! Redirecting to login...";
+            $message = "Doctor account created successfully! Redirecting to login...";
             header("Location: register.html?message=" . urlencode($message));
             exit;
         } else {
@@ -39,9 +37,5 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->close();
     }
     $checkStmt->close();
-} else {
-    // Direct GET access redirects back to register page
-    header("Location: register.html");
-    exit;
 }
 ?>
