@@ -8,7 +8,6 @@
 </head>
 <body>
 
-    <!-- Navigation -->
     <nav>
         <div class="logo">VaxAssist</div>
         <ul>
@@ -29,11 +28,9 @@
     </div>
 
     <div style="padding: 30px 8%; display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
-        
-        <!-- Personal Credentials Form -->
         <div class="form-card">
             <h3 style="color: var(--primary-dark); margin-bottom: 20px;">Personal Credentials</h3>
-            <form action="#" method="POST">
+            <form>
                 <div class="form-group">
                     <label>Full Name</label>
                     <input type="text" id="fullName" class="form-control" value="Loading..." readonly>
@@ -50,62 +47,90 @@
                     <label>Assigned Consultation Room</label>
                     <input type="text" id="consultationRoom" class="form-control" value="Room 304">
                 </div>
-                <button type="button" class="btn primary-btn" onclick="alert('Profile Updated!')">Update Profile</button>
+                <button type="button" class="btn primary-btn" onclick="updateDoctorProfile()">Update Profile</button>
             </form>
         </div>
 
-        <!-- Apply for Leave Form -->
         <div class="form-card">
             <h3 style="color: var(--primary-dark); margin-bottom: 20px;">Request Leave / Time Off</h3>
             <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">Approved leave automatically disables appointment booking slots for those dates.</p>
-            <form action="#" method="POST">
+            <form id="leaveForm">
                 <div class="form-group">
                     <label>Start Date</label>
-                    <input type="date" class="form-control">
+                    <input type="date" id="leaveStartDate" class="form-control" required>
                 </div>
                 <div class="form-group">
                     <label>End Date</label>
-                    <input type="date" class="form-control">
+                    <input type="date" id="leaveEndDate" class="form-control" required>
                 </div>
                 <div class="form-group">
                     <label>Reason for Leave</label>
-                    <textarea class="form-control" placeholder="Annual leave, Medical Conference..."></textarea>
+                    <textarea id="leaveReason" class="form-control" placeholder="Annual leave, Medical Conference..." required></textarea>
                 </div>
-                <button type="button" class="btn primary-btn" onclick="alert('Leave Request Submitted to Admin!')">Submit Leave Request</button>
+                <button type="button" class="btn primary-btn" onclick="submitDoctorLeave()">Submit Leave Request</button>
             </form>
         </div>
-
     </div>
 
-    <!-- Red Logout Action Section -->
     <div style="padding: 0 8% 30px 8%;">
-        <a href="logout.php" class="btn primary-btn" style="background-color: #d32f2f; display: inline-block; text-decoration: none; text-align: center;">Log out</a>
+        <a href="logout.php" class="btn primary-btn" style="background-color: #d32f2f; display: inline-block; text-decoration: none;">Log out</a>
     </div>
 
     <footer>
         <p>&copy; 2026 VaxAssist. All Rights Reserved.</p>
     </footer>
 
-    <!-- JavaScript to Fetch Profile Data via AJAX -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             fetch("get_profile.php")
-                .then(response => response.json())
+                .then(res => res.json())
                 .then(data => {
                     if (data.status === "error") {
-                        // Not logged in -> Redirect to login page
                         window.location.href = "login.html";
-                    } else if (data.status === "success") {
-                        // Populate form fields with data from database
+                    } else {
                         document.getElementById("fullName").value = data.fullName;
                         document.getElementById("email").value = data.email;
                         document.getElementById("welcome-message").innerText = 
-                            "Welcome back, " + data.fullName + ". Manage your personal details and leave requests.";
+                            `Welcome back, ${data.fullName}. Manage your personal details and leave requests.`;
                     }
-                })
-                .catch(error => console.error("Error fetching profile:", error));
+                });
         });
-    </script>
 
+        function updateDoctorProfile() {
+            const payload = {
+                action: "update_profile",
+                specialization: document.getElementById("specialization").value,
+                room: document.getElementById("consultationRoom").value
+            };
+
+            fetch("api_profile.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(data => alert(data.message));
+        }
+
+        function submitDoctorLeave() {
+            const payload = {
+                action: "submit_leave",
+                start_date: document.getElementById("leaveStartDate").value,
+                end_date: document.getElementById("leaveEndDate").value,
+                reason: document.getElementById("leaveReason").value
+            };
+
+            fetch("api_profile.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(data => {
+                alert(data.message);
+                if (data.status === "success") document.getElementById("leaveForm").reset();
+            });
+        }
+    </script>
 </body>
 </html>
