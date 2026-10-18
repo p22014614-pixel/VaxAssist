@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Request a healthcare or vaccination appointment with VaxAssist.">
+    <title>Book an Appointment | VaxAssist</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        main {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 48px 24px 64px;
+        }
+
+        .page-heading {
+            margin-bottom: 28px;
+        }
+
+        .page-heading h1 {
+            margin-bottom: 8px;
+            color: var(--primary-dark);
+            font-size: 2.2rem;
+        }
+
+        .page-heading p {
+            color: var(--text-muted);
+        }
+
+        .booking-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1.5fr) minmax(230px, .8fr);
+            gap: 24px;
+            align-items: start;
+        }
+
+        .booking-form,
+        .info-card {
+            padding: 28px;
+            border-radius: 12px;
+            background: var(--white);
+            box-shadow: var(--shadow-md);
+        }
+
+        .booking-form h2,
+        .info-card h2 {
+            margin-bottom: 20px;
+            color: var(--primary-dark);
+            font-size: 1.35rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .field.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .field label {
+            font-weight: 600;
+            font-size: .95rem;
+        }
+
+        .field input,
+        .field select,
+        .field textarea {
+            width: 100%;
+            padding: 11px 12px;
+            border: 1px solid #cbd5df;
+            border-radius: 6px;
+            background: var(--white);
+            color: var(--text-dark);
+            font: inherit;
+        }
+
+        .field input:focus,
+        .field select:focus,
+        .field textarea:focus {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 1px;
+        }
+
+        .field textarea {
+            min-height: 90px;
+            resize: vertical;
+        }
+
+        .submit-button {
+            margin-top: 22px;
+            padding: 12px 20px;
+            border: 0;
+            border-radius: 6px;
+            background: var(--primary-color);
+            color: var(--white);
+            font: inherit;
+            cursor: pointer;
+        }
+
+        .submit-button:hover {
+            opacity: .88;
+        }
+
+        .info-card p,
+        .info-card li {
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .info-card ul {
+            padding-left: 20px;
+            margin-top: 12px;
+        }
+
+        .form-message {
+            display: none;
+            margin-top: 16px;
+            padding: 12px;
+            border-radius: 6px;
+            background: var(--hero-bg);
+            color: var(--primary-dark);
+        }
+
+        .form-message.visible {
+            display: block;
+        }
+
+        @media (max-width: 700px) {
+            main {
+                padding: 32px 18px 48px;
+            }
+
+            .booking-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .booking-form,
+            .info-card {
+                padding: 22px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .field.full-width {
+                grid-column: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav aria-label="Main navigation">
+        <a class="logo" href="index.html">VaxAssist</a>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="Booking.html" aria-current="page">Appointments</a></li>
+            <li><a href="VaccineGuide.html">Vaccine Guide</a></li>
+            <li><a href="login.html">Login</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <header class="page-heading">
+            <h1>Book an appointment</h1>
+            <p>Share your details and preferred time to request a visit with our clinic.</p>
+        </header>
+
+        <div class="booking-layout">
+            <form class="booking-form" id="booking-form">
+                <h2>Appointment details</h2>
+
+                <div class="form-grid">
+                    <div class="field">
+                        <label for="full-name">Full name</label>
+                        <input id="full-name" name="fullName" type="text" autocomplete="name" required>
+                    </div>
+
+                    <div class="field">
+                        <label for="email">Email address</label>
+                        <input id="email" name="email" type="email" autocomplete="email" required>
+                    </div>
+
+                    <div class="field">
+                        <label for="phone">Phone number</label>
+                        <input id="phone" name="phone" type="tel" autocomplete="tel" required>
+                    </div>
+
+                    <div class="field">
+                        <label for="service">Service</label>
+                        <select id="service" name="service" required>
+                            <option value="" disabled selected>Select a service</option>
+                            <option>Vaccination</option>
+                            <option>Travel health consultation</option>
+                            <option>General consultation</option>
+                            <option>Child wellness visit</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label for="date">Preferred date</label>
+                        <input id="date" name="date" type="date" required>
+                    </div>
+
+                    <div class="field">
+                        <label for="time">Preferred time</label>
+                        <select id="time" name="time" required>
+                            <option value="" disabled selected>Select a time</option>
+                            <option>9:00 AM</option>
+                            <option>10:00 AM</option>
+                            <option>11:00 AM</option>
+                            <option>1:00 PM</option>
+                            <option>2:00 PM</option>
+                            <option>3:00 PM</option>
+                        </select>
+                    </div>
+
+                    <div class="field full-width">
+                        <label for="notes">Notes for the clinic <span>(optional)</span></label>
+                        <textarea id="notes" name="notes" placeholder="Add any details that may help us prepare"></textarea>
+                    </div>
+                </div>
+
+                <button class="submit-button" type="submit">Request appointment</button>
+                <p class="form-message" id="form-message" role="status">
+                    Your request has been prepared. Please contact the clinic to confirm your appointment.
+                </p>
+            </form>
+
+            <aside class="info-card">
+                <h2>Before your visit</h2>
+                <p>For vaccination appointments, bring your vaccination record and a list of current medicines or known allergies.</p>
+                <ul>
+                    <li>Choose a preferred date and time.</li>
+                    <li>Our clinic will confirm availability.</li>
+                    <li>For urgent concerns, contact a healthcare professional directly.</li>
+                </ul>
+            </aside>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 VaxAssist. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        document.getElementById('booking-form').addEventListener('submit', function (event) {
+            event.preventDefault();
+            document.getElementById('form-message').classList.add('visible');
+        });
+    </script>
+</body>
+</html>

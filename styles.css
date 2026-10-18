@@ -54,7 +54,12 @@ nav ul li a {
     transition: color 0.2s ease;
 }
 
+
 nav ul li a:hover {
+    color: var(--primary-color);
+}
+
+nav ul li a[aria-current="page"] {
     color: var(--primary-color);
 }
 
