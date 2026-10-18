@@ -8,7 +8,6 @@
 </head>
 <body>
 
-    <!-- Navigation -->
     <nav>
         <div class="logo">VaxAssist</div>
         <ul>
@@ -29,56 +28,91 @@
     </div>
 
     <div style="padding: 30px 8%;">
-        
-        <!-- Patient Search Bar -->
         <div class="form-card" style="padding: 20px;">
             <div style="display: flex; gap: 15px;">
-                <input type="text" class="form-control" placeholder="Search by Patient Name, IC Number, or ID (e.g. Michael Wong)...">
-                <button class="btn primary-btn">Search</button>
+                <input type="text" id="patientSearchInput" class="form-control" placeholder="Search by Patient Name, IC Number (e.g., Michael Wong)...">
+                <button class="btn primary-btn" onclick="searchPatient()">Search</button>
             </div>
         </div>
 
-        <!-- Selected Patient Workspace -->
-        <div class="form-card">
-            <h2 style="color: var(--primary-dark); margin-bottom: 10px;">Michael Wong (ID: P-8832)</h2>
-            <p style="color: var(--text-muted); margin-bottom: 25px;"><strong>Age:</strong> 45 | <strong>Gender:</strong> Male | <strong>Blood Type:</strong> O+ | <strong>Allergies:</strong> Penicillin</p>
+        <div class="form-card" id="patientDetailsCard">
+            <h2 id="patientNameHeader" style="color: var(--primary-dark); margin-bottom: 10px;">Michael Wong (ID: P-1)</h2>
+            <p id="patientInfoSubtext" style="color: var(--text-muted); margin-bottom: 25px;"><strong>Age:</strong> 45 | <strong>Gender:</strong> Male | <strong>Blood Type:</strong> O+ | <strong>Allergies:</strong> Penicillin</p>
 
-            <div class="tab-nav">
-                <button class="tab-btn active">S.O.A.P. Consultation Notes</button>
-                <button class="tab-btn">Prescription E-Form</button>
-                <button class="tab-btn">Past Visit History</button>
-            </div>
-
-            <form action="#" method="POST">
+            <form id="soapForm">
+                <input type="hidden" id="activePatientId" value="1">
                 <div class="form-group">
                     <label>Subjective (Patient Complaints)</label>
-                    <textarea class="form-control" placeholder="Describe symptoms, e.g., mild chest tightness for 2 days..."></textarea>
+                    <textarea id="notesSubjective" class="form-control" placeholder="Describe symptoms..."></textarea>
                 </div>
-
                 <div class="form-group">
                     <label>Objective (Vitals & Physical Assessment)</label>
-                    <textarea class="form-control" placeholder="BP: 130/85, Pulse: 72 bpm, Temp: 36.6°C..."></textarea>
+                    <textarea id="notesObjective" class="form-control" placeholder="BP, Heart Rate, Temp..."></textarea>
                 </div>
-
                 <div class="form-group">
                     <label>Assessment / Diagnosis</label>
-                    <input type="text" class="form-control" placeholder="Primary Diagnosis...">
+                    <input type="text" id="notesAssessment" class="form-control" placeholder="Primary Diagnosis...">
                 </div>
-
                 <div class="form-group">
                     <label>Plan & Treatment</label>
-                    <textarea class="form-control" placeholder="Prescribe medication, order blood tests, advice..."></textarea>
+                    <textarea id="notesPlan" class="form-control" placeholder="Prescribe medication, treatment advice..."></textarea>
                 </div>
-
-                <button type="button" class="btn primary-btn" onclick="alert('Record Saved Successfully!')">Save Medical Record</button>
+                <button type="button" class="btn primary-btn" onclick="saveSoapRecord()">Save Medical Record</button>
             </form>
         </div>
-
     </div>
 
     <footer>
         <p>&copy; 2026 VaxAssist. All Rights Reserved.</p>
     </footer>
 
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            const searchVal = urlParams.get('search') || 'Michael';
+            document.getElementById("patientSearchInput").value = searchVal;
+            searchPatient();
+        });
+
+        function searchPatient() {
+            const q = document.getElementById("patientSearchInput").value;
+            fetch(`api_patient_record.php?query=${encodeURIComponent(q)}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        const p = data.patient;
+                        document.getElementById("activePatientId").value = p.patient_id;
+                        document.getElementById("patientNameHeader").innerText = `${p.name} (ID: P-${p.patient_id})`;
+                        document.getElementById("patientInfoSubtext").innerHTML = 
+                            `<strong>Age:</strong> ${p.age} | <strong>Gender:</strong> ${p.gender} | <strong>Blood Type:</strong> ${p.blood_type} | <strong>Allergies:</strong> ${p.allergies}`;
+                    } else {
+                        alert("No patient found matching search criteria.");
+                    }
+                });
+        }
+
+        function saveSoapRecord() {
+            const payload = {
+                patient_id: document.getElementById("activePatientId").value,
+                subjective: document.getElementById("notesSubjective").value,
+                objective: document.getElementById("notesObjective").value,
+                assessment: document.getElementById("notesAssessment").value,
+                plan: document.getElementById("notesPlan").value
+            };
+
+            fetch("api_patient_record.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(data => {
+                alert(data.message);
+                if (data.status === "success") {
+                    document.getElementById("soapForm").reset();
+                }
+            });
+        }
+    </script>
 </body>
 </html>

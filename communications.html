@@ -37,32 +37,19 @@
                     <strong>Sarah Jenkins</strong><br>
                     <small>Vaccine follow-up query</small>
                 </div>
-                <div class="chat-user-item">
-                    <strong>Michael Wong</strong><br>
-                    <small>ECG report confirmation</small>
-                </div>
-                <div class="chat-user-item">
-                    <strong>Admin Desk</strong><br>
-                    <small>Roster & Leave note</small>
-                </div>
             </div>
 
             <!-- Main Chat Panel -->
             <div class="chat-main">
                 <h3 style="color: var(--primary-dark); margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">Chatting with: Sarah Jenkins</h3>
                 
-                <div class="chat-messages">
-                    <div class="msg-bubble msg-in">
-                        Hello Dr. Alex, I received my flu vaccine yesterday. My arm feels slightly warm and sore. Is this normal?
-                    </div>
-                    <div class="msg-bubble msg-out">
-                        Hi Sarah, yes, mild soreness and warmth at the injection site are common post-vaccine reactions. It should subside in 24 to 48 hours.
-                    </div>
+                <div class="chat-messages" id="chatMessagesContainer">
+                    <!-- Dynamic chat bubbles loaded via JavaScript -->
                 </div>
 
                 <div style="display: flex; gap: 10px;">
-                    <input type="text" class="form-control" placeholder="Type your response to the patient...">
-                    <button class="btn primary-btn" onclick="alert('Message Sent!')">Send</button>
+                    <input type="text" id="chatInputText" class="form-control" placeholder="Type your response to the patient...">
+                    <button class="btn primary-btn" onclick="sendMessage()">Send</button>
                 </div>
             </div>
         </div>
@@ -71,6 +58,56 @@
     <footer>
         <p>&copy; 2026 VaxAssist. All Rights Reserved.</p>
     </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", loadMessages);
+
+        function loadMessages() {
+            fetch("api_communications.php")
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        const container = document.getElementById("chatMessagesContainer");
+                        container.innerHTML = "";
+                        
+                        if (data.data.length === 0) {
+                            container.innerHTML = '<p style="color: #888; text-align: center;">No message history found.</p>';
+                            return;
+                        }
+
+                        data.data.forEach(msg => {
+                            const bubble = document.createElement("div");
+                            bubble.className = `msg-bubble ${msg.type}`;
+                            bubble.innerText = msg.text;
+                            container.appendChild(bubble);
+                        });
+                        
+                        // Auto-scroll to the bottom of the chat
+                        container.scrollTop = container.scrollHeight;
+                    }
+                })
+                .catch(err => console.error("Error loading messages:", err));
+        }
+
+        function sendMessage() {
+            const input = document.getElementById("chatInputText");
+            const text = input.value.trim();
+            if (!text) return;
+
+            fetch("api_communications.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message_text: text, patient_id: 2 })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "success") {
+                    input.value = "";
+                    loadMessages(); // Reload chat messages immediately
+                }
+            });
+        }
+    </script>
 
 </body>
 </html>
