@@ -6,7 +6,7 @@ $email = strtolower(trim($_POST["email"] ?? ""));
 $password = $_POST["password"] ?? "";
 
 $stmt = $pdo->prepare(
-    "SELECT id, password_hash FROM users WHERE email = ?"
+    "SELECT id, password_hash, role FROM users WHERE email = ?"
 );
 $stmt->execute([$email]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -18,6 +18,7 @@ if (!$user || !password_verify($password, $user["password_hash"])) {
 
 session_regenerate_id(true);
 $_SESSION["user_id"] = $user["id"];
+$_SESSION['role'] = $user['role'];
 
 header("Location: adminDashboard.html");
 exit;
