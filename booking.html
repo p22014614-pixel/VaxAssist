@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>VaxAssist | Book an Appointment</title>
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link href="nav.css" rel="stylesheet">
+    <link href="motion.css" rel="stylesheet">
+    <link href="booking.css" rel="stylesheet">
+    <script src="auth.js"></script>
+    <script src="motion.js" defer></script>
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container py-2">
+
+            <a class="navbar-brand fw-bold" href="index.html">
+                VaxAssist
+            </a>
+
+            <button class="navbar-toggler" type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbarNav"
+                    aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+
+                <ul class="navbar-nav ms-auto align-items-lg-center">
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Home</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="about.html">About</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="services.html">Services</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="doctors.html">Doctors</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="planner.html">Planner</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="contact.html">Contact</a>
+                    </li>
+
+                    <li class="nav-item dropdown" data-auth="in">
+                        <a class="nav-link dropdown-toggle active" href="#" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">Hi, <span data-user-name>there</span></a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item active" href="booking.html">Book an Appointment</a></li>
+                            <li><a class="dropdown-item" href="appointments.html">My Appointments</a></li>
+                            <li><a class="dropdown-item" href="vaccinations.html">My Vaccinations</a></li>
+                            <li><a class="dropdown-item" href="precheck.html">Pre-consultation Form</a></li>
+                            <li><a class="dropdown-item" href="receipts.html">Payments &amp; Receipts</a></li>
+                            <li><a class="dropdown-item" href="reviews.html">Reviews &amp; Ratings</a></li>
+                            <li><a class="dropdown-item" href="notifications.html">Notifications</a></li>
+                            <li><a class="dropdown-item" href="profile.html">My Profile</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item logout-link" href="#" data-logout>Log out</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="nav-item" data-auth="out">
+                        <a class="nav-link" href="login.html">Log in</a>
+                    </li>
+
+                    <li class="nav-item ms-lg-3 mt-3 mt-lg-0" data-auth="out">
+                        <a class="btn appointment-btn" href="register.html">
+                            Create Account
+                        </a>
+                    </li>
+
+                </ul>
+
+            </div>
+        </div>
+    </nav>
+
+
+    <main class="flex-grow-1">
+
+        <section class="page-header">
+            <div class="container">
+                <div class="section-label mb-2">Booking</div>
+                <h1 class="mb-3">Book an appointment</h1>
+                <p class="mb-0">
+                    Choose your doctor and vaccine, pick a time that suits you, and we'll
+                    reserve your visit.
+                </p>
+            </div>
+        </section>
+
+        <section class="pb-5">
+            <div class="container">
+
+                <!-- ============ Booking form ============ -->
+                <div class="row g-4" id="bookingArea">
+
+                    <div class="col-lg-8">
+                        <div class="form-card">
+
+                            <div class="user-box mb-4" id="userBox">Loading your details...</div>
+
+                            <div id="formError" class="error-box mb-4 d-none" role="alert"></div>
+
+                            <form id="bookingForm" novalidate>
+
+                                <!-- Step 1 -->
+                                <div class="step-title"><span class="step-num">1</span> Doctor and vaccine</div>
+
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label for="doctor" class="form-label">Doctor</label>
+                                        <select class="form-select" id="doctor" name="doctor_id" required>
+                                            <option value="">Choose a doctor</option>
+                                        </select>
+                                        <div class="invalid-feedback">Choose a doctor.</div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="vaccine" class="form-label">Vaccine or service</label>
+                                        <select class="form-select" id="vaccine" name="vaccine_id" required>
+                                            <option value="">Choose a vaccine or service</option>
+                                        </select>
+                                        <div class="invalid-feedback">Choose a vaccine or service.</div>
+                                    </div>
+                                </div>
+
+                                <div class="step-divider"></div>
+
+                                <!-- Step 2 -->
+                                <div class="step-title"><span class="step-num">2</span> Date and time</div>
+
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-6">
+                                        <label for="date" class="form-label">Appointment date</label>
+                                        <input type="date" class="form-control" id="date" name="appointment_date" required>
+                                        <div class="invalid-feedback">Choose a date.</div>
+                                    </div>
+                                    <div class="col-md-6 d-flex align-items-end">
+                                        <div class="slot-hint" id="workingDays"></div>
+                                    </div>
+                                </div>
+
+                                <div class="form-label">Available times</div>
+                                <div id="slotGrid" class="slot-grid mb-2" role="radiogroup" aria-label="Available times"></div>
+                                <div class="slot-hint" id="slotMessage">Choose a doctor and a date to see available times.</div>
+                                <div class="text-danger small mt-1 d-none" id="slotError">Choose a time.</div>
+
+                                <div class="step-divider"></div>
+
+                                <!-- Step 3 -->
+                                <div class="step-title"><span class="step-num">3</span> Who is this for?</div>
+
+                                <div class="mb-3">
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="patient_type" id="forSelf" value="self" checked>
+                                        <label class="form-check-label" for="forSelf">Myself</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="patient_type" id="forChild" value="child">
+                                        <label class="form-check-label" for="forChild">My child</label>
+                                    </div>
+                                </div>
+
+                                <div class="row g-3 mb-3 d-none" id="childFields">
+                                    <div class="col-md-6">
+                                        <label for="childName" class="form-label">Child's name</label>
+                                        <input type="text" class="form-control" id="childName" name="child_name" maxlength="60">
+                                        <div class="invalid-feedback">Enter your child's name.</div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="childDob" class="form-label">Child's date of birth</label>
+                                        <input type="date" class="form-control" id="childDob" name="child_dob">
+                                        <div class="invalid-feedback">Enter a valid date of birth (under 18).</div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label for="notes" class="form-label">Notes for the doctor <span class="text-secondary fw-normal">(optional)</span></label>
+                                    <textarea class="form-control" id="notes" name="notes" rows="3" maxlength="500"
+                                              placeholder="Allergies, past reactions, travel dates..."></textarea>
+                                </div>
+
+                                <button type="submit" class="btn appointment-btn full-btn" id="submitBtn">Confirm booking</button>
+
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Summary -->
+                    <div class="col-lg-4">
+                        <div class="summary-card">
+                            <h3 class="h5 mb-3">Your booking</h3>
+
+                            <div class="summary-row"><small>Doctor</small><strong id="sumDoctor" class="summary-empty">Not chosen yet</strong></div>
+                            <div class="summary-row"><small>Vaccine / service</small><strong id="sumVaccine" class="summary-empty">Not chosen yet</strong></div>
+                            <div class="summary-row"><small>Date</small><strong id="sumDate" class="summary-empty">Not chosen yet</strong></div>
+                            <div class="summary-row"><small>Time</small><strong id="sumTime" class="summary-empty">Not chosen yet</strong></div>
+                            <div class="summary-row"><small>Patient</small><strong id="sumPatient">Myself</strong></div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- ============ Confirmation ============ -->
+                <div class="row justify-content-center d-none" id="successArea">
+                    <div class="col-lg-6">
+                        <div class="form-card text-center">
+
+                            <div class="success-icon">&#10003;</div>
+                            <h2 class="fw-bold mb-2">You're booked</h2>
+                            <p class="text-secondary mb-4">We've reserved your appointment. Please arrive 10 minutes early.</p>
+
+                            <div class="ref-box mb-4 text-start">
+                                <div class="summary-row"><small>Reference</small><strong id="doneRef"></strong></div>
+                                <div class="summary-row"><small>Doctor</small><strong id="doneDoctor"></strong></div>
+                                <div class="summary-row"><small>Vaccine / service</small><strong id="doneVaccine"></strong></div>
+                                <div class="summary-row"><small>When</small><strong id="doneWhen"></strong></div>
+                                <div class="summary-row"><small>Patient</small><strong id="donePatient"></strong></div>
+                            </div>
+
+                            <a href="appointments.html" class="btn appointment-btn me-2">View my appointments</a>
+                            <a href="index.html" class="btn btn-outline-secondary">Back to home</a>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+
+    <!-- Footer -->
+    <footer class="text-center p-4">
+
+        <p class="mb-0">
+            &copy; 2026 <span>VaxAssist</span> |
+            All Rights Reserved
+        </p>
+
+    </footer>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="booking.js"></script>
+
+</body>
+</html>
