@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>VaxAssist | My Profile</title>
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link href="nav.css" rel="stylesheet">
+    <link href="motion.css" rel="stylesheet">
+    <link href="profile.css" rel="stylesheet">
+    <script src="auth.js"></script>
+    <script src="motion.js" defer></script>
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container py-2">
+
+            <a class="navbar-brand fw-bold" href="index.html">
+                VaxAssist
+            </a>
+
+            <button class="navbar-toggler" type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbarNav"
+                    aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+
+                <ul class="navbar-nav ms-auto align-items-lg-center">
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Home</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="about.html">About</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="services.html">Services</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="doctors.html">Doctors</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="planner.html">Planner</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="contact.html">Contact</a>
+                    </li>
+
+                    <li class="nav-item dropdown" data-auth="in">
+                        <a class="nav-link dropdown-toggle active" href="#" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">Hi, <span data-user-name>there</span></a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="booking.html">Book an Appointment</a></li>
+                            <li><a class="dropdown-item" href="appointments.html">My Appointments</a></li>
+                            <li><a class="dropdown-item" href="vaccinations.html">My Vaccinations</a></li>
+                            <li><a class="dropdown-item" href="precheck.html">Pre-consultation Form</a></li>
+                            <li><a class="dropdown-item" href="receipts.html">Payments &amp; Receipts</a></li>
+                            <li><a class="dropdown-item" href="reviews.html">Reviews &amp; Ratings</a></li>
+                            <li><a class="dropdown-item" href="notifications.html">Notifications</a></li>
+                            <li><a class="dropdown-item active" href="profile.html">My Profile</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item logout-link" href="#" data-logout>Log out</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="nav-item" data-auth="out">
+                        <a class="nav-link" href="login.html">Log in</a>
+                    </li>
+
+                    <li class="nav-item ms-lg-3 mt-3 mt-lg-0" data-auth="out">
+                        <a class="btn appointment-btn" href="register.html">
+                            Create Account
+                        </a>
+                    </li>
+
+                </ul>
+
+            </div>
+        </div>
+    </nav>
+
+
+    <main class="flex-grow-1">
+
+        <!-- Header card with avatar and completion ring -->
+        <section class="profile-head">
+            <div class="container">
+                <div class="section-label mb-3">My profile</div>
+                <div class="head-card">
+                    <div class="avatar" id="avatar" aria-hidden="true">?</div>
+                    <div>
+                        <h1 id="fullName">Your profile</h1>
+                        <div class="sub" id="emailLine">&nbsp;</div>
+                    </div>
+                    <div class="ring-wrap">
+                        <div class="ring" role="img" aria-label="Profile completion">
+                            <svg width="86" height="86" viewBox="0 0 86 86">
+                                <circle class="track" cx="43" cy="43" r="36" fill="none" stroke-width="8"></circle>
+                                <circle class="bar" id="ringBar" cx="43" cy="43" r="36" fill="none" stroke-width="8"
+                                        stroke-dasharray="226.2" stroke-dashoffset="226.2"></circle>
+                            </svg>
+                            <div class="pct" id="ringPct">0%</div>
+                        </div>
+                        <div class="ring-text" id="ringText">Complete your profile so clinics have the details they need.</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="pb-5">
+            <div class="container">
+
+                <div class="tab-switch mb-4" role="tablist" aria-label="Profile sections">
+                    <button type="button" class="tab-btn active" role="tab" aria-selected="true"  data-tab="personal">Personal details</button>
+                    <button type="button" class="tab-btn"        role="tab" aria-selected="false" data-tab="health">Health profile</button>
+                    <button type="button" class="tab-btn"        role="tab" aria-selected="false" data-tab="children">My children</button>
+                    <button type="button" class="tab-btn"        role="tab" aria-selected="false" data-tab="security">Password</button>
+                </div>
+
+                <!-- ================= Personal details ================= -->
+                <div class="tab-panel show" id="panel-personal" role="tabpanel">
+                    <div class="panel-card">
+                        <h2>Personal details</h2>
+                        <p class="hint">Your contact details are used for appointment reminders.</p>
+
+                        <div id="personalError" class="alert-soft error mb-3 d-none" role="alert"></div>
+
+                        <form id="personalForm" novalidate>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="first_name" class="form-label">First name</label>
+                                    <input type="text" class="form-control" id="first_name" name="first_name" maxlength="60" autocomplete="given-name" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="last_name" class="form-label">Last name</label>
+                                    <input type="text" class="form-control" id="last_name" name="last_name" maxlength="60" autocomplete="family-name" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="email" class="form-label">Email address</label>
+                                    <input type="email" class="form-control" id="email" name="email" disabled>
+                                    <div class="form-text">Your email is your login, so it cannot be changed here.</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="phone" class="form-label">Phone number</label>
+                                    <input type="tel" class="form-control" id="phone" name="phone" maxlength="20" placeholder="+60 12-345 6789" autocomplete="tel" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="dob" class="form-label">Date of birth</label>
+                                    <input type="date" class="form-control" id="dob" name="dob" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="gender" class="form-label">Gender</label>
+                                    <select class="form-select" id="gender" name="gender">
+                                        <option value="">Prefer not to say</option>
+                                        <option value="female">Female</option>
+                                        <option value="male">Male</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label for="address" class="form-label">Address <span class="text-secondary fw-normal">(optional)</span></label>
+                                    <input type="text" class="form-control" id="address" name="address" maxlength="200" autocomplete="street-address">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="emergency_contact_name" class="form-label">Emergency contact name</label>
+                                    <input type="text" class="form-control" id="emergency_contact_name" name="emergency_contact_name" maxlength="100">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="emergency_contact_phone" class="form-label">Emergency contact phone</label>
+                                    <input type="tel" class="form-control" id="emergency_contact_phone" name="emergency_contact_phone" maxlength="20">
+                                </div>
+                            </div>
+                            <button type="submit" class="btn appointment-btn mt-4" id="personalBtn">Save changes</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- ================= Health profile ================= -->
+                <div class="tab-panel" id="panel-health" role="tabpanel">
+                    <div class="panel-card">
+                        <h2>Health profile</h2>
+                        <p class="hint">Your doctor sees this before giving a vaccine, so please keep it up to date. Allergies matter most.</p>
+
+                        <div id="healthError" class="alert-soft error mb-3 d-none" role="alert"></div>
+
+                        <form id="healthForm" novalidate>
+                            <div class="row g-3 mb-4">
+                                <div class="col-6 col-md-3">
+                                    <label for="blood_type" class="form-label">Blood type</label>
+                                    <select class="form-select" id="blood_type" name="blood_type">
+                                        <option value="">Not sure</option>
+                                        <option>A+</option><option>A-</option>
+                                        <option>B+</option><option>B-</option>
+                                        <option>AB+</option><option>AB-</option>
+                                        <option>O+</option><option>O-</option>
+                                    </select>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <label for="height_cm" class="form-label">Height (cm)</label>
+                                    <input type="number" class="form-control" id="height_cm" name="height_cm" min="30" max="250" step="1">
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <label for="weight_kg" class="form-label">Weight (kg)</label>
+                                    <input type="number" class="form-control" id="weight_kg" name="weight_kg" min="2" max="400" step="0.1">
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <div class="form-label">BMI</div>
+                                    <div class="bmi-box" id="bmiBox">Enter height and weight</div>
+                                </div>
+                            </div>
+
+                            <!-- Allergies -->
+                            <div class="mb-4">
+                                <div class="d-flex flex-wrap justify-content-between align-items-center mb-2">
+                                    <label for="allergyInput" class="form-label mb-0">Allergies</label>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="no_known_allergies" name="no_known_allergies">
+                                        <label class="form-check-label small" for="no_known_allergies">No known allergies</label>
+                                    </div>
+                                </div>
+                                <div class="tag-box" id="allergiesBox" aria-live="polite"></div>
+                                <div class="input-group" id="allergyGroup">
+                                    <input type="text" class="form-control" id="allergyInput" maxlength="60" placeholder="e.g. Penicillin, egg, latex (press Enter to add)">
+                                    <button type="button" class="btn appointment-btn" data-add="allergies" data-input="allergyInput">Add</button>
+                                </div>
+                            </div>
+
+                            <!-- Conditions -->
+                            <div class="mb-4">
+                                <label for="conditionInput" class="form-label">Medical conditions</label>
+                                <div class="tag-box" id="conditionsBox" aria-live="polite"></div>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="conditionInput" maxlength="60" placeholder="e.g. Asthma, diabetes (press Enter to add)">
+                                    <button type="button" class="btn appointment-btn" data-add="conditions" data-input="conditionInput">Add</button>
+                                </div>
+                            </div>
+
+                            <!-- Medications -->
+                            <div class="mb-2">
+                                <label for="medicationInput" class="form-label">Current medications</label>
+                                <div class="tag-box" id="medicationsBox" aria-live="polite"></div>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="medicationInput" maxlength="60" placeholder="e.g. Salbutamol inhaler (press Enter to add)">
+                                    <button type="button" class="btn appointment-btn" data-add="medications" data-input="medicationInput">Add</button>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn appointment-btn mt-4" id="healthBtn">Save health profile</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- ================= Children ================= -->
+                <div class="tab-panel" id="panel-children" role="tabpanel">
+                    <div class="row g-4">
+                        <div class="col-lg-7">
+                            <div class="panel-card">
+                                <h2>Your children</h2>
+                                <p class="hint">Saved children appear when you book a vaccine for a child, and their records show on your vaccination page.</p>
+                                <div id="childList"></div>
+                            </div>
+                        </div>
+                        <div class="col-lg-5">
+                            <div class="panel-card">
+                                <h2>Add a child</h2>
+                                <p class="hint">Their birth date lets us build the right vaccine schedule.</p>
+
+                                <div id="childError" class="alert-soft error mb-3 d-none" role="alert"></div>
+
+                                <form id="childForm" novalidate>
+                                    <div class="mb-3">
+                                        <label for="child_first_name" class="form-label">First name</label>
+                                        <input type="text" class="form-control" id="child_first_name" name="first_name" maxlength="60" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="child_dob" class="form-label">Date of birth</label>
+                                        <input type="date" class="form-control" id="child_dob" name="dob" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="child_gender" class="form-label">Gender</label>
+                                        <select class="form-select" id="child_gender" name="gender">
+                                            <option value="">Prefer not to say</option>
+                                            <option value="female">Female</option>
+                                            <option value="male">Male</option>
+                                            <option value="other">Other</option>
+                                        </select>
+                                    </div>
+                                    <button type="submit" class="btn appointment-btn w-100" id="childBtn">Add child</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ================= Password ================= -->
+                <div class="tab-panel" id="panel-security" role="tabpanel">
+                    <div class="row">
+                        <div class="col-lg-7">
+                            <div class="panel-card">
+                                <h2>Change password</h2>
+                                <p class="hint">Use at least 8 characters with a mix of letters and numbers.</p>
+
+                                <div id="passwordError" class="alert-soft error mb-3 d-none" role="alert"></div>
+
+                                <form id="passwordForm" novalidate>
+                                    <div class="mb-3">
+                                        <label for="current_password" class="form-label">Current password</label>
+                                        <input type="password" class="form-control" id="current_password" name="current_password" autocomplete="current-password" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="new_password" class="form-label">New password</label>
+                                        <div class="input-group">
+                                            <input type="password" class="form-control" id="new_password" name="new_password" autocomplete="new-password" required>
+                                            <button type="button" class="toggle-pw" id="togglePw" aria-label="Show password">Show</button>
+                                        </div>
+                                        <div class="strength"><span id="strengthBar"></span></div>
+                                        <div class="strength-text" id="strengthText">Type a new password</div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="confirm_password" class="form-label">Confirm new password</label>
+                                        <input type="password" class="form-control" id="confirm_password" name="confirm_password" autocomplete="new-password" required>
+                                    </div>
+                                    <button type="submit" class="btn appointment-btn" id="passwordBtn">Update password</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <div class="toast-note" id="toast" role="status" aria-live="polite"></div>
+
+
+    <!-- Footer -->
+    <footer class="text-center p-4">
+
+        <p class="mb-0">
+            &copy; 2026 <span>VaxAssist</span> |
+            All Rights Reserved
+        </p>
+
+    </footer>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="profile.js"></script>
+
+</body>
+</html>
