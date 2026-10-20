@@ -1,0 +1,133 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8fbfc;
+    color: #183642;
+}
+
+.navbar {
+    background-color: white !important;
+    border-bottom: 1px solid #e8eef0;
+}
+
+.navbar-brand {
+    color: #167d8d !important;
+    font-size: 1.35rem;
+}
+
+.nav-link {
+    color: #52676e !important;
+    margin: 0 8px;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    color: #167d8d !important;
+}
+
+.appointment-btn {
+    background-color: #167d8d;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+}
+
+.appointment-btn:hover {
+    background-color: #126a78;
+    color: white;
+}
+
+.page-header {
+    padding: 70px 0 45px;
+}
+
+.section-label {
+    color: #167d8d;
+    font-size: 0.8rem;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.page-header h1 {
+    font-size: 3.3rem;
+    font-weight: 700;
+    letter-spacing: -1.5px;
+}
+
+.page-header p {
+    color: #718087;
+}
+
+.form-card {
+    background: white;
+    border: 1px solid #e4edef;
+    border-radius: 20px;
+    padding: 40px;
+}
+
+.form-label {
+    font-weight: 600;
+    color: #40555d;
+    font-size: 0.9rem;
+}
+
+.form-control,
+.form-select {
+    border: 1px solid #dce6e9;
+    border-radius: 8px;
+    padding: 12px 14px;
+    background-color: #fbfdfe;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #167d8d;
+    box-shadow: 0 0 0 3px rgba(22, 125, 141, 0.1);
+}
+
+.submit-btn {
+    background-color: #167d8d;
+    border: none;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+}
+
+.submit-btn:hover {
+    background-color: #126a78;
+    color: white;
+}
+
+.contact-info {
+    background-color: #e8f5f6;
+    border-radius: 20px;
+    padding: 40px;
+    height: 100%;
+}
+
+.contact-info h3 {
+    font-weight: 700;
+}
+
+.contact-item {
+    margin-top: 28px;
+}
+
+.contact-item strong {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.contact-item span {
+    color: #65777d;
+}
+
+footer {
+    background-color: #183642;
+    color: #c9d7da;
+}
+
+footer span {
+    color: #7fc9d2;
+}
