@@ -9,173 +9,12 @@
     <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f8fbfc;
-            color: #183642;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .navbar {
-            background-color: #ffffff !important;
-            border-bottom: 1px solid #e8eef0;
-        }
-
-        .navbar-brand {
-            color: #167d8d !important;
-            font-size: 1.35rem;
-            letter-spacing: -0.5px;
-        }
-
-        .nav-link {
-            color: #52676e !important;
-            margin: 0 8px;
-            font-size: 0.95rem;
-        }
-
-        .nav-link:hover,
-        .nav-link.active {
-            color: #167d8d !important;
-        }
-
-        .appointment-btn {
-            background-color: #167d8d;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-        }
-
-        .appointment-btn:hover {
-            background-color: #126a78;
-            color: white;
-        }
-
-        /* Login */
-        main {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            padding: 60px 0;
-        }
-
-        .login-wrap {
-            max-width: 420px;
-            margin: 0 auto;
-        }
-
-        .login-icon {
-            width: 64px;
-            height: 64px;
-            border-radius: 20px;
-            background: #e8f5f6;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.9rem;
-            margin: 0 auto 24px;
-        }
-
-        .login-wrap h1 {
-            font-size: 2rem;
-            font-weight: 700;
-            letter-spacing: -1px;
-        }
-
-        .login-wrap .subtext {
-            color: #667980;
-        }
-
-        .login-card {
-            background: white;
-            border: 1px solid #e7edef;
-            border-radius: 16px;
-            padding: 32px;
-        }
-
-        .form-label {
-            font-size: 0.9rem;
-            font-weight: 600;
-        }
-
-        .form-control {
-            border: 1px solid #dbe5e8;
-            border-radius: 8px;
-            padding: 12px 14px;
-            color: #183642;
-        }
-
-        .form-control:focus {
-            border-color: #167d8d;
-            box-shadow: 0 0 0 0.2rem rgba(22, 125, 141, 0.15);
-        }
-
-        .input-group .form-control {
-            border-radius: 8px 0 0 8px;
-        }
-
-        .toggle-pw {
-            border: 1px solid #dbe5e8;
-            border-left: none;
-            background: white;
-            color: #52676e;
-            font-size: 0.85rem;
-            border-radius: 0 8px 8px 0;
-            padding: 0 16px;
-        }
-
-        .toggle-pw:hover {
-            color: #167d8d;
-        }
-
-        .form-check-input:checked {
-            background-color: #167d8d;
-            border-color: #167d8d;
-        }
-
-        .form-check-input:focus {
-            border-color: #167d8d;
-            box-shadow: 0 0 0 0.2rem rgba(22, 125, 141, 0.15);
-        }
-
-        .text-link {
-            color: #167d8d;
-            text-decoration: none;
-        }
-
-        .text-link:hover {
-            color: #126a78;
-            text-decoration: underline;
-        }
-
-        .login-btn {
-            width: 100%;
-            padding: 12px 20px;
-            font-weight: 600;
-        }
-
-        @media (max-width: 575px) {
-            main {
-                padding: 40px 0;
-            }
-
-            .login-card {
-                padding: 24px 20px;
-            }
-        }
-
-        footer {
-            background-color: #183642;
-            color: #c9d7da;
-        }
-
-        footer span {
-            color: #7fc9d2;
-        }
-    </style>
+    <!-- VaxAssist styles -->
+    <link href="nav.css" rel="stylesheet">
+    <link href="motion.css" rel="stylesheet">
+    <link href="login.css" rel="stylesheet">
+    <script src="auth.js"></script>
+    <script src="motion.js" defer></script>
 </head>
 
 <body>
@@ -216,14 +55,35 @@
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link" href="contact.html">Contact</a>
+                        <a class="nav-link" href="planner.html">Planner</a>
                     </li>
 
                     <li class="nav-item">
+                        <a class="nav-link" href="contact.html">Contact</a>
+                    </li>
+
+                    <li class="nav-item dropdown" data-auth="in">
+                        <a class="nav-link dropdown-toggle" href="#" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">Hi, <span data-user-name>there</span></a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="booking.html">Book an Appointment</a></li>
+                            <li><a class="dropdown-item" href="appointments.html">My Appointments</a></li>
+                            <li><a class="dropdown-item" href="vaccinations.html">My Vaccinations</a></li>
+                            <li><a class="dropdown-item" href="precheck.html">Pre-consultation Form</a></li>
+                            <li><a class="dropdown-item" href="receipts.html">Payments &amp; Receipts</a></li>
+                            <li><a class="dropdown-item" href="reviews.html">Reviews &amp; Ratings</a></li>
+                            <li><a class="dropdown-item" href="notifications.html">Notifications</a></li>
+                            <li><a class="dropdown-item" href="profile.html">My Profile</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item logout-link" href="#" data-logout>Log out</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="nav-item" data-auth="out">
                         <a class="nav-link active" href="login.html">Log in</a>
                     </li>
 
-                    <li class="nav-item ms-lg-3 mt-3 mt-lg-0">
+                    <li class="nav-item ms-lg-3 mt-3 mt-lg-0" data-auth="out">
                         <a class="btn appointment-btn" href="register.html">
                             Create Account
                         </a>
@@ -288,7 +148,7 @@
                                     Remember me
                                 </label>
                             </div>
-                            <a href="contact.html" class="text-link">Forgot password?</a>
+                            <a href="forgot-password.html" class="text-link">Forgot password?</a>
                         </div>
 
                         <button type="submit" class="btn appointment-btn login-btn">
@@ -323,33 +183,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    <script>
-        const form = document.getElementById("loginForm");
-        const email = document.getElementById("email");
-        const password = document.getElementById("password");
-
-        // Show / hide password
-        document.getElementById("togglePw").addEventListener("click", function () {
-            const hidden = password.type === "password";
-            password.type = hidden ? "text" : "password";
-            this.textContent = hidden ? "Hide" : "Show";
-            this.setAttribute("aria-label", hidden ? "Hide password" : "Show password");
-        });
-
-        // Validation + login
-        form.addEventListener("submit", function (e) {
-            e.preventDefault();
-
-            email.classList.toggle("is-invalid", !email.checkValidity());
-            password.classList.toggle("is-invalid", !password.checkValidity());
-
-            if (!email.checkValidity() || !password.checkValidity()) return;
-
-            // DEMO ONLY: replace with a real backend call.
-            // Any valid-looking email and password logs in for now.
-            window.location.href = "index.html";
-        });
-    </script>
+    <script src="login.js"></script>
 
 </body>
 </html>
