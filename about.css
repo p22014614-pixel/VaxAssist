@@ -1,0 +1,107 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8fbfc;
+    color: #183642;
+}
+
+.navbar {
+    background-color: #ffffff !important;
+    border-bottom: 1px solid #e8eef0;
+}
+
+.navbar-brand {
+    color: #167d8d !important;
+    font-size: 1.35rem;
+    letter-spacing: -0.5px;
+}
+
+.nav-link {
+    color: #52676e !important;
+    margin: 0 8px;
+    font-size: 0.95rem;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    color: #167d8d !important;
+}
+
+.appointment-btn {
+    background-color: #167d8d;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+}
+
+.appointment-btn:hover {
+    background-color: #126a78;
+    color: white;
+}
+
+.page-header {
+    padding: 80px 0 50px;
+}
+
+.section-label {
+    color: #167d8d;
+    font-size: 0.8rem;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.page-header h1 {
+    font-size: 3.5rem;
+    font-weight: 700;
+    letter-spacing: -1.5px;
+}
+
+.about-box {
+    background: white;
+    border: 1px solid #e5edef;
+    border-radius: 20px;
+    padding: 40px;
+}
+
+.about-box p {
+    color: #6d7d83;
+    line-height: 1.9;
+}
+
+.feature-list {
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.feature-list .list-group-item {
+    border: 1px solid #e5edef;
+    padding: 18px 20px;
+    color: #435960;
+    background: white;
+}
+
+.check {
+    color: #167d8d;
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+@media (max-width: 575px) {
+    .page-header h1 {
+        font-size: 2.3rem;
+    }
+
+    .about-box {
+        padding: 28px 22px;
+    }
+}
+
+footer {
+    background-color: #183642;
+    color: #c9d7da;
+}
+
+footer span {
+    color: #7fc9d2;
+}
