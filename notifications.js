@@ -1,0 +1,282 @@
+async function getCurrentUser() {
+    return VaxAuth.getUser();
+}
+
+async function getNotifications() {
+    return [
+        { id: 901, type: 'late', title: 'Doctor running late',
+          message: 'Dr. Aisha Rahman is running about 15 minutes behind. Your Yellow Fever appointment is still on, with a slightly later start.',
+          action_url: 'appointments.html', action_label: 'View appointment', is_read: 0, created_at: minutesAgo(12) },
+        { id: 902, type: 'reminder', title: 'Appointment tomorrow',
+          message: 'Reminder: Yellow Fever vaccine with Dr. Aisha Rahman at 10:00 AM. Please bring your ID and travel details.',
+          action_url: 'appointments.html', action_label: 'View appointment', is_read: 0, created_at: minutesAgo(180) },
+        { id: 903, type: 'booster', title: "Aiden's pneumococcal booster is overdue",
+          message: 'Aiden is due for his Pneumococcal (PCV) booster. Book a visit to keep his schedule on track.',
+          action_url: 'booking.html?vaccine=Pneumococcal%20(PCV)', action_label: 'Book now', is_read: 0, created_at: minutesAgo(60 * 20) },
+        { id: 904, type: 'appointment', title: 'Booking confirmed',
+          message: 'Your MMR appointment for Aiden with Dr. Daniel Lim has been confirmed.',
+          action_url: 'appointments.html', action_label: 'View appointment', is_read: 1, created_at: minutesAgo(60 * 28) },
+        { id: 905, type: 'booster', title: 'Hepatitis A second dose coming up',
+          message: 'Your second Hepatitis A dose is due in about 40 days. You can book a slot any time before then.',
+          action_url: 'vaccinations.html', action_label: 'See my records', is_read: 0, created_at: minutesAgo(60 * 24 * 3) },
+        { id: 906, type: 'announcement', title: 'Discounted flu booster slots',
+          message: 'Selected influenza booster slots this month are available at a reduced price while stocks last.',
+          action_url: 'booking.html?vaccine=Influenza', action_label: 'Book a slot', is_read: 1, created_at: minutesAgo(60 * 24 * 5) },
+        { id: 907, type: 'appointment', title: 'Appointment rescheduled',
+          message: 'Your Typhoid appointment was moved to a new time at your request.',
+          action_url: 'appointments.html?tab=history', action_label: 'View history', is_read: 1, created_at: minutesAgo(60 * 24 * 16) },
+        { id: 908, type: 'announcement', title: 'Welcome to VaxAssist',
+          message: 'Thanks for joining. Complete your health profile so your doctor has what they need before each vaccine.',
+          action_url: 'profile.html?tab=health', action_label: 'Open profile', is_read: 1, created_at: minutesAgo(60 * 24 * 40) }
+    ];
+}
+
+async function markNotificationRead(id) {
+    return { ok: true };
+}
+
+async function markAllRead() {
+    return { ok: true };
+}
+
+async function deleteNotification(id) {
+    return { ok: true };
+}
+
+async function getPreferences() {
+    return { email_reminders: true, sms_reminders: false, booster_alerts: true, clinic_news: true };
+}
+
+async function savePreferences(prefs) {
+    return { ok: true };
+}
+
+const feed = document.getElementById('feed');
+const filterChips = document.getElementById('filterChips');
+const markAllBtn = document.getElementById('markAllBtn');
+const bellCount = document.getElementById('bellCount');
+const reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+const TYPE_ICON = { reminder: '&#128197;', late: '&#9200;', booster: '&#128137;', appointment: '&#9989;', announcement: '&#128226;' };
+const FILTERS = [
+    { key: 'all',          label: 'All' },
+    { key: 'unread',       label: 'Unread' },
+    { key: 'reminder',     label: 'Reminders' },
+    { key: 'booster',      label: 'Boosters' },
+    { key: 'appointment',  label: 'Appointments' }
+];
+
+let notifications = [];
+let filter = 'all';
+let lastUnread = null;
+
+function minutesAgo(n) {
+    return new Date(Date.now() - n * 60000).toISOString();
+}
+
+function esc(text) {
+    const div = document.createElement('div');
+    div.textContent = text == null ? '' : text;
+    return div.innerHTML;
+}
+
+function safeUrl(u) {
+    return /^[a-z]+\.html(\?[\w%&=.()\-]*)?$/i.test(String(u || '')) ? u : '';
+}
+
+function timeAgo(iso) {
+    const mins = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60000));
+    if (mins < 1) return 'Just now';
+    if (mins < 60) return mins + (mins === 1 ? ' minute ago' : ' minutes ago');
+    const hrs = Math.round(mins / 60);
+    if (hrs < 24) return hrs + (hrs === 1 ? ' hour ago' : ' hours ago');
+    const days = Math.round(hrs / 24);
+    if (days < 30) return days + (days === 1 ? ' day ago' : ' days ago');
+    return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+function groupOf(iso) {
+    const hrs = (Date.now() - new Date(iso).getTime()) / 3600000;
+    if (hrs < 24) return 'Today';
+    if (hrs < 24 * 7) return 'This week';
+    return 'Earlier';
+}
+
+let toastTimer = null;
+function toast(message) {
+    const t = document.getElementById('toast');
+    t.textContent = message;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.classList.remove('show'); }, 3000);
+}
+
+function unreadCount() {
+    return notifications.filter(function (n) { return !n.is_read; }).length;
+}
+
+function updateBell() {
+    const n = unreadCount();
+    bellCount.textContent = n;
+    bellCount.classList.toggle('zero', n === 0);
+    if (lastUnread !== null && n !== lastUnread && !reduceMotion) {
+        bellCount.classList.remove('bump');
+        void bellCount.offsetWidth;          // restart the animation
+        bellCount.classList.add('bump');
+    }
+    lastUnread = n;
+    markAllBtn.disabled = n === 0;
+    document.title = (n ? '(' + n + ') ' : '') + 'VaxAssist | Notifications';
+}
+
+function renderChips() {
+    filterChips.innerHTML = FILTERS.map(function (f) {
+        const count = f.key === 'unread' ? ' (' + unreadCount() + ')' : '';
+        return '<button type="button" class="chip' + (filter === f.key ? ' active' : '') + '" data-filter="' + f.key + '">' + f.label + count + '</button>';
+    }).join('');
+}
+
+function matches(n) {
+    if (filter === 'all') return true;
+    if (filter === 'unread') return !n.is_read;
+    return n.type === filter || (filter === 'reminder' && n.type === 'late');
+}
+
+function noteHtml(n, index) {
+    const url = safeUrl(n.action_url);
+    return '<article class="note' + (n.is_read ? '' : ' unread') + '" style="--i:' + index + '" data-id="' + esc(n.id) + '">' +
+        '<div class="note-icon t-' + esc(n.type) + '" aria-hidden="true">' + (TYPE_ICON[n.type] || '&#128276;') + '</div>' +
+        '<div>' +
+            '<div class="note-title">' + esc(n.title) + '</div>' +
+            '<div class="note-msg">' + esc(n.message) + '</div>' +
+            '<div class="note-time">' + esc(timeAgo(n.created_at)) + '</div>' +
+        '</div>' +
+        '<div class="note-actions">' +
+            (url && n.action_label ? '<a class="note-link" href="' + esc(url) + '" data-open="' + esc(n.id) + '">' + esc(n.action_label) + '</a>' : '') +
+            '<div>' +
+                (n.is_read ? '' : '<button type="button" class="icon-btn" data-read="' + esc(n.id) + '">Mark as read</button>') +
+                '<button type="button" class="icon-btn del" data-delete="' + esc(n.id) + '" aria-label="Delete notification">Delete</button>' +
+            '</div>' +
+        '</div>' +
+    '</article>';
+}
+
+function render() {
+    updateBell();
+    renderChips();
+
+    const list = notifications
+        .filter(matches)
+        .sort(function (a, b) { return new Date(b.created_at) - new Date(a.created_at); });
+
+    if (!list.length) {
+        feed.innerHTML = '<div class="empty-state" style="margin-top: 20px"><div class="icon">' +
+            (filter === 'unread' ? '&#127881;' : '&#128237;') + '</div>' +
+            (filter === 'unread' ? "You're all caught up. No unread notifications." : 'No notifications here yet.') + '</div>';
+        return;
+    }
+
+    let index = 0, current = '';
+    feed.innerHTML = list.map(function (n) {
+        const g = groupOf(n.created_at);
+        let head = '';
+        if (g !== current) { current = g; head = '<div class="group-heading">' + g + '</div>'; }
+        return head + noteHtml(n, index++ % 8);
+    }).join('');
+}
+
+async function readOne(id, quiet) {
+    const n = notifications.find(function (x) { return String(x.id) === String(id); });
+    if (!n || n.is_read) return;
+    try {
+        await markNotificationRead(n.id);
+        n.is_read = 1;
+        if (!quiet) { render(); }
+    } catch (err) {
+        toast('Sorry, that did not work. Please try again.');
+    }
+}
+
+filterChips.addEventListener('click', function (e) {
+    const btn = e.target.closest('button[data-filter]');
+    if (!btn) return;
+    filter = btn.dataset.filter;
+    render();
+});
+
+feed.addEventListener('click', async function (e) {
+    const readBtn = e.target.closest('button[data-read]');
+    if (readBtn) { await readOne(readBtn.dataset.read); return; }
+
+    const delBtn = e.target.closest('button[data-delete]');
+    if (delBtn) {
+        const id = delBtn.dataset.delete;
+        try {
+            await deleteNotification(id);
+        } catch (err) {
+            toast('Sorry, we could not delete that. Please try again.');
+            return;
+        }
+        const card = delBtn.closest('.note');
+        if (card && !reduceMotion) card.classList.add('dismissing');
+        setTimeout(function () {
+            notifications = notifications.filter(function (n) { return String(n.id) !== String(id); });
+            render();
+            toast('Notification deleted');
+        }, reduceMotion ? 0 : 400);
+        return;
+    }
+
+    const link = e.target.closest('a[data-open]');
+    if (link) { readOne(link.dataset.open, true); }
+});
+
+markAllBtn.addEventListener('click', async function () {
+    markAllBtn.disabled = true;
+    try {
+        await markAllRead();
+        notifications.forEach(function (n) { n.is_read = 1; });
+        render();
+        toast('All notifications marked as read');
+    } catch (err) {
+        markAllBtn.disabled = false;
+        toast('Sorry, that did not work. Please try again.');
+    }
+});
+
+const PREF_FIELDS = ['email_reminders', 'sms_reminders', 'booster_alerts', 'clinic_news'];
+
+document.getElementById('prefForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const prefs = {};
+    PREF_FIELDS.forEach(function (f) { prefs[f] = document.getElementById(f).checked; });
+    const btn = document.getElementById('prefBtn');
+    const box = document.getElementById('prefError');
+    box.classList.add('d-none');
+    btn.disabled = true; btn.textContent = 'Saving...';
+    try {
+        await savePreferences(prefs);
+        toast('Preferences saved');
+    } catch (err) {
+        box.textContent = 'Sorry, we could not save your preferences. Please try again.';
+        box.classList.remove('d-none');
+    }
+    btn.disabled = false; btn.textContent = 'Save preferences';
+});
+
+(async function init() {
+    const user = await getCurrentUser();
+    if (!user) {
+        window.location.href = 'login.html?next=' + encodeURIComponent('notifications.html');
+        return;
+    }
+    try {
+        const loaded = await Promise.all([getNotifications(), getPreferences()]);
+        notifications = loaded[0];
+        const prefs = loaded[1];
+        PREF_FIELDS.forEach(function (f) { document.getElementById(f).checked = !!prefs[f]; });
+        render();
+    } catch (err) {
+        feed.innerHTML = '<div class="empty-state">Sorry, we could not load your notifications. Please try again later.</div>';
+    }
+})();
