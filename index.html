@@ -10,235 +10,11 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Custom Styling -->
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f8fbfc;
-            color: #183642;
-        }
-
-        .navbar {
-            background-color: #ffffff !important;
-            border-bottom: 1px solid #e8eef0;
-        }
-
-        .navbar-brand {
-            color: #167d8d !important;
-            font-size: 1.35rem;
-            letter-spacing: -0.5px;
-        }
-
-        .nav-link {
-            color: #52676e !important;
-            margin: 0 8px;
-            font-size: 0.95rem;
-        }
-
-        .nav-link:hover,
-        .nav-link.active {
-            color: #167d8d !important;
-        }
-
-        .appointment-btn {
-            background-color: #167d8d;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-        }
-
-        .appointment-btn:hover {
-            background-color: #126a78;
-            color: white;
-        }
-
-        .hero {
-            padding: 100px 0;
-        }
-
-        .hero-label {
-            color: #167d8d;
-            font-size: 0.85rem;
-            font-weight: bold;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            margin-bottom: 15px;
-        }
-
-        .hero h1 {
-            font-size: 4rem;
-            font-weight: 700;
-            line-height: 1.1;
-            letter-spacing: -2px;
-        }
-
-        .hero p {
-            color: #667980;
-            font-size: 1.1rem;
-            line-height: 1.8;
-            max-width: 520px;
-        }
-
-        /* Planner card in hero */
-        .planner-card {
-            background: #e8f5f6;
-            border-radius: 24px;
-            padding: 40px 34px;
-        }
-
-        .planner-card h3 {
-            font-weight: 700;
-            letter-spacing: -0.5px;
-        }
-
-        .planner-card .sub {
-            color: #52676e;
-        }
-
-        .planner-switch {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 6px;
-            background: rgba(255, 255, 255, 0.55);
-            border-radius: 12px;
-            padding: 6px;
-        }
-
-        .planner-tab {
-            border: none;
-            background: transparent;
-            color: #52676e;
-            font-size: 0.92rem;
-            font-weight: 600;
-            padding: 10px 6px;
-            border-radius: 8px;
-            transition: 0.2s ease;
-        }
-
-        .planner-tab.active {
-            background: white;
-            color: #167d8d;
-            box-shadow: 0 2px 8px rgba(24, 54, 66, 0.08);
-        }
-
-        .planner-card .form-label {
-            font-size: 0.9rem;
-            font-weight: 600;
-        }
-
-        .planner-card .form-control,
-        .planner-card .form-select {
-            border: 1px solid #dbe5e8;
-            border-radius: 8px;
-            padding: 12px 14px;
-            color: #183642;
-        }
-
-        .planner-card .form-control:focus,
-        .planner-card .form-select:focus {
-            border-color: #167d8d;
-            box-shadow: 0 0 0 0.2rem rgba(22, 125, 141, 0.15);
-        }
-
-        .section-label {
-            color: #167d8d;
-            font-size: 0.8rem;
-            font-weight: bold;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
-
-        .section-title {
-            font-weight: 700;
-            letter-spacing: -1px;
-        }
-
-        .service-card {
-            background: white;
-            border: 1px solid #e7edef;
-            border-radius: 16px;
-            padding: 30px;
-            height: 100%;
-            transition: 0.25s ease;
-        }
-
-        .service-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(24, 54, 66, 0.08);
-        }
-
-        .service-icon {
-            font-size: 2rem;
-            margin-bottom: 20px;
-        }
-
-        .service-card h5 {
-            font-weight: 600;
-        }
-
-        .service-card p {
-            color: #708087;
-            line-height: 1.7;
-        }
-
-        /* How it works */
-        .step-num {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            background: #e8f5f6;
-            color: #167d8d;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 16px;
-        }
-
-        .step h6 {
-            font-weight: 600;
-        }
-
-        .step p {
-            color: #708087;
-            font-size: 0.95rem;
-            line-height: 1.7;
-            max-width: 280px;
-            margin: 0 auto;
-        }
-
-        /* Call to action band */
-        .cta-band {
-            background: #e8f5f6;
-            border-radius: 24px;
-            padding: 50px 30px;
-        }
-
-        footer {
-            background-color: #183642;
-            color: #c9d7da;
-        }
-
-        footer span {
-            color: #7fc9d2;
-        }
-
-        @media (max-width: 991px) {
-            .hero {
-                padding: 70px 0;
-            }
-
-            .hero h1 {
-                font-size: 3rem;
-            }
-        }
-
-        @media (max-width: 575px) {
-            .planner-card {
-                padding: 30px 22px;
-            }
-        }
-    </style>
+    <link href="nav.css" rel="stylesheet">
+    <link href="motion.css" rel="stylesheet">
+    <link href="index.css" rel="stylesheet">
+    <script src="auth.js"></script>
+    <script src="motion.js" defer></script>
 </head>
 
 <body>
@@ -275,14 +51,39 @@
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link" href="contact.html">Contact</a>
+                        <a class="nav-link" href="doctors.html">Doctors</a>
                     </li>
 
                     <li class="nav-item">
+                        <a class="nav-link" href="planner.html">Planner</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="contact.html">Contact</a>
+                    </li>
+
+                    <li class="nav-item dropdown" data-auth="in">
+                        <a class="nav-link dropdown-toggle" href="#" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">Hi, <span data-user-name>there</span></a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="booking.html">Book an Appointment</a></li>
+                            <li><a class="dropdown-item" href="appointments.html">My Appointments</a></li>
+                            <li><a class="dropdown-item" href="vaccinations.html">My Vaccinations</a></li>
+                            <li><a class="dropdown-item" href="precheck.html">Pre-consultation Form</a></li>
+                            <li><a class="dropdown-item" href="receipts.html">Payments &amp; Receipts</a></li>
+                            <li><a class="dropdown-item" href="reviews.html">Reviews &amp; Ratings</a></li>
+                            <li><a class="dropdown-item" href="notifications.html">Notifications</a></li>
+                            <li><a class="dropdown-item" href="profile.html">My Profile</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item logout-link" href="#" data-logout>Log out</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="nav-item" data-auth="out">
                         <a class="nav-link" href="login.html">Log in</a>
                     </li>
 
-                    <li class="nav-item ms-lg-3 mt-3 mt-lg-0">
+                    <li class="nav-item ms-lg-3 mt-3 mt-lg-0" data-auth="out">
                         <a class="btn appointment-btn" href="register.html">
                             Create Account
                         </a>
@@ -319,8 +120,13 @@
                     </p>
 
                     <a href="register.html"
-                       class="btn appointment-btn me-2">
+                       class="btn appointment-btn me-2" data-auth="out">
                         Get Started
+                    </a>
+
+                    <a href="booking.html"
+                       class="btn appointment-btn me-2" data-auth="in">
+                        Book an Appointment
                     </a>
 
                     <a href="services.html"
@@ -533,7 +339,7 @@
 
         <div class="container">
 
-            <div class="cta-band text-center">
+            <div class="cta-band text-center" data-auth="out">
 
                 <h2 class="section-title mb-3">
                     Ready to plan your vaccinations?
@@ -549,6 +355,26 @@
 
                 <a href="login.html" class="btn btn-outline-secondary">
                     Log in
+                </a>
+
+            </div>
+
+            <div class="cta-band text-center" data-auth="in">
+
+                <h2 class="section-title mb-3">
+                    Welcome back, <span data-user-name></span>
+                </h2>
+
+                <p class="text-secondary mb-4">
+                    Pick up where you left off.
+                </p>
+
+                <a href="vaccinations.html" class="btn appointment-btn me-2">
+                    My Vaccinations
+                </a>
+
+                <a href="appointments.html" class="btn btn-outline-secondary">
+                    My Appointments
                 </a>
 
             </div>
@@ -572,43 +398,7 @@
     <!-- Bootstrap JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    <script>
-        // Planner teaser: switch between travel and child mode
-        const tabs = document.querySelectorAll(".planner-tab");
-        const mode = document.getElementById("plannerMode");
-        const travelField = document.getElementById("travelField");
-        const childField = document.getElementById("childField");
-        const destination = document.getElementById("destination");
-        const childDob = document.getElementById("childDob");
-
-        // Child's birth date can't be in the future
-        childDob.max = new Date().toISOString().split("T")[0];
-
-        tabs.forEach(function (tab) {
-            tab.addEventListener("click", function () {
-                const isTravel = tab.dataset.mode === "travel";
-
-                tabs.forEach(function (t) {
-                    const active = t === tab;
-                    t.classList.toggle("active", active);
-                    t.setAttribute("aria-selected", active);
-                });
-
-                mode.value = tab.dataset.mode;
-                travelField.classList.toggle("d-none", !isTravel);
-                childField.classList.toggle("d-none", isTravel);
-
-                // Only the visible field is required and submitted
-                destination.required = isTravel;
-                destination.disabled = !isTravel;
-                childDob.required = !isTravel;
-                childDob.disabled = isTravel;
-            });
-        });
-
-        // Start in travel mode
-        childDob.disabled = true;
-    </script>
+    <script src="index.js"></script>
 
 </body>
 </html>
