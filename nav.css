@@ -1,0 +1,39 @@
+/* Shared dropdown for the logged-in pages in the top navigation */
+.navbar .dropdown-menu {
+    border: 1px solid #e8eef0;
+    border-radius: 12px;
+    padding: 8px;
+    box-shadow: 0 8px 24px rgba(24, 54, 66, 0.08);
+}
+
+.navbar .dropdown-item {
+    color: #52676e;
+    font-size: 0.95rem;
+    border-radius: 8px;
+    padding: 8px 14px;
+}
+
+.navbar .dropdown-item:hover,
+.navbar .dropdown-item:focus {
+    background-color: #e8f5f6;
+    color: #167d8d;
+}
+
+.navbar .dropdown-item.active {
+    background-color: #e8f5f6;
+    color: #167d8d;
+    font-weight: 600;
+}
+
+.navbar .nav-link {
+    white-space: nowrap;
+}
+
+html:not(.logged-in) [data-auth="in"],
+html.logged-in [data-auth="out"] {
+    display: none !important;
+}
+
+.logout-link {
+    cursor: pointer;
+}
