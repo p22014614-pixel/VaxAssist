@@ -9,188 +9,11 @@
     <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f8fbfc;
-            color: #183642;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .navbar {
-            background-color: #ffffff !important;
-            border-bottom: 1px solid #e8eef0;
-        }
-
-        .navbar-brand {
-            color: #167d8d !important;
-            font-size: 1.35rem;
-            letter-spacing: -0.5px;
-        }
-
-        .nav-link {
-            color: #52676e !important;
-            margin: 0 8px;
-            font-size: 0.95rem;
-        }
-
-        .nav-link:hover,
-        .nav-link.active {
-            color: #167d8d !important;
-        }
-
-        .appointment-btn {
-            background-color: #167d8d;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-        }
-
-        .appointment-btn:hover {
-            background-color: #126a78;
-            color: white;
-        }
-
-        /* Register */
-        main {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            padding: 60px 0;
-        }
-
-        .register-wrap {
-            max-width: 480px;
-            margin: 0 auto;
-        }
-
-        .register-icon {
-            width: 64px;
-            height: 64px;
-            border-radius: 20px;
-            background: #e8f5f6;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.9rem;
-            margin: 0 auto 24px;
-        }
-
-        .register-wrap h1 {
-            font-size: 2rem;
-            font-weight: 700;
-            letter-spacing: -1px;
-        }
-
-        .register-wrap .subtext {
-            color: #667980;
-        }
-
-        .register-card {
-            background: white;
-            border: 1px solid #e7edef;
-            border-radius: 16px;
-            padding: 32px;
-        }
-
-        .form-label {
-            font-size: 0.9rem;
-            font-weight: 600;
-        }
-
-        .form-control {
-            border: 1px solid #dbe5e8;
-            border-radius: 8px;
-            padding: 12px 14px;
-            color: #183642;
-        }
-
-        .form-control:focus {
-            border-color: #167d8d;
-            box-shadow: 0 0 0 0.2rem rgba(22, 125, 141, 0.15);
-        }
-
-        .input-group .form-control {
-            border-radius: 8px 0 0 8px;
-        }
-
-        .toggle-pw {
-            border: 1px solid #dbe5e8;
-            border-left: none;
-            background: white;
-            color: #52676e;
-            font-size: 0.85rem;
-            border-radius: 0 8px 8px 0;
-            padding: 0 16px;
-        }
-
-        .toggle-pw:hover {
-            color: #167d8d;
-        }
-
-        .form-check-input:checked {
-            background-color: #167d8d;
-            border-color: #167d8d;
-        }
-
-        .form-check-input:focus {
-            border-color: #167d8d;
-            box-shadow: 0 0 0 0.2rem rgba(22, 125, 141, 0.15);
-        }
-
-        .form-text {
-            color: #708087;
-            font-size: 0.82rem;
-        }
-
-        .success-box {
-            display: none;
-            background: #e8f5f6;
-            color: #126a78;
-            border-radius: 8px;
-            padding: 12px 14px;
-            font-size: 0.9rem;
-            text-align: center;
-        }
-
-        .text-link {
-            color: #167d8d;
-            text-decoration: none;
-        }
-
-        .text-link:hover {
-            color: #126a78;
-            text-decoration: underline;
-        }
-
-        .register-btn {
-            width: 100%;
-            padding: 12px 20px;
-            font-weight: 600;
-        }
-
-        @media (max-width: 575px) {
-            main {
-                padding: 40px 0;
-            }
-
-            .register-card {
-                padding: 24px 20px;
-            }
-        }
-
-        footer {
-            background-color: #183642;
-            color: #c9d7da;
-        }
-
-        footer span {
-            color: #7fc9d2;
-        }
-    </style>
+    <link href="nav.css" rel="stylesheet">
+    <link href="motion.css" rel="stylesheet">
+    <link href="register.css" rel="stylesheet">
+    <script src="auth.js"></script>
+    <script src="motion.js" defer></script>
 </head>
 
 <body>
@@ -231,14 +54,35 @@
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link" href="contact.html">Contact</a>
+                        <a class="nav-link" href="planner.html">Planner</a>
                     </li>
 
                     <li class="nav-item">
+                        <a class="nav-link" href="contact.html">Contact</a>
+                    </li>
+
+                    <li class="nav-item dropdown" data-auth="in">
+                        <a class="nav-link dropdown-toggle" href="#" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">Hi, <span data-user-name>there</span></a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="booking.html">Book an Appointment</a></li>
+                            <li><a class="dropdown-item" href="appointments.html">My Appointments</a></li>
+                            <li><a class="dropdown-item" href="vaccinations.html">My Vaccinations</a></li>
+                            <li><a class="dropdown-item" href="precheck.html">Pre-consultation Form</a></li>
+                            <li><a class="dropdown-item" href="receipts.html">Payments &amp; Receipts</a></li>
+                            <li><a class="dropdown-item" href="reviews.html">Reviews &amp; Ratings</a></li>
+                            <li><a class="dropdown-item" href="notifications.html">Notifications</a></li>
+                            <li><a class="dropdown-item" href="profile.html">My Profile</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item logout-link" href="#" data-logout>Log out</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="nav-item" data-auth="out">
                         <a class="nav-link" href="login.html">Log in</a>
                     </li>
 
-                    <li class="nav-item ms-lg-3 mt-3 mt-lg-0">
+                    <li class="nav-item ms-lg-3 mt-3 mt-lg-0" data-auth="out">
                         <a class="btn appointment-btn" href="register.html">
                             Create Account
                         </a>
@@ -386,67 +230,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    <script>
-        const form = document.getElementById("registerForm");
-        const password = document.getElementById("password");
-        const confirmPassword = document.getElementById("confirmPassword");
-        const dob = document.getElementById("dob");
-
-        // Date of birth can't be in the future
-        dob.max = new Date().toISOString().split("T")[0];
-
-        // Show / hide password
-        document.getElementById("togglePw").addEventListener("click", function () {
-            const hidden = password.type === "password";
-            password.type = hidden ? "text" : "password";
-            this.textContent = hidden ? "Hide" : "Show";
-            this.setAttribute("aria-label", hidden ? "Hide password" : "Show password");
-        });
-
-        // Validation + registration
-        form.addEventListener("submit", function (e) {
-            e.preventDefault();
-
-            // Passwords must match
-            confirmPassword.setCustomValidity(
-                confirmPassword.value === password.value ? "" : "Passwords don't match."
-            );
-
-            let valid = true;
-            form.querySelectorAll("input").forEach(function (input) {
-                const ok = input.checkValidity();
-                input.classList.toggle("is-invalid", !ok);
-                if (!ok) valid = false;
-            });
-
-            if (!valid) return;
-
-            // DEMO ONLY: replace with a real backend call to save the patient.
-            document.getElementById("successBox").style.display = "block";
-            setTimeout(function () {
-                window.location.href = "login.html";
-            }, 1500);
-        });
-
-        // Clear error styling as the user fixes a field
-        form.querySelectorAll("input").forEach(function (input) {
-            input.addEventListener("input", function () {
-                if (input === password) {
-                    confirmPassword.setCustomValidity(
-                        confirmPassword.value === password.value ? "" : "Passwords don't match."
-                    );
-                }
-                if (input === confirmPassword) {
-                    input.setCustomValidity(
-                        input.value === password.value ? "" : "Passwords don't match."
-                    );
-                }
-                if (input.classList.contains("is-invalid") && input.checkValidity()) {
-                    input.classList.remove("is-invalid");
-                }
-            });
-        });
-    </script>
+    <script src="register.js"></script>
 
 </body>
 </html>
