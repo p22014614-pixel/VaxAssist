@@ -1,0 +1,715 @@
+:root {
+    --staff-teal: #168091;
+    --staff-teal-dark: #116d7b;
+    --staff-ink: #193944;
+    --staff-muted: #607783;
+    --staff-bg: #f7fafb;
+    --staff-panel: #ffffff;
+    --staff-soft: #e8f4f5;
+    --staff-line: #e1eaed;
+    --staff-shadow: 0 4px 16px rgba(25, 57, 68, .035);
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+.staff-page,
+.staff-page * {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+html {
+    min-width: 320px;
+    background: var(--staff-bg);
+}
+
+body.staff-page {
+    min-height: 100vh;
+    margin: 0;
+    background: var(--staff-bg);
+    color: var(--staff-ink);
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Navigation matches the Vaccine Inventory page. */
+.staff-nav {
+    position: fixed;
+    z-index: 5;
+    inset: 0 0 auto;
+    height: 78px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 28px;
+    padding: 0 max(7.4%, 28px);
+    border-bottom: 1px solid #edf1f2;
+    background: #fff;
+}
+
+.staff-nav .logo {
+    margin-right: auto;
+    color: var(--staff-teal);
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: -.7px;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.staff-nav ul {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(16px, 2vw, 36px);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.staff-nav ul a {
+    position: relative;
+    display: inline-block;
+    padding: 10px 0;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: color .2s ease;
+}
+
+.nav-link {
+    position: relative;
+    color: #52676e !important;
+    margin: 0 8px;
+    font-size: 1rem;
+    text-decoration: none;
+}
+.nav-link::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -6px;
+    width: 100%;
+    height: 2px;
+    background: #167d8d;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.25s ease;
+}
+.nav-link:hover::after,
+.nav-link.active::after {
+    transform: scaleX(1);
+}
+
+.staff-nav .nav-link:hover,
+.staff-nav .nav-link[aria-current="page"] {
+    color: #52676e !important;
+}
+
+.staff-nav .admin-account {
+    position: relative;
+}
+
+.admin-account {
+    padding: 10px 15px;
+    border: 1px solid #b9d9dd;
+    border-radius: 7px;
+    color: var(--staff-teal);
+    font-size: 14px;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.admin-account:hover {
+    background: var(--staff-soft);
+}
+
+/* Banner and page content use the inventory page's spacing and colors. */
+.staff-banner {
+    min-height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 25px;
+    margin-top: 78px;
+    padding: 46px 6%;
+    background: var(--staff-bg);
+}
+
+.staff-eyebrow {
+    margin: 0 0 13px;
+    color: var(--staff-teal);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.7px;
+}
+
+.staff-banner h1 {
+    margin: 0 0 8px;
+    color: var(--staff-ink);
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: clamp(34px, 4vw, 47px);
+    line-height: 1.1;
+    letter-spacing: -1.5px;
+}
+
+.staff-banner div > p:last-child {
+    margin: 0;
+    color: var(--staff-muted);
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+.action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 56px;
+    padding: 14px 20px;
+    border: 0;
+    border-radius: 7px;
+    background: var(--staff-teal);
+    color: #fff;
+    font: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background .2s ease, transform .2s ease;
+}
+
+.action-btn:hover {
+    transform: translateY(-1px);
+    background: var(--staff-teal-dark);
+}
+
+.staff-main {
+    width: min(100%, 1440px);
+    margin: 0 auto;
+    padding: 8px 6% 60px;
+}
+
+/* User account editor. */
+.account-panel {
+    display: grid;
+    grid-template-columns: minmax(200px, .8fr) minmax(0, 1.7fr);
+    align-items: start;
+    gap: 28px;
+    margin-bottom: 22px;
+    padding: 24px;
+    border: 1px solid var(--staff-line);
+    border-radius: 11px;
+    background: var(--staff-panel);
+    box-shadow: var(--staff-shadow);
+}
+
+.section-kicker {
+    margin: 0 0 8px;
+    color: var(--staff-teal);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.7px;
+}
+
+.account-copy h2 {
+    margin: 0 0 8px;
+    color: var(--staff-ink);
+    font-size: 21px;
+}
+
+.account-copy > p:last-child {
+    margin: 0;
+    color: var(--staff-muted);
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.account-form {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+    align-items: end;
+    gap: 12px;
+}
+
+.account-save {
+    min-height: 44px;
+    padding: 10px 14px;
+    font-size: 13px;
+}
+
+/* Staff summary cards and directory panel. */
+.summary {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 22px;
+}
+
+.summary-card,
+.staff-panel {
+    border: 1px solid var(--staff-line);
+    border-radius: 11px;
+    background: var(--staff-panel);
+    box-shadow: var(--staff-shadow);
+}
+
+.summary-card {
+    min-height: 154px;
+    padding: 21px 22px;
+}
+
+.summary-card span {
+    display: block;
+    color: var(--staff-muted);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.summary-card strong {
+    display: block;
+    margin-top: 15px;
+    color: var(--staff-ink);
+    font-size: 34px;
+    line-height: 1;
+}
+
+.staff-panel {
+    padding: 22px;
+}
+
+.toolbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 18px;
+}
+
+.toolbar input,
+.toolbar select,
+.field input,
+.field select {
+    min-height: 44px;
+    border: 1px solid #d8e3e6;
+    border-radius: 8px;
+    padding: 0 12px;
+    background: #fff;
+    color: var(--staff-ink);
+    font: inherit;
+    font-size: 14px;
+    transition: border-color .2s ease, box-shadow .2s ease;
+}
+
+.toolbar input:focus,
+.toolbar select:focus,
+.field input:focus,
+.field select:focus {
+    outline: none;
+    border-color: var(--staff-teal);
+    box-shadow: 0 0 0 3px rgba(22, 128, 145, .12);
+}
+
+.toolbar input {
+    flex: 1;
+    min-width: 180px;
+}
+
+.toolbar select {
+    min-width: 180px;
+}
+
+.table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--staff-line);
+    border-radius: 9px;
+}
+
+.staff-panel table {
+    width: 100%;
+    min-width: 680px;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.staff-panel th,
+.staff-panel td {
+    padding: 13px 12px;
+    border-bottom: 1px solid #edf1f2;
+}
+
+.staff-panel th {
+    background: #f5f9fa;
+    color: #819198;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .7px;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.staff-panel td {
+    color: #405761;
+    font-size: 13px;
+    vertical-align: middle;
+}
+
+.staff-panel tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.staff-panel tbody tr:hover {
+    background: #f8fbfb;
+}
+
+.staff-name {
+    color: var(--staff-ink);
+    font-weight: 700;
+}
+
+.staff-email {
+    margin-top: 4px;
+    color: var(--staff-muted);
+    font-size: 12px;
+}
+
+.role-pill {
+    display: inline-block;
+    padding: 5px 9px;
+    border-radius: 20px;
+    background: var(--staff-soft);
+    color: var(--staff-teal-dark);
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.row-actions {
+    display: flex;
+    gap: 7px;
+}
+
+.small-btn {
+    padding: 7px 10px;
+    border: 1px solid #d8e3e6;
+    border-radius: 6px;
+    background: #fff;
+    color: #47616b;
+    font: inherit;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background .15s ease, border-color .15s ease;
+}
+
+.small-btn:hover {
+    border-color: #b9d9dd;
+    background: var(--staff-soft);
+}
+
+.delete-btn {
+    border-color: #efc6c3;
+    color: #a64f4f;
+}
+
+.delete-btn:hover {
+    border-color: #d99a95;
+    background: #fff5f4;
+}
+
+.empty-row {
+    padding: 28px 12px !important;
+    color: #7a8c94 !important;
+    text-align: center;
+}
+
+/* Add and edit staff dialog. */
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    display: none;
+    place-items: center;
+    padding: 18px;
+    background: rgba(25, 57, 68, .48);
+    backdrop-filter: blur(2px);
+}
+
+.modal-backdrop.open {
+    display: grid;
+}
+
+.modal {
+    width: min(540px, 100%);
+    max-height: min(90vh, 760px);
+    overflow-y: auto;
+    border: 1px solid var(--staff-line);
+    border-radius: 14px;
+    padding: 25px;
+    background: #fff;
+    box-shadow: 0 20px 70px rgba(25, 57, 68, .2);
+}
+
+.modal-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.modal-head h2 {
+    margin: 0;
+    color: var(--staff-ink);
+    font-size: 22px;
+}
+
+.modal-head p {
+    margin: 6px 0 0;
+    color: var(--staff-muted);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.close-btn {
+    border: 0;
+    background: transparent;
+    color: var(--staff-muted);
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+.field {
+    display: grid;
+    gap: 6px;
+}
+
+.field label {
+    color: #405761;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.field input,
+.field select {
+    width: 100%;
+}
+
+.field.full {
+    grid-column: 1 / -1;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 9px;
+    margin-top: 22px;
+}
+
+.cancel-btn {
+    min-height: 44px;
+    padding: 10px 16px;
+    border: 1px solid #d8e3e6;
+    border-radius: 7px;
+    background: #fff;
+    color: #47616b;
+    font: inherit;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.cancel-btn:hover {
+    background: var(--staff-bg);
+}
+
+.action-btn:focus-visible,
+.small-btn:focus-visible,
+.cancel-btn:focus-visible,
+.close-btn:focus-visible {
+    outline: 3px solid #8acbd3;
+    outline-offset: 2px;
+}
+
+.toast {
+    position: fixed;
+    right: 22px;
+    bottom: 22px;
+    z-index: 20;
+    max-width: min(420px, calc(100vw - 32px));
+    padding: 13px 18px;
+    border-radius: 8px;
+    background: var(--staff-ink);
+    color: #fff;
+    box-shadow: 0 12px 40px rgba(25, 57, 68, .16);
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity .2s ease, transform .2s ease;
+    pointer-events: none;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+@media (max-width: 1050px) {
+    .staff-nav {
+        gap: 14px;
+        padding-right: 4%;
+        padding-left: 4%;
+    }
+
+    .staff-nav ul {
+        gap: 14px;
+    }
+
+    .staff-nav ul a {
+        font-size: 14px;
+    }
+
+    .staff-nav .nav-link {
+        font-size: 14px;
+    }
+
+    .staff-banner,
+    .staff-main {
+        padding-right: 4%;
+        padding-left: 4%;
+    }
+}
+
+@media (max-width: 780px) {
+    .staff-nav {
+        height: auto;
+        min-height: 78px;
+        flex-wrap: wrap;
+        padding-top: 12px;
+        padding-bottom: 12px;
+    }
+
+    .staff-nav ul {
+        order: 3;
+        width: 100%;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+    }
+
+    .staff-banner {
+        min-height: 220px;
+        margin-top: 112px;
+    }
+}
+
+@media (max-width: 600px) {
+    .staff-nav {
+        padding: 10px 16px;
+    }
+
+    .staff-nav .logo {
+        font-size: 24px;
+    }
+
+    .staff-nav ul {
+        gap: 8px 15px;
+    }
+
+    .staff-nav ul a {
+        font-size: 12px;
+    }
+
+    .staff-nav .nav-link {
+        font-size: 12px;
+    }
+
+    .admin-account {
+        padding: 8px 10px;
+        font-size: 12px;
+    }
+
+    .staff-banner {
+        min-height: 0;
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 20px;
+        margin-top: 125px;
+        padding: 32px 5%;
+    }
+
+    .staff-banner h1 {
+        font-size: 35px;
+    }
+
+    .staff-banner div > p:last-child {
+        font-size: 14px;
+    }
+
+    .staff-main {
+        padding: 5px 5% 40px;
+    }
+
+    .summary {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .account-panel {
+        grid-template-columns: 1fr;
+        gap: 18px;
+        padding: 18px;
+    }
+
+    .account-form {
+        grid-template-columns: 1fr;
+    }
+
+    .account-save {
+        width: 100%;
+    }
+
+    .summary-card {
+        min-height: 120px;
+        padding: 17px;
+    }
+
+    .summary-card strong {
+        margin-top: 10px;
+        font-size: 29px;
+    }
+
+    .staff-panel {
+        padding: 17px;
+    }
+
+    .toolbar {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .toolbar input,
+    .toolbar select {
+        width: 100%;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .field.full {
+        grid-column: auto;
+    }
+
+    .modal {
+        padding: 20px;
+    }
+
+    .row-actions {
+        flex-wrap: wrap;
+    }
+}

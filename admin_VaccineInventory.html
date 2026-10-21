@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f7fafb">
+    <title>Vaccine Inventory | VaxAssist</title>
+
+    <link href="nav.css" rel="stylesheet">
+    <link href="motion.css" rel="stylesheet">
+    <script src="auth.js"></script>
+    <script src="motion.js" defer></script>
+    <link rel="stylesheet" href="admin_VaccineInventory.css">
+</head>
+<body class="admin-dashboard inventory-page">
+    <nav class="admin-topbar admin-nav" aria-label="Admin navigation">
+        <a class="logo" href="admin_Dashboard.html">VaxAssist</a>
+
+        <ul>
+            <li><a class="nav-link" href="admin_Dashboard.html">Dashboard</a></li>
+            <li><a class="nav-link" href="admin-appointments.html">Appointments</a></li>
+            <li><a class="nav-link" href="admin-patients.html">Patients</a></li>
+            <li><a class="nav-link" href="admin-communications.html">Communications</a></li>
+            <li><a class="nav-link" href="admin_ManageUsers.html">Manage Users</a></li>
+            <li>
+                <a class="nav-link active" aria-current="page" href="admin_VaccineInventory.html">
+                    Vaccine Stock
+                </a>
+            </li>
+        </ul>
+
+        <a class="admin-account" href="admin-profile.html">Admin profile</a>
+    </nav>
+
+    <div class="admin-main-content">
+        <header class="dashboard-banner">
+            <div class="banner-copy">
+                <p class="eyebrow">VAXASSIST · CLINIC ADMINISTRATION</p>
+                <h1>Vaccine Inventory</h1>
+                <p>
+                    Manage vaccine details, prices, categories, and available quantities.
+                </p>
+            </div>
+
+            <button class="primary-action" id="addVaccineButton" type="button">
+                Add vaccine <span aria-hidden="true">＋</span>
+            </button>
+        </header>
+
+        <main class="dashboard-main">
+            <section class="dashboard-panel" aria-labelledby="inventory-title">
+                <div class="inventory-toolbar">
+                    <div>
+                        <p class="section-kicker">STOCK OVERVIEW</p>
+                        <h2 id="inventory-title">Existing vaccines</h2>
+                        <p id="inventoryCount">Loading inventory…</p>
+                    </div>
+                </div>
+
+                <div class="inventory-controls">
+                    <input
+                        id="searchInput"
+                        type="search"
+                        placeholder="Search by vaccine name or code"
+                        aria-label="Search vaccines"
+                    >
+
+                    <select id="categoryFilter" aria-label="Filter by category">
+                        <option value="">All categories</option>
+                    </select>
+                </div>
+
+                <div class="inventory-table-wrap">
+                    <table class="inventory-table">
+                        <thead>
+                            <tr>
+                                <th>Vaccine name</th>
+                                <th>Code</th>
+                                <th>Price</th>
+                                <th>Category</th>
+                                <th>Qty</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="vaccineRows">
+                            <tr>
+                                <td class="loading-state" colspan="6">
+                                    Loading vaccines…
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <p
+                    id="inventoryMessage"
+                    class="inventory-message"
+                    role="status"
+                    aria-live="polite"
+                ></p>
+            </section>
+        </main>
+
+        <footer class="admin-footer">
+            <p>&copy; 2026 VaxAssist. All Rights Reserved.</p>
+        </footer>
+    </div>
+
+    <dialog
+        class="vaccine-dialog"
+        id="vaccineDialog"
+        aria-labelledby="dialogTitle"
+    >
+        <form class="vaccine-form" id="vaccineForm">
+            <div class="form-heading">
+                <div>
+                    <h2 id="dialogTitle">Add vaccine</h2>
+                    <p>Enter the vaccine details for your clinic inventory.</p>
+                </div>
+
+                <button
+                    type="button"
+                    class="dialog-close"
+                    id="closeDialog"
+                    aria-label="Close"
+                >
+                    ×
+                </button>
+            </div>
+
+            <input type="hidden" id="vaccineId">
+
+            <div class="form-grid">
+                <div class="form-field full">
+                    <label for="vaccineName">Vaccine name</label>
+                    <input
+                        id="vaccineName"
+                        name="name"
+                        maxlength="150"
+                        required
+                    >
+                </div>
+
+                <div class="form-field">
+                    <label for="vaccineCode">Code</label>
+                    <input
+                        id="vaccineCode"
+                        name="code"
+                        maxlength="40"
+                        required
+                    >
+                </div>
+
+                <div class="form-field">
+                    <label for="vaccinePrice">Price (RM)</label>
+                    <input
+                        id="vaccinePrice"
+                        name="price"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        required
+                    >
+                </div>
+
+                <div class="form-field">
+                    <label for="vaccineCategory">Category</label>
+                    <input
+                        id="vaccineCategory"
+                        name="category"
+                        maxlength="80"
+                        placeholder="e.g. Routine, Travel"
+                        required
+                    >
+                </div>
+
+                <div class="form-field">
+                    <label for="vaccineQuantity">Qty</label>
+                    <input
+                        id="vaccineQuantity"
+                        name="quantity"
+                        type="number"
+                        min="0"
+                        step="1"
+                        required
+                    >
+                </div>
+            </div>
+
+            <p
+                id="formMessage"
+                class="inventory-message"
+                role="alert"
+            ></p>
+
+            <div class="form-actions">
+                <button
+                    type="button"
+                    class="secondary-button"
+                    id="cancelDialog"
+                >
+                    Cancel
+                </button>
+
+                <button
+                    type="submit"
+                    class="primary-action"
+                    id="saveVaccineButton"
+                >
+                    Save vaccine
+                </button>
+            </div>
+        </form>
+    </dialog>
+
+    <script>
+        const apiUrl = 'api_VaccineInventory.php';
+        const rows = document.getElementById('vaccineRows');
+        const dialog = document.getElementById('vaccineDialog');
+        const form = document.getElementById('vaccineForm');
+
+        let vaccines = [];
+        let csrfToken = '';
+
+        const escapeHtml = value =>
+            String(value ?? '').replace(/[&<>"']/g, character => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            }[character]));
+
+        function showMessage(message, success = false) {
+            const element = document.getElementById('inventoryMessage');
+            element.textContent = message;
+            element.classList.toggle('success', success);
+        }
+
+        async function loadVaccines() {
+            try {
+                const response = await fetch(apiUrl, {
+                    headers: { Accept: 'application/json' }
+                });
+
+                const body = await response.text();
+                let data;
+
+                try {
+                    data = JSON.parse(body);
+                } catch {
+                    throw new Error(
+                        'The inventory API returned a web page instead of JSON. ' +
+                        'Check that vaccine_api.php is in the same folder and ' +
+                        'serve this page through PHP.'
+                    );
+                }
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Unable to load vaccine inventory.');
+                }
+
+                vaccines = data.vaccines || [];
+                csrfToken = data.csrfToken || '';
+                renderVaccines();
+            } catch (error) {
+                rows.innerHTML = `
+                    <tr>
+                        <td class="empty-state" colspan="6">
+                            ${escapeHtml(error.message)}
+                        </td>
+                    </tr>
+                `;
+
+                document.getElementById('inventoryCount').textContent =
+                    'Inventory unavailable';
+            }
+        }
+
+        function renderVaccines() {
+            const categories = [
+                ...new Set(vaccines.map(vaccine => vaccine.category))
+            ].sort((a, b) => a.localeCompare(b));
+
+            const categoryFilter = document.getElementById('categoryFilter');
+            const selectedCategory = categoryFilter.value;
+
+            categoryFilter.innerHTML =
+                '<option value="">All categories</option>' +
+                categories.map(category => `
+                    <option value="${escapeHtml(category)}">
+                        ${escapeHtml(category)}
+                    </option>
+                `).join('');
+
+            categoryFilter.value = categories.includes(selectedCategory)
+                ? selectedCategory
+                : '';
+
+            const query = document
+                .getElementById('searchInput')
+                .value
+                .trim()
+                .toLowerCase();
+
+            const visibleVaccines = vaccines.filter(vaccine => {
+                const matchesCategory =
+                    !categoryFilter.value ||
+                    vaccine.category === categoryFilter.value;
+
+                const matchesQuery =
+                    !query ||
+                    `${vaccine.name} ${vaccine.code}`
+                        .toLowerCase()
+                        .includes(query);
+
+                return matchesCategory && matchesQuery;
+            });
+
+            document.getElementById('inventoryCount').textContent =
+                `${vaccines.length} vaccine${vaccines.length === 1 ? '' : 's'} in inventory`;
+
+            if (visibleVaccines.length === 0) {
+                const message = vaccines.length
+                    ? 'No vaccines match your search.'
+                    : 'No vaccines added yet. Add your first vaccine to get started.';
+
+                rows.innerHTML = `
+                    <tr>
+                        <td class="empty-state" colspan="6">
+                            ${message}
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            rows.innerHTML = visibleVaccines.map(vaccine => `
+                <tr>
+                    <td>
+                        <span class="vaccine-name">
+                            ${escapeHtml(vaccine.name)}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="vaccine-code">
+                            ${escapeHtml(vaccine.code)}
+                        </span>
+                    </td>
+                    <td>RM ${Number(vaccine.price).toFixed(2)}</td>
+                    <td>${escapeHtml(vaccine.category)}</td>
+                    <td>
+                        <span class="quantity-pill${Number(vaccine.quantity) < 10 ? ' low' : ''}">
+                            ${Number(vaccine.quantity)}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="row-actions">
+                            <button type="button" data-edit="${vaccine.id}">
+                                Edit
+                            </button>
+                            <button
+                                type="button"
+                                class="delete-button"
+                                data-delete="${vaccine.id}"
+                            >
+                                Delete
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openForm(vaccine = null) {
+            form.reset();
+            document.getElementById('formMessage').textContent = '';
+
+            document.getElementById('dialogTitle').textContent =
+                vaccine ? 'Edit vaccine' : 'Add vaccine';
+
+            document.getElementById('vaccineId').value =
+                vaccine?.id || '';
+
+            if (vaccine) {
+                document.getElementById('vaccineName').value = vaccine.name;
+                document.getElementById('vaccineCode').value = vaccine.code;
+                document.getElementById('vaccinePrice').value = vaccine.price;
+                document.getElementById('vaccineCategory').value =
+                    vaccine.category;
+                document.getElementById('vaccineQuantity').value =
+                    vaccine.quantity;
+            }
+
+            dialog.showModal();
+        }
+
+        document
+            .getElementById('addVaccineButton')
+            .addEventListener('click', () => openForm());
+
+        document
+            .getElementById('closeDialog')
+            .addEventListener('click', () => dialog.close());
+
+        document
+            .getElementById('cancelDialog')
+            .addEventListener('click', () => dialog.close());
+
+        document
+            .getElementById('searchInput')
+            .addEventListener('input', renderVaccines);
+
+        document
+            .getElementById('categoryFilter')
+            .addEventListener('change', renderVaccines);
+
+        rows.addEventListener('click', async event => {
+            const editButton = event.target.closest('[data-edit]');
+
+            if (editButton) {
+                const vaccine = vaccines.find(item =>
+                    item.id === Number(editButton.dataset.edit)
+                );
+
+                if (vaccine) {
+                    openForm(vaccine);
+                }
+
+                return;
+            }
+
+            const deleteButton = event.target.closest('[data-delete]');
+
+            if (!deleteButton) {
+                return;
+            }
+
+            const vaccine = vaccines.find(item =>
+                item.id === Number(deleteButton.dataset.delete)
+            );
+
+            if (
+                !vaccine ||
+                !window.confirm(`Delete ${vaccine.name} from inventory?`)
+            ) {
+                return;
+            }
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': csrfToken
+                    },
+                    body: JSON.stringify({ id: vaccine.id })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Could not delete vaccine.');
+                }
+
+                showMessage('Vaccine deleted.', true);
+                await loadVaccines();
+            } catch (error) {
+                showMessage(error.message);
+            }
+        });
+
+        form.addEventListener('submit', async event => {
+            event.preventDefault();
+
+            const id = document.getElementById('vaccineId').value;
+
+            const payload = {
+                id: id ? Number(id) : undefined,
+                name: form.elements.name.value,
+                code: form.elements.code.value,
+                price: form.elements.price.value,
+                category: form.elements.category.value,
+                quantity: form.elements.quantity.value
+            };
+
+            const saveButton =
+                document.getElementById('saveVaccineButton');
+
+            saveButton.disabled = true;
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: id ? 'PUT' : 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': csrfToken
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Could not save vaccine.');
+                }
+
+                dialog.close();
+                showMessage(
+                    id ? 'Vaccine updated.' : 'Vaccine added.',
+                    true
+                );
+
+                await loadVaccines();
+            } catch (error) {
+                document.getElementById('formMessage').textContent =
+                    error.message;
+            } finally {
+                saveButton.disabled = false;
+            }
+        });
+
+        loadVaccines();
+    </script>
+</body>
+</html>

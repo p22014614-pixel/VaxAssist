@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f7fafb">
+    <title>Admin Dashboard | VaxAssist</title>
+
+    <link href="nav.css" rel="stylesheet">
+    <link href="motion.css" rel="stylesheet">
+    <script src="auth.js"></script>
+    <script src="motion.js" defer></script>
+    <link rel="stylesheet" href="admin_Dashboard.css">
+
+</head>
+
+<body class="admin-dashboard">
+    <nav class="admin-topbar admin-nav" aria-label="Admin navigation">
+        <a class="logo" href="admin_Dashboard.html">VaxAssist</a>
+
+        <ul>
+            <li>
+                <a class="nav-link active" aria-current="page" href="admin_Dashboard.html">
+                    Dashboard
+                </a>
+            </li>
+            <li>
+                <a class="nav-link" href="admin-appointments.html">Appointments</a>
+            </li>
+            <li>
+                <a class="nav-link" href="admin-patients.html">Patients</a>
+            </li>
+            <li>
+                <a class="nav-link" href="admin-communications.html">Communications</a>
+            </li>
+            <li>
+                <a class="nav-link" href="admin_ManageUsers.html">Manage Users</a>
+            </li>
+            <li>
+                <a class="nav-link" href="admin_VaccineInventory.html">
+                    Vaccine Stock
+                </a>
+            </li>
+        </ul>
+
+        <a class="admin-account" href="admin-profile.html">Admin profile</a>
+    </nav>
+
+    <div class="admin-main-content">
+        <header class="dashboard-banner">
+            <div class="banner-copy">
+                <p class="eyebrow">VAXASSIST · CLINIC ADMINISTRATION</p>
+                <h1>Clinic overview</h1>
+                <p>
+                    Monitor appointments, patients, staff, and vaccine stock in one place.
+                </p>
+            </div>
+
+            <a class="primary-action" href="admin-appointments.html">
+                View appointments <span aria-hidden="true">→</span>
+            </a>
+        </header>
+
+        <main class="dashboard-main">
+            <section aria-labelledby="statistics-title">
+                <div class="section-heading">
+                    <div>
+                        <p class="section-kicker">AT A GLANCE</p>
+                        <h2 id="statistics-title">Clinic activity</h2>
+                    </div>
+                    <span class="updated-label">Dashboard Data Analytics</span>
+                </div>
+
+                <div class="stats-grid">
+                    <article class="stat-card">
+                        <span class="stat-mark" aria-hidden="true">01</span>
+                        <h3>Appointments today</h3>
+                        <strong>38</strong>
+                        <p>Scheduled across the clinic</p>
+                    </article>
+
+                    <article class="stat-card">
+                        <span class="stat-mark" aria-hidden="true">02</span>
+                        <h3>Registered patients</h3>
+                        <strong>1,284</strong>
+                        <p>Patient records in the system</p>
+                    </article>
+
+                    <article class="stat-card">
+                        <span class="stat-mark" aria-hidden="true">03</span>
+                        <h3>Active staff</h3>
+                        <strong id="activeStaffCount" aria-live="polite">—</strong>
+                        <p>Current clinic team</p>
+                    </article>
+
+                    <article class="stat-card attention-card">
+                        <span class="stat-mark" aria-hidden="true">04</span>
+                        <h3>Items needing attention</h3>
+                        <strong>3</strong>
+                        <p>Follow-ups for your team</p>
+                    </article>
+                </div>
+            </section>
+
+            <div class="dashboard-grid">
+                <section
+                    class="dashboard-panel appointments-panel"
+                    aria-labelledby="appointments-title"
+                >
+                    <div class="panel-heading">
+                        <div>
+                            <p class="section-kicker">ON THE SCHEDULE</p>
+                            <h2 id="appointments-title">Today's appointments</h2>
+                        </div>
+                        <a href="admin-appointments.html">
+                            Full schedule <span aria-hidden="true">→</span>
+                        </a>
+                    </div>
+
+                    <p class="panel-description">
+                        Appointment schedule and assigned clinic staff.
+                    </p>
+
+                    <div class="table-wrapper">
+                        <table class="appointment-table">
+                            <thead>
+                                <tr>
+                                    <th>Patient</th>
+                                    <th>Service</th>
+                                    <th>Time</th>
+                                    <th>Staff</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Nur Hana</td>
+                                    <td>Influenza vaccine</td>
+                                    <td>10:30 AM</td>
+                                    <td>Farah Nadia</td>
+                                    <td><span class="status">Confirmed</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Ryan Tan</td>
+                                    <td>Child immunisation</td>
+                                    <td>11:00 AM</td>
+                                    <td>Dr. Sarah Lim</td>
+                                    <td><span class="status status-pending">Check-in</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Siti Aisyah</td>
+                                    <td>Travel consultation</td>
+                                    <td>11:30 AM</td>
+                                    <td>Dr. Sarah Lim</td>
+                                    <td><span class="status">Confirmed</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Jason Lee</td>
+                                    <td>COVID-19 booster</td>
+                                    <td>12:00 PM</td>
+                                    <td>Farah Nadia</td>
+                                    <td><span class="status status-pending">Pending</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <aside class="dashboard-side">
+                    <section
+                        class="dashboard-panel shortcuts-panel"
+                        aria-labelledby="shortcuts-title"
+                    >
+                        <p class="section-kicker">QUICK ACCESS</p>
+                        <h2 id="shortcuts-title">Admin shortcuts</h2>
+
+                        <div class="shortcut-list">
+                            <a class="shortcut-link" href="admin_ManageUsers.html">
+                                <span class="shortcut-icon" aria-hidden="true">↗</span>
+                                <span>
+                                    <strong>Manage staff</strong>
+                                    <small>Roles and account access</small>
+                                </span>
+                                <span class="shortcut-arrow" aria-hidden="true">→</span>
+                            </a>
+
+                            <a class="shortcut-link" href="admin-patients.html">
+                                <span class="shortcut-icon" aria-hidden="true">＋</span>
+                                <span>
+                                    <strong>Patient records</strong>
+                                    <small>Find patient information</small>
+                                </span>
+                                <span class="shortcut-arrow" aria-hidden="true">→</span>
+                            </a>
+
+                            <a class="shortcut-link" href="admin_VaccineInventory.html">
+                                <span class="shortcut-icon" aria-hidden="true">⌁</span>
+                                <span>
+                                    <strong>Vaccine stock</strong>
+                                    <small>Inventory and quantities</small>
+                                </span>
+                                <span class="shortcut-arrow" aria-hidden="true">→</span>
+                            </a>
+                        </div>
+                    </section>
+
+                    <section
+                        class="dashboard-panel inventory-panel"
+                        aria-labelledby="inventory-title"
+                    >
+                        <div class="panel-heading">
+                            <div>
+                                <p class="section-kicker">STOCK OVERVIEW</p>
+                                <h2 id="inventory-title">Vaccine inventory</h2>
+                            </div>
+
+                            <a
+                                href="admin_VaccineInventory.html"
+                                aria-label="View full vaccine inventory"
+                            >
+                                View all <span aria-hidden="true">→</span>
+                            </a>
+                        </div>
+
+                        <ul
+                            class="inventory-list"
+                            id="dashboardVaccineList"
+                            aria-live="polite"
+                        >
+                            <li>
+                                <span>Loading vaccine stock…</span>
+                                <span></span>
+                            </li>
+                        </ul>
+
+                        <p class="inventory-note" id="dashboardVaccineNote">
+                            Loading inventory summary…
+                        </p>
+                    </section>
+                </aside>
+            </div>
+        </main>
+
+        <footer class="admin-footer">
+            <p>&copy; 2026 VaxAssist. All Rights Reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+        async function refreshVaccineInventory() {
+            const list = document.getElementById('dashboardVaccineList');
+            const note = document.getElementById('dashboardVaccineNote');
+
+            try {
+                const response = await fetch('api_VaccineInventory.php', {
+                    headers: { Accept: 'application/json' },
+                    cache: 'no-store'
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(
+                        data.error || 'Could not load vaccine inventory.'
+                    );
+                }
+
+                const vaccines = Array.isArray(data.vaccines)
+                    ? data.vaccines
+                    : [];
+
+                const lowStockCount = vaccines.filter(
+                    vaccine => Number(vaccine.quantity) < 10
+                ).length;
+
+                const preview = vaccines.slice(0, 3);
+
+                list.innerHTML = preview.length
+                    ? preview.map(vaccine => {
+                        const quantity = Number(vaccine.quantity) || 0;
+                        const stockClass =
+                            quantity < 10 ? 'stock-low' : 'stock-good';
+                        const status =
+                            quantity < 10 ? 'Low stock' : 'In stock';
+
+                        const name = String(vaccine.name).replace(
+                            /[&<>"']/g,
+                            character => ({
+                                '&': '&amp;',
+                                '<': '&lt;',
+                                '>': '&gt;',
+                                '"': '&quot;',
+                                "'": '&#39;'
+                            }[character])
+                        );
+
+                        return `
+                            <li>
+                                <span>${name}</span>
+                                <span class="${stockClass}">
+                                    ${quantity} doses · ${status}
+                                </span>
+                            </li>
+                        `;
+                    }).join('')
+                    : `
+                        <li>
+                            <span>No vaccines in inventory yet.</span>
+                            <span></span>
+                        </li>
+                    `;
+
+                note.textContent = lowStockCount
+                    ? `${lowStockCount} vaccine${lowStockCount === 1 ? '' : 's'} low on stock (below 10 doses).`
+                    : 'Stock levels are up to date.';
+            } catch (error) {
+                list.innerHTML = `
+                    <li>
+                        <span>Inventory unavailable</span>
+                        <span></span>
+                    </li>
+                `;
+                note.textContent = error.message;
+            }
+        }
+
+        fetch('api_Staff.php', {
+            headers: { Accept: 'application/json' }
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Could not load staff count.');
+                }
+
+                return response.json();
+            })
+            .then(data => {
+                document.getElementById('activeStaffCount').textContent =
+                    Array.isArray(data.staff) ? data.staff.length : 0;
+            })
+            .catch(error => {
+                console.error(error);
+                document.getElementById('activeStaffCount').textContent = '—';
+            });
+
+        refreshVaccineInventory();
+
+        window.setInterval(refreshVaccineInventory, 15000);
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                refreshVaccineInventory();
+            }
+        });
+    </script>
+</body>
+</html>

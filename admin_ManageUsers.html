@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f7fafb">
+    <title>Manage Staff &amp; Users | VaxAssist</title>
+
+    <link href="nav.css" rel="stylesheet">
+    <link href="motion.css" rel="stylesheet">
+    <script src="auth.js"></script>
+    <script src="motion.js" defer></script>
+    <link rel="stylesheet" href="admin_ManageUsers.css">
+
+</head>
+<body class="staff-page">
+    <nav class="staff-nav" aria-label="Admin navigation">
+        <a class="logo" href="admin_Dashboard.html">VaxAssist</a>
+        <ul>
+            <li><a class="nav-link" href="admin_Dashboard.html">Dashboard</a></li>
+            <li><a class="nav-link" href="admin-appointments.html">Appointments</a></li>
+            <li><a class="nav-link" href="admin-patients.html">Patients</a></li>
+            <li><a class="nav-link" href="admin-communications.html">Communications</a></li>
+            <li><a class="nav-link active" aria-current="page" href="admin_ManageUsers.html">Manage Users</a></li>
+            <li><a class="nav-link" href="admin_VaccineInventory.html">Vaccine Stock</a></li>
+        </ul>
+        <a class="admin-account" href="admin-profile.html">Admin profile</a>
+    </nav>
+
+    <header class="staff-banner">
+        <div>
+            <p class="staff-eyebrow">VAXASSIST · CLINIC ADMINISTRATION</p>
+            <h1>Manage Staff &amp; Users</h1>
+            <p>Manage your clinic team and keep your account information up to date.</p>
+        </div>
+        <button class="action-btn" id="addStaffBtn" type="button">+ Add staff member</button>
+    </header>
+
+    <main class="staff-main">
+        <section class="account-panel" aria-labelledby="accountTitle">
+            <div class="account-copy">
+                <p class="section-kicker">YOUR ACCOUNT</p>
+                <h2 id="accountTitle">User details</h2>
+                <p>Update the name, role, and email shown for your account on this device.</p>
+            </div>
+
+            <form id="accountForm" class="account-form">
+                <div class="field">
+                    <label for="accountName">Full name</label>
+                    <input id="accountName" name="name" maxlength="100" autocomplete="name" required>
+                </div>
+                <div class="field">
+                    <label for="accountRole">Role</label>
+                    <select id="accountRole" name="role" required>
+                        <option value="">Choose a role</option>
+                        <option>Administrator</option>
+                        <option>Doctor</option>
+                        <option>Nurse</option>
+                        <option>Receptionist</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="accountEmail">Email</label>
+                    <input id="accountEmail" name="email" type="email" maxlength="150" autocomplete="email" required>
+                </div>
+                <button class="action-btn account-save" type="submit">Save account details</button>
+            </form>
+        </section>
+
+        <section class="summary" aria-label="Staff summary">
+            <article class="summary-card">
+                <span>Total staff</span>
+                <strong id="totalStaff">0</strong>
+            </article>
+            <article class="summary-card">
+                <span>Doctors</span>
+                <strong id="doctorCount">0</strong>
+            </article>
+            <article class="summary-card">
+                <span>Nurses</span>
+                <strong id="nurseCount">0</strong>
+            </article>
+        </section>
+
+        <section class="staff-panel" aria-label="Staff directory">
+            <div class="toolbar">
+                <input type="search" id="searchStaff" placeholder="Search by name, email, or department" aria-label="Search staff">
+                <select id="roleFilter" aria-label="Filter by role">
+                    <option value="">All roles</option>
+                    <option>Administrator</option>
+                    <option>Doctor</option>
+                    <option>Nurse</option>
+                    <option>Receptionist</option>
+                </select>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th scope="col">Staff member</th>
+                            <th scope="col">Role</th>
+                            <th scope="col">Department</th>
+                            <th scope="col">Phone</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="staffRows"></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <div class="modal-backdrop" id="staffModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal">
+            <div class="modal-head">
+                <div>
+                    <h2 id="modalTitle">Add staff member</h2>
+                    <p>Enter the staff member's contact and role information.</p>
+                </div>
+                <button class="close-btn" id="closeModal" type="button" aria-label="Close">&times;</button>
+            </div>
+
+            <form id="staffForm">
+                <input type="hidden" id="staffId">
+                <div class="form-grid">
+                    <div class="field">
+                        <label for="staffName">Full name</label>
+                        <input id="staffName" required maxlength="100" autocomplete="name">
+                    </div>
+                    <div class="field">
+                        <label for="staffRole">Role</label>
+                        <select id="staffRole" required>
+                            <option value="">Choose a role</option>
+                            <option>Administrator</option>
+                            <option>Doctor</option>
+                            <option>Nurse</option>
+                            <option>Receptionist</option>
+                        </select>
+                    </div>
+                    <div class="field full">
+                        <label for="staffEmail">Email</label>
+                        <input id="staffEmail" type="email" required maxlength="150" autocomplete="email">
+                    </div>
+                    <div class="field">
+                        <label for="staffDepartment">Department</label>
+                        <input id="staffDepartment" required maxlength="100" placeholder="e.g. Vaccination">
+                    </div>
+                    <div class="field">
+                        <label for="staffPhone">Phone</label>
+                        <input id="staffPhone" type="tel" maxlength="30" autocomplete="tel" placeholder="e.g. +60 12-345 6789">
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button class="cancel-btn" id="cancelModal" type="button">Cancel</button>
+                    <button class="action-btn" type="submit">Save staff member</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script>
+        const API_URL = 'api_Staff.php';
+        const ACCOUNT_STORAGE_KEY = 'vaxassist.adminManageUsers.account';
+        const rows = document.getElementById('staffRows');
+        const modal = document.getElementById('staffModal');
+        const form = document.getElementById('staffForm');
+        const toast = document.getElementById('toast');
+        let staff = [];
+        let csrfToken = '';
+        let toastTimer;
+
+        function loadAccount() {
+            let account = {
+                name: 'Alex Morgan',
+                role: 'Administrator',
+                email: 'alex.morgan@vaxassist.my'
+            };
+
+            try {
+                const saved = JSON.parse(localStorage.getItem(ACCOUNT_STORAGE_KEY) || 'null');
+                if (saved && typeof saved === 'object') {
+                    account = { ...account, ...saved };
+                }
+            } catch (_) {
+                // Use the default account details when storage is unavailable.
+            }
+
+            document.getElementById('accountName').value = account.name || '';
+            document.getElementById('accountRole').value = account.role || '';
+            document.getElementById('accountEmail').value = account.email || '';
+        }
+
+        document.getElementById('accountForm').addEventListener('submit', event => {
+            event.preventDefault();
+
+            const account = {
+                name: document.getElementById('accountName').value.trim(),
+                role: document.getElementById('accountRole').value,
+                email: document.getElementById('accountEmail').value.trim()
+            };
+
+            try {
+                localStorage.setItem(ACCOUNT_STORAGE_KEY, JSON.stringify(account));
+                showToast('Account details saved on this device.');
+            } catch (_) {
+                showToast('Unable to save account details in this browser.');
+            }
+        });
+
+        function showToast(message) {
+            toast.textContent = message;
+            toast.classList.add('show');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => toast.classList.remove('show'), 2400);
+        }
+
+        function render() {
+            const term = document.getElementById('searchStaff').value.trim().toLowerCase();
+            const selectedRole = document.getElementById('roleFilter').value;
+
+            const visible = staff.filter(member =>
+                (!selectedRole || member.role === selectedRole) &&
+                (!term || [member.name, member.email, member.department, member.phone]
+                    .some(value => (value || '').toLowerCase().includes(term)))
+            );
+
+            rows.replaceChildren();
+
+            if (!visible.length) {
+                const tr = document.createElement('tr');
+                const td = document.createElement('td');
+                td.colSpan = 5;
+                td.className = 'empty-row';
+                td.textContent = staff.length
+                    ? 'No staff match your search.'
+                    : 'No staff members yet. Add one to get started.';
+                tr.append(td);
+                rows.append(tr);
+            }
+
+            visible.forEach(member => {
+                const tr = document.createElement('tr');
+
+                const person = document.createElement('td');
+                const name = document.createElement('div');
+                name.className = 'staff-name';
+                name.textContent = member.name;
+                const email = document.createElement('div');
+                email.className = 'staff-email';
+                email.textContent = member.email;
+                person.append(name, email);
+
+                const role = document.createElement('td');
+                const badge = document.createElement('span');
+                badge.className = 'role-pill';
+                badge.textContent = member.role;
+                role.append(badge);
+
+                const department = document.createElement('td');
+                department.textContent = member.department;
+
+                const phone = document.createElement('td');
+                phone.textContent = member.phone || '—';
+
+                const actions = document.createElement('td');
+                const actionGroup = document.createElement('div');
+                actionGroup.className = 'row-actions';
+
+                const edit = document.createElement('button');
+                edit.type = 'button';
+                edit.className = 'small-btn';
+                edit.textContent = 'Edit';
+                edit.setAttribute('aria-label', `Edit ${member.name}`);
+                edit.addEventListener('click', () => openEdit(member.id));
+
+                const remove = document.createElement('button');
+                remove.type = 'button';
+                remove.className = 'small-btn delete-btn';
+                remove.textContent = 'Delete';
+                remove.setAttribute('aria-label', `Delete ${member.name}`);
+                remove.addEventListener('click', () => removeStaff(member.id));
+
+                actionGroup.append(edit, remove);
+                actions.append(actionGroup);
+                tr.append(person, role, department, phone, actions);
+                rows.append(tr);
+            });
+
+            document.getElementById('totalStaff').textContent = staff.length;
+            document.getElementById('doctorCount').textContent =
+                staff.filter(member => member.role === 'Doctor').length;
+            document.getElementById('nurseCount').textContent =
+                staff.filter(member => member.role === 'Nurse').length;
+        }
+
+        async function requestApi(method = 'GET', body = null) {
+            const options = {
+                method,
+                headers: { 'Accept': 'application/json' },
+                credentials: 'same-origin'
+            };
+
+            if (body) {
+                options.headers['Content-Type'] = 'application/json';
+                options.headers['X-CSRF-Token'] = csrfToken;
+                options.body = JSON.stringify(body);
+            }
+
+            const response = await fetch(API_URL, options);
+            const result = await response.json().catch(() => ({}));
+
+            if (!response.ok) {
+                throw new Error(result.error || 'The request could not be completed.');
+            }
+
+            return result;
+        }
+
+        async function loadStaff() {
+            try {
+                const result = await requestApi();
+                staff = result.staff || [];
+                csrfToken = result.csrfToken || '';
+                render();
+            } catch (error) {
+                rows.innerHTML = '<tr><td colspan="5" class="empty-row"></td></tr>';
+                rows.querySelector('.empty-row').textContent = error.message;
+                showToast(error.message);
+            }
+        }
+
+        function openAdd() {
+            form.reset();
+            document.getElementById('staffId').value = '';
+            document.getElementById('modalTitle').textContent = 'Add staff member';
+            modal.classList.add('open');
+            document.getElementById('staffName').focus();
+        }
+
+        function openEdit(id) {
+            const member = staff.find(item => item.id === id);
+            if (!member) return;
+
+            document.getElementById('staffId').value = member.id;
+            document.getElementById('staffName').value = member.name;
+            document.getElementById('staffEmail').value = member.email;
+            document.getElementById('staffRole').value = member.role;
+            document.getElementById('staffDepartment').value = member.department;
+            document.getElementById('staffPhone').value = member.phone || '';
+            document.getElementById('modalTitle').textContent = 'Edit staff member';
+            modal.classList.add('open');
+            document.getElementById('staffName').focus();
+        }
+
+        function closeModal() {
+            modal.classList.remove('open');
+        }
+
+        async function removeStaff(id) {
+            const member = staff.find(item => item.id === id);
+            if (!member) return;
+
+            if (!window.confirm(`Delete ${member.name} from the staff list?`)) return;
+
+            try {
+                await requestApi('DELETE', { id });
+                await loadStaff();
+                showToast('Staff member deleted.');
+            } catch (error) {
+                showToast(error.message);
+            }
+        }
+
+        document.getElementById('addStaffBtn').addEventListener('click', openAdd);
+        document.getElementById('closeModal').addEventListener('click', closeModal);
+        document.getElementById('cancelModal').addEventListener('click', closeModal);
+
+        modal.addEventListener('click', event => {
+            if (event.target === modal) closeModal();
+        });
+
+        document.addEventListener('keydown', event => {
+            if (event.key === 'Escape') closeModal();
+        });
+
+        document.getElementById('searchStaff').addEventListener('input', render);
+        document.getElementById('roleFilter').addEventListener('change', render);
+
+        form.addEventListener('submit', async event => {
+            event.preventDefault();
+            if (!form.reportValidity()) return;
+
+            const id = document.getElementById('staffId').value;
+            const member = {
+                name: document.getElementById('staffName').value.trim(),
+                email: document.getElementById('staffEmail').value.trim(),
+                role: document.getElementById('staffRole').value,
+                department: document.getElementById('staffDepartment').value.trim(),
+                phone: document.getElementById('staffPhone').value.trim()
+            };
+
+            if (id) member.id = Number(id);
+
+            try {
+                await requestApi(id ? 'PUT' : 'POST', member);
+                await loadStaff();
+                closeModal();
+                form.reset();
+                showToast(id ? 'Staff information updated.' : 'Staff member added.');
+            } catch (error) {
+                showToast(error.message);
+            }
+        });
+
+        loadAccount();
+        loadStaff();
+    </script>
+</body>
+</html>

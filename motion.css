@@ -1,0 +1,156 @@
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    animation: pageIn 0.45s ease backwards;
+}
+
+@keyframes pageIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@keyframes menuIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes messageIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes iconFloat {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-5px); }
+}
+
+/* Scroll reveal: motion.js adds .reveal, then .in when the element comes into view */
+.js-motion .reveal {
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+    transition-delay: var(--d, 0ms);
+}
+
+.js-motion .reveal.in {
+    opacity: 1;
+    transform: none;
+}
+
+/* Navigation */
+@media (min-width: 992px) {
+    .navbar .nav-link {
+        position: relative;
+    }
+
+    .navbar .nav-link:not(.dropdown-toggle)::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 2px;
+        height: 2px;
+        border-radius: 2px;
+        background: #167d8d;
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.25s ease;
+    }
+
+    .navbar .nav-link:not(.dropdown-toggle):hover::after,
+    .navbar .nav-link:not(.dropdown-toggle).active::after {
+        transform: scaleX(1);
+    }
+}
+
+.dropdown-menu.show {
+    animation: menuIn 0.18s ease;
+}
+
+/* Buttons */
+.btn {
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease,
+                transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn:active {
+    transform: scale(0.98);
+}
+
+.appointment-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(22, 125, 141, 0.25);
+}
+
+/* Cards lift a little on hover */
+.service-card,
+.about-box,
+.contact-item,
+.step,
+.doctor-card,
+.appt-card,
+.pay-card,
+.review-card {
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.service-card:hover,
+.about-box:hover,
+.contact-item:hover,
+.step:hover,
+.doctor-card:hover,
+.appt-card:hover,
+.pay-card:hover,
+.review-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(24, 54, 66, 0.08);
+}
+
+.service-icon,
+.step-num {
+    transition: transform 0.3s ease;
+}
+
+.service-card:hover .service-icon,
+.step:hover .step-num {
+    transform: scale(1.1) rotate(-4deg);
+}
+
+.login-icon,
+.register-icon {
+    animation: iconFloat 4s ease-in-out infinite;
+}
+
+/* Form fields */
+.form-control,
+.form-select,
+.form-check-input,
+textarea {
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+/* Messages and tab panels fade in when they appear */
+.alert,
+.success-box,
+.error-box,
+[role="tabpanel"]:not(.d-none) {
+    animation: messageIn 0.3s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    *, *::before, *::after {
+        animation: none !important;
+        transition: none !important;
+    }
+
+    .js-motion .reveal {
+        opacity: 1 !important;
+        transform: none !important;
+    }
+}

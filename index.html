@@ -4,287 +4,379 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>VaxAssist - Healthcare Appointment System</title>
+    <title>VaxAssist | Home</title>
 
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-        body {
-            background-color: #f4f8fb;
-            color: #333;
-        }
-
-        /* Navigation Bar */
-        nav {
-            background-color: #ffffff;
-            height: 70px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 8%;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-        }
-
-        .logo {
-            font-size: 26px;
-            font-weight: bold;
-            color: #1976d2;
-        }
-
-        nav ul {
-            list-style: none;
-            display: flex;
-            gap: 30px;
-        }
-
-        nav ul li a {
-            text-decoration: none;
-            color: #333;
-            font-size: 15px;
-        }
-
-        nav ul li a:hover {
-            color: #1976d2;
-        }
-
-        /* Hero Section */
-        .hero {
-            min-height: 500px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 60px 8%;
-            background-color: #eaf5ff;
-        }
-
-        .hero-text {
-            max-width: 550px;
-        }
-
-        .hero-text h1 {
-            font-size: 48px;
-            color: #155a96;
-            margin-bottom: 20px;
-        }
-
-        .hero-text p {
-            font-size: 18px;
-            line-height: 1.7;
-            margin-bottom: 30px;
-            color: #555;
-        }
-
-        .buttons {
-            display: flex;
-            gap: 15px;
-        }
-
-        .btn {
-            padding: 13px 25px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-size: 15px;
-            cursor: pointer;
-        }
-
-        .primary-btn {
-            background-color: #1976d2;
-            color: white;
-        }
-
-        .secondary-btn {
-            border: 1px solid #1976d2;
-            color: #1976d2;
-            background-color: white;
-        }
-
-        .btn:hover {
-            opacity: 0.85;
-        }
-
-        /* Simple Hero Card */
-        .hero-card {
-            width: 350px;
-            background-color: white;
-            padding: 35px;
-            border-radius: 12px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
-
-        .hero-card h2 {
-            color: #1976d2;
-            margin-bottom: 15px;
-        }
-
-        .hero-card p {
-            line-height: 1.6;
-            color: #666;
-        }
-
-        /* Features */
-        .features {
-            padding: 60px 8%;
-            text-align: center;
-        }
-
-        .features h2 {
-            font-size: 32px;
-            margin-bottom: 40px;
-            color: #155a96;
-        }
-
-        .feature-container {
-            display: flex;
-            justify-content: center;
-            gap: 25px;
-            flex-wrap: wrap;
-        }
-
-        .feature-card {
-            background-color: white;
-            width: 280px;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
-        }
-
-        .feature-card h3 {
-            color: #1976d2;
-            margin-bottom: 15px;
-        }
-
-        .feature-card p {
-            color: #666;
-            line-height: 1.6;
-        }
-
-        /* Footer */
-        footer {
-            background-color: #155a96;
-            color: white;
-            text-align: center;
-            padding: 20px;
-            margin-top: 30px;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .hero {
-                flex-direction: column;
-                text-align: center;
-                gap: 40px;
-            }
-
-            .hero-text h1 {
-                font-size: 38px;
-            }
-
-            .buttons {
-                justify-content: center;
-            }
-
-            nav {
-                padding: 0 5%;
-            }
-
-            nav ul {
-                gap: 12px;
-            }
-        }
-    </style>
+    <!-- Custom Styling -->
+    <link href="nav.css" rel="stylesheet">
+    <link href="motion.css" rel="stylesheet">
+    <link href="index.css" rel="stylesheet">
+    <script src="auth.js"></script>
+    <script src="motion.js" defer></script>
 </head>
 
 <body>
 
     <!-- Navigation -->
-    <nav>
-        <div class="logo">VaxAssist</div>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container py-2">
 
-        <ul>
-            <li><a href="#">Home</a></li>
-            <li><a href="Booking.html" aria-current="page">Appointments</a></li>
-            <li><a href="VaccineGuide.html">Vaccine Guide</a></li>
-            <li><a href="login.html">Login</a></li>
-        </ul>
+            <a class="navbar-brand fw-bold" href="index.html">
+                VaxAssist
+            </a>
+
+            <button class="navbar-toggler" type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbarNav"
+                    aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+
+                <ul class="navbar-nav ms-auto align-items-lg-center">
+
+                    <li class="nav-item">
+                        <a class="nav-link active" href="index.html">Home</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="about.html">About</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="services.html">Services</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="doctors.html">Doctors</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="planner.html">Planner</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="contact.html">Contact</a>
+                    </li>
+
+                    <li class="nav-item dropdown" data-auth="in">
+                        <a class="nav-link dropdown-toggle" href="#" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">Hi, <span data-user-name>there</span></a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="booking.html">Book an Appointment</a></li>
+                            <li><a class="dropdown-item" href="appointments.html">My Appointments</a></li>
+                            <li><a class="dropdown-item" href="vaccinations.html">My Vaccinations</a></li>
+                            <li><a class="dropdown-item" href="precheck.html">Pre-consultation Form</a></li>
+                            <li><a class="dropdown-item" href="receipts.html">Payments &amp; Receipts</a></li>
+                            <li><a class="dropdown-item" href="reviews.html">Reviews &amp; Ratings</a></li>
+                            <li><a class="dropdown-item" href="notifications.html">Notifications</a></li>
+                            <li><a class="dropdown-item" href="profile.html">My Profile</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item logout-link" href="#" data-logout>Log out</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="nav-item" data-auth="out">
+                        <a class="nav-link" href="login.html">Log in</a>
+                    </li>
+
+                    <li class="nav-item ms-lg-3 mt-3 mt-lg-0" data-auth="out">
+                        <a class="btn appointment-btn" href="register.html">
+                            Create Account
+                        </a>
+                    </li>
+
+                </ul>
+
+            </div>
+        </div>
     </nav>
 
 
-    <!-- Hero Section -->
+    <!-- Hero -->
     <section class="hero">
 
-        <div class="hero-text">
-            <h1>Your Healthcare, Made Simple.</h1>
+        <div class="container">
 
-            <p>
-                VaxAssist is a healthcare appointment booking system
-                that helps patients find healthcare services, check
-                available appointments and manage their bookings easily.
-            </p>
+            <div class="row align-items-center g-5">
 
-            <div class="buttons">
-                <a href="Booking.html" class="btn primary-btn">
-                    Book an Appointment
-                </a>
+                <div class="col-lg-6">
 
-                <a href="VaccineGuide.html" class="btn secondary-btn">
-                    Vaccine Guide
-                </a>
+                    <div class="hero-label">
+                        Vaccination &amp; preventive care
+                    </div>
+
+                    <h1 class="mb-4">
+                        Stay protected,<br>
+                        every step.
+                    </h1>
+
+                    <p class="mb-4">
+                        Find out which vaccines you need before you travel,
+                        and keep your child's booster schedule on track.
+                    </p>
+
+                    <a href="register.html"
+                       class="btn appointment-btn me-2" data-auth="out">
+                        Get Started
+                    </a>
+
+                    <a href="booking.html"
+                       class="btn appointment-btn me-2" data-auth="in">
+                        Book an Appointment
+                    </a>
+
+                    <a href="services.html"
+                       class="btn btn-outline-secondary">
+                        Explore Services
+                    </a>
+
+                </div>
+
+
+                <!-- Planner teaser -->
+                <div class="col-lg-6">
+
+                    <div class="planner-card">
+
+                        <h3 class="mb-1">Vaccine Planner</h3>
+                        <p class="sub mb-4">See what you need in a few seconds.</p>
+
+                        <div class="planner-switch mb-4" role="tablist" aria-label="Planner type">
+                            <button type="button" class="planner-tab active" data-mode="travel" role="tab" aria-selected="true">Travelling</button>
+                            <button type="button" class="planner-tab" data-mode="child" role="tab" aria-selected="false">My child</button>
+                        </div>
+
+                        <form id="plannerForm" action="planner.html" method="GET">
+
+                            <input type="hidden" name="mode" id="plannerMode" value="travel">
+
+                            <div class="mb-4" id="travelField">
+                                <label for="destination" class="form-label">Destination country</label>
+                                <input type="text" class="form-control" id="destination"
+                                       name="destination" placeholder="e.g. Kenya" required>
+                            </div>
+
+                            <div class="mb-4 d-none" id="childField">
+                                <label for="childDob" class="form-label">Child's date of birth</label>
+                                <input type="date" class="form-control" id="childDob"
+                                       name="child_dob">
+                            </div>
+
+                            <button type="submit" class="btn appointment-btn w-100">
+                                Show my schedule
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
             </div>
-        </div>
 
-
-        <div class="hero-card">
-            <h2>VaxAssist</h2>
-
-            <p>
-                Find the right healthcare service, choose an available
-                time slot and manage your appointment in one place.
-            </p>
         </div>
 
     </section>
 
 
-    <!-- Features Section -->
-    <section class="features">
+    <!-- Services Preview -->
+    <section class="py-5">
 
-        <h2>What VaxAssist Offers</h2>
+        <div class="container">
 
-        <div class="feature-container">
+            <div class="text-center mb-5">
 
-            <div class="feature-card">
-                <h3>Easy Booking</h3>
+                <div class="section-label mb-2">
+                    What we offer
+                </div>
 
-                <p>
-                    Patients can select a healthcare service,
-                    choose an available date and book an appointment.
-                </p>
+                <h2 class="section-title">
+                    Vaccination care for the whole family
+                </h2>
+
             </div>
 
 
-            <div class="feature-card" id="vaccine-guide">
-                <h3>Vaccine Guide</h3>
+            <div class="row g-4">
 
-                <p>
-                    Get simple vaccine information based on your
-                    travel destination or your baby's age.
-                </p>
+                <div class="col-md-4">
+
+                    <div class="service-card">
+
+                        <div class="service-icon">
+                            ✈️
+                        </div>
+
+                        <h5>
+                            Travel Vaccines
+                        </h5>
+
+                        <p>
+                            Yellow Fever, Typhoid, Hepatitis A and more,
+                            matched to your destination.
+                        </p>
+
+                        <a href="services.html"
+                           class="btn btn-sm btn-outline-secondary">
+                            Learn More
+                        </a>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-4">
+
+                    <div class="service-card">
+
+                        <div class="service-icon">
+                            👶
+                        </div>
+
+                        <h5>
+                            Childhood Boosters
+                        </h5>
+
+                        <p>
+                            A clear schedule from birth, so you never miss
+                            an important dose.
+                        </p>
+
+                        <a href="services.html"
+                           class="btn btn-sm btn-outline-secondary">
+                            Learn More
+                        </a>
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-4">
+
+                    <div class="service-card">
+
+                        <div class="service-icon">
+                            🩺
+                        </div>
+
+                        <h5>
+                            Consultation
+                        </h5>
+
+                        <p>
+                            Talk to our doctors about vaccine safety,
+                            side effects and your health history.
+                        </p>
+
+                        <a href="services.html"
+                           class="btn btn-sm btn-outline-secondary">
+                            Learn More
+                        </a>
+
+                    </div>
+
+                </div>
+
             </div>
 
+        </div>
 
-            <div class="feature-card">
-                <h3>Appointment Management</h3>
+    </section>
 
-                <p>
-                    Doctors can view their daily appointments while
-                    administrators can manage doctor availability.
+
+    <!-- How it works -->
+    <section class="py-5">
+
+        <div class="container">
+
+            <div class="text-center mb-5">
+
+                <div class="section-label mb-2">
+                    How it works
+                </div>
+
+                <h2 class="section-title">
+                    Three steps to a protected family
+                </h2>
+
+            </div>
+
+            <div class="row g-4 text-center">
+
+                <div class="col-md-4 step">
+                    <div class="step-num">1</div>
+                    <h6>Tell us your plans</h6>
+                    <p>Enter your destination or your child's date of birth.</p>
+                </div>
+
+                <div class="col-md-4 step">
+                    <div class="step-num">2</div>
+                    <h6>Get your schedule</h6>
+                    <p>See which vaccines are required and which are recommended.</p>
+                </div>
+
+                <div class="col-md-4 step">
+                    <div class="step-num">3</div>
+                    <h6>Book your doses</h6>
+                    <p>Pick an available slot and book in one click.</p>
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- Call to action -->
+    <section class="py-5">
+
+        <div class="container">
+
+            <div class="cta-band text-center" data-auth="out">
+
+                <h2 class="section-title mb-3">
+                    Ready to plan your vaccinations?
+                </h2>
+
+                <p class="text-secondary mb-4">
+                    Create a free account to save your schedule and book appointments.
                 </p>
+
+                <a href="register.html" class="btn appointment-btn me-2">
+                    Create Account
+                </a>
+
+                <a href="login.html" class="btn btn-outline-secondary">
+                    Log in
+                </a>
+
+            </div>
+
+            <div class="cta-band text-center" data-auth="in">
+
+                <h2 class="section-title mb-3">
+                    Welcome back, <span data-user-name></span>
+                </h2>
+
+                <p class="text-secondary mb-4">
+                    Pick up where you left off.
+                </p>
+
+                <a href="vaccinations.html" class="btn appointment-btn me-2">
+                    My Vaccinations
+                </a>
+
+                <a href="appointments.html" class="btn btn-outline-secondary">
+                    My Appointments
+                </a>
+
             </div>
 
         </div>
@@ -293,9 +385,20 @@
 
 
     <!-- Footer -->
-    <footer>
-        <p>&copy; 2026 VaxAssist. All Rights Reserved.</p>
+    <footer class="text-center p-4 mt-5">
+
+        <p class="mb-0">
+            © 2026 <span>VaxAssist</span> |
+            All Rights Reserved
+        </p>
+
     </footer>
+
+
+    <!-- Bootstrap JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="index.js"></script>
 
 </body>
 </html>
