@@ -1,3 +1,4 @@
+// Database connection code
 <?php
 $host = "localhost";
 $user = "root";
