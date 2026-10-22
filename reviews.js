@@ -1,24 +1,23 @@
 async function getCurrentUser() {
-    return VaxAuth.getUser();
+    return VaxAuth.fetchUser();
 }
 
 async function getCompletedVisits() {
-    return [
-        { id: 101, doctor_name: 'Dr. Aisha Rahman', service: 'Typhoid vaccine',      date: daysFromToday(-12) },
-        { id: 102, doctor_name: 'Dr. Jason Wong',   service: 'Hepatitis A vaccine',  date: daysFromToday(-41) },
-        { id: 103, doctor_name: 'Dr. Siti Aminah',  service: 'DTaP-IPV-Hib (Aiden)', date: daysFromToday(-30) },
-        { id: 104, doctor_name: 'Dr. Priya Nair',   service: 'Influenza vaccine',    date: daysFromToday(-210) }
-    ];
+    const appointments = (await VaxApi.get('api/appointments')).appointments;
+    return appointments.filter(function (a) { return a.status === 'completed'; }).map(function (a) {
+        return {
+            id: a.id, doctor_name: a.doctor_name, date: a.appointment_date,
+            service: a.vaccine_name + (a.child_name ? ' (' + a.child_name + ')' : '')
+        };
+    });
 }
 
 async function getMyReviews() {
-    try { return JSON.parse(localStorage.getItem('vaxReviews')) || {}; } catch (e) { return {}; }
+    return (await VaxApi.get('api/reviews')).reviews;
 }
 
 async function saveReview(visitId, review) {
-    const all = await getMyReviews();
-    all[visitId] = review;
-    try { localStorage.setItem('vaxReviews', JSON.stringify(all)); } catch (e) {}
+    await VaxApi.put('api/appointments/' + encodeURIComponent(visitId) + '/review', { rating: review.rating, comment: review.comment });
     return review;
 }
 
