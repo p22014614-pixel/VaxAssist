@@ -1,5 +1,9 @@
 async function getCurrentUser() {
-    return VaxAuth.getUser();
+    return VaxAuth.fetchUser();
+}
+
+async function getVaccinations() {
+    return (await VaxApi.get('api/vaccination-records')).records;
 }
 
 const recordList = document.getElementById('recordList');
