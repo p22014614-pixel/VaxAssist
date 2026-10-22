@@ -1,54 +1,29 @@
 async function getCurrentUser() {
-    return VaxAuth.getUser();
+    return VaxAuth.fetchUser();
 }
 
 async function getNotifications() {
-    return [
-        { id: 901, type: 'late', title: 'Doctor running late',
-          message: 'Dr. Aisha Rahman is running about 15 minutes behind. Your Yellow Fever appointment is still on, with a slightly later start.',
-          action_url: 'appointments.html', action_label: 'View appointment', is_read: 0, created_at: minutesAgo(12) },
-        { id: 902, type: 'reminder', title: 'Appointment tomorrow',
-          message: 'Reminder: Yellow Fever vaccine with Dr. Aisha Rahman at 10:00 AM. Please bring your ID and travel details.',
-          action_url: 'appointments.html', action_label: 'View appointment', is_read: 0, created_at: minutesAgo(180) },
-        { id: 903, type: 'booster', title: "Aiden's pneumococcal booster is overdue",
-          message: 'Aiden is due for his Pneumococcal (PCV) booster. Book a visit to keep his schedule on track.',
-          action_url: 'booking.html?vaccine=Pneumococcal%20(PCV)', action_label: 'Book now', is_read: 0, created_at: minutesAgo(60 * 20) },
-        { id: 904, type: 'appointment', title: 'Booking confirmed',
-          message: 'Your MMR appointment for Aiden with Dr. Daniel Lim has been confirmed.',
-          action_url: 'appointments.html', action_label: 'View appointment', is_read: 1, created_at: minutesAgo(60 * 28) },
-        { id: 905, type: 'booster', title: 'Hepatitis A second dose coming up',
-          message: 'Your second Hepatitis A dose is due in about 40 days. You can book a slot any time before then.',
-          action_url: 'vaccinations.html', action_label: 'See my records', is_read: 0, created_at: minutesAgo(60 * 24 * 3) },
-        { id: 906, type: 'announcement', title: 'Discounted flu booster slots',
-          message: 'Selected influenza booster slots this month are available at a reduced price while stocks last.',
-          action_url: 'booking.html?vaccine=Influenza', action_label: 'Book a slot', is_read: 1, created_at: minutesAgo(60 * 24 * 5) },
-        { id: 907, type: 'appointment', title: 'Appointment rescheduled',
-          message: 'Your Typhoid appointment was moved to a new time at your request.',
-          action_url: 'appointments.html?tab=history', action_label: 'View history', is_read: 1, created_at: minutesAgo(60 * 24 * 16) },
-        { id: 908, type: 'announcement', title: 'Welcome to VaxAssist',
-          message: 'Thanks for joining. Complete your health profile so your doctor has what they need before each vaccine.',
-          action_url: 'profile.html?tab=health', action_label: 'Open profile', is_read: 1, created_at: minutesAgo(60 * 24 * 40) }
-    ];
+    return (await VaxApi.get('api/notifications')).notifications;
 }
 
 async function markNotificationRead(id) {
-    return { ok: true };
+    return VaxApi.patch('api/notifications/' + encodeURIComponent(id), { is_read: true });
 }
 
 async function markAllRead() {
-    return { ok: true };
+    return VaxApi.patch('api/notifications', { is_read: true });
 }
 
 async function deleteNotification(id) {
-    return { ok: true };
+    return VaxApi.delete('api/notifications/' + encodeURIComponent(id));
 }
 
 async function getPreferences() {
-    return { email_reminders: true, sms_reminders: false, booster_alerts: true, clinic_news: true };
+    return (await VaxApi.get('api/notification-preferences')).preferences;
 }
 
 async function savePreferences(prefs) {
-    return { ok: true };
+    return VaxApi.put('api/notification-preferences', prefs);
 }
 
 const feed = document.getElementById('feed');
@@ -69,10 +44,6 @@ const FILTERS = [
 let notifications = [];
 let filter = 'all';
 let lastUnread = null;
-
-function minutesAgo(n) {
-    return new Date(Date.now() - n * 60000).toISOString();
-}
 
 function esc(text) {
     const div = document.createElement('div');
