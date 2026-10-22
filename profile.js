@@ -1,44 +1,37 @@
 async function getCurrentUser() {
-    return VaxAuth.getUser();
+    return VaxAuth.fetchUser();
 }
 
 async function getProfile() {
-    return {
-        first_name: 'Demo', last_name: 'Patient', email: 'demo.patient@example.com',
-        phone: '+60 12-345 6789', dob: '1998-05-14', gender: 'female',
-        address: '', emergency_contact_name: '', emergency_contact_phone: ''
-    };
+    return (await VaxApi.get('api/me')).profile;
 }
 
 async function saveProfile(data) {
-    return { ok: true };
+    return VaxApi.put('api/me', data);
 }
 
 async function getHealthProfile() {
-    return {
-        blood_type: 'O+', height_cm: 165, weight_kg: 58, no_known_allergies: false,
-        allergies: ['Penicillin', 'Egg'], conditions: ['Asthma'], medications: ['Salbutamol inhaler']
-    };
+    return (await VaxApi.get('api/me/health')).health;
 }
 
 async function saveHealthProfile(data) {
-    return { ok: true };
+    return VaxApi.put('api/me/health', data);
 }
 
 async function getChildren() {
-    return [{ id: 1, first_name: 'Aiden', dob: daysFromToday(-430), gender: 'male' }];
+    return (await VaxApi.get('api/children')).children;
 }
 
 async function addChild(child) {
-    return { ok: true, id: Date.now() };
+    return VaxApi.post('api/children', child);
 }
 
 async function deleteChild(id) {
-    return { ok: true };
+    return VaxApi.delete('api/children/' + encodeURIComponent(id));
 }
 
 async function changePassword(current, next) {
-    return { ok: true };
+    return VaxApi.put('api/me/password', { current: current, new: next });
 }
 
 const reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
@@ -193,7 +186,7 @@ document.getElementById('personalForm').addEventListener('submit', async functio
         updateHeader();
         toast('Personal details saved');
     } catch (err) {
-        showError('personalError', 'Sorry, we could not save your details. Please try again.');
+        showError('personalError', err.status && err.status < 500 ? err.message : 'Sorry, we could not save your details. Please try again.');
     }
     btn.disabled = false; btn.textContent = 'Save changes';
 });
@@ -304,7 +297,7 @@ document.getElementById('healthForm').addEventListener('submit', async function 
         updateHeader();
         toast('Health profile saved');
     } catch (err) {
-        showError('healthError', 'Sorry, we could not save your health profile. Please try again.');
+        showError('healthError', err.status && err.status < 500 ? err.message : 'Sorry, we could not save your health profile. Please try again.');
     }
     btn.disabled = false; btn.textContent = 'Save health profile';
 });
@@ -364,7 +357,7 @@ document.getElementById('childForm').addEventListener('submit', async function (
         document.getElementById('childForm').reset();
         toast(data.first_name + ' was added');
     } catch (err) {
-        showError('childError', 'Sorry, we could not add your child. Please try again.');
+        showError('childError', err.status && err.status < 500 ? err.message : 'Sorry, we could not add your child. Please try again.');
     }
     btn.disabled = false; btn.textContent = 'Add child';
 });
@@ -423,7 +416,7 @@ document.getElementById('passwordForm').addEventListener('submit', async functio
         document.getElementById('new_password').dispatchEvent(new Event('input'));
         toast('Password updated');
     } catch (err) {
-        showError('passwordError', 'Sorry, we could not update your password. Check your current password and try again.');
+        showError('passwordError', err.status && err.status < 500 ? err.message : 'Sorry, we could not update your password. Check your current password and try again.');
     }
     btn.disabled = false; btn.textContent = 'Update password';
 });
