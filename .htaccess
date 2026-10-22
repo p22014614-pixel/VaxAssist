@@ -1,0 +1,4 @@
+# When the site is served by Apache (XAMPP or the cloud server), send /api/... to the front controller.
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^api/ api/index.php [L]
