@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f7fafb">
+    <title>Schedule | VaxAssist</title>
+
+    <link href="nav.css" rel="stylesheet">
+    <link href="motion.css" rel="stylesheet">
+    <script src="auth.js"></script>
+    <script src="motion.js" defer></script>
+    <link rel="stylesheet" href="admin_ViewAppointment.css">
+</head>
+<body class="admin-dashboard">
+    <nav class="admin-topbar admin-nav" aria-label="Admin navigation">
+        <a class="logo" href="admin_Dashboard.html">VaxAssist</a>
+        <ul>
+            <li><a class="nav-link" href="admin_Dashboard.html">Dashboard</a></li>
+            <li><a class="nav-link active" aria-current="page" href="admin_ViewAppointment.html">View Appointment</a></li>
+            <li><a class="nav-link" href="admin-patients.html">Patients</a></li>
+            <li><a class="nav-link" href="admin-communications.html">Communications</a></li>
+            <li><a class="nav-link" href="admin_ManageUsers.html">Manage Users</a></li>
+            <li><a class="nav-link" href="admin_VaccineInventory.html">Vaccine Stock</a></li>
+        </ul>
+        <a class="admin-account" href="admin-profile.html">Admin profile</a>
+    </nav>
+
+    <div class="admin-main-content">
+        <header class="schedule-banner">
+            <div>
+                <p class="eyebrow">VAXASSIST · CLINIC ADMINISTRATION</p>
+                <h1>Appointment schedule</h1>
+                <p>Coordinate patient bookings, doctors, dates, and times.</p>
+            </div>
+            <button class="primary-action" id="openBooking" type="button">+ Book appointment</button>
+        </header>
+
+        <main class="schedule-main">
+            <section class="schedule-summary" aria-label="Schedule summary">
+                <article class="summary-card">
+                    <span>Appointments today</span>
+                    <strong id="todayCount">4</strong>
+                </article>
+                <article class="summary-card">
+                    <span>Doctors on schedule</span>
+                    <strong>3</strong>
+                </article>
+                <article class="summary-card">
+                    <span>Awaiting confirmation</span>
+                    <strong id="pendingCount">1</strong>
+                </article>
+            </section>
+
+            <section class="schedule-panel" aria-labelledby="scheduleTitle">
+                <div class="panel-heading">
+                    <div>
+                        <p class="section-kicker">BOOKINGS &amp; AVAILABILITY</p>
+                        <h2 id="scheduleTitle">Clinic appointments</h2>
+                    </div>
+                    <span class="updated-label">Manage assigned doctor and appointment time</span>
+                </div>
+
+                <div class="schedule-tools">
+                    <label class="field">
+                        Appointment date
+                        <input id="dateFilter" type="date" aria-label="Filter appointments by date">
+                    </label>
+                    <label class="field">
+                        Doctor
+                        <select id="doctorFilter">
+                            <option value="">All doctors</option>
+                            <option>Dr. Sarah Lim</option>
+                            <option>Dr. Amir Rahman</option>
+                            <option>Dr. Mei Chen</option>
+                        </select>
+                    </label>
+                    <label class="field search-field">
+                        Search patient or service
+                        <input id="searchFilter" type="search" placeholder="Name or appointment type">
+                    </label>
+                </div>
+
+                <div class="table-wrapper">
+                    <table class="schedule-table">
+                        <thead>
+                            <tr>
+                                <th>Date &amp; time</th>
+                                <th>Patient</th>
+                                <th>Appointment</th>
+                                <th>Doctor</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="appointmentRows"></tbody>
+                    </table>
+                </div>
+                <p class="schedule-note" id="resultNote" aria-live="polite"></p>
+            </section>
+        </main>
+
+        <footer class="admin-footer">
+            <p>&copy; 2026 VaxAssist. All Rights Reserved.</p>
+        </footer>
+    </div>
+
+    <div class="modal-backdrop" id="bookingBackdrop" role="presentation">
+        <section class="booking-modal" role="dialog" aria-modal="true" aria-labelledby="bookingTitle">
+            <div class="modal-heading">
+                <div>
+                    <h2 id="bookingTitle">Book an appointment</h2>
+                    <p>Add a patient booking and assign a doctor.</p>
+                </div>
+                <button class="close-modal" id="closeBooking" type="button" aria-label="Close">×</button>
+            </div>
+
+            <form class="booking-form" id="bookingForm">
+                <label class="field">
+                    Patient name
+                    <input name="patient" required placeholder="Full name">
+                </label>
+                <label class="field">
+                    Appointment type
+                    <input name="service" required placeholder="e.g. Vaccination consultation">
+                </label>
+                <label class="field">
+                    Doctor
+                    <select name="doctor" required>
+                        <option value="">Select doctor</option>
+                        <option>Dr. Sarah Lim</option>
+                        <option>Dr. Amir Rahman</option>
+                        <option>Dr. Mei Chen</option>
+                    </select>
+                </label>
+                <label class="field">
+                    Date
+                    <input name="date" type="date" required>
+                </label>
+                <label class="field">
+                    Time
+                    <input name="time" type="time" required>
+                </label>
+                <div class="form-actions">
+                    <button class="secondary-button" id="cancelBooking" type="button">Cancel</button>
+                    <button class="primary-action" type="submit">Save appointment</button>
+                </div>
+            </form>
+        </section>
+    </div>
+
+    <script>
+        let appointments = [];
+        const rows = document.getElementById('appointmentRows');
+
+        const safe = value => String(value ?? '').replace(/[&<>"']/g, char => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+        }[char]));
+
+        function renderAppointments() {
+            const date = document.getElementById('dateFilter').value;
+            const doctor = document.getElementById('doctorFilter').value;
+            const search = document.getElementById('searchFilter').value.trim().toLowerCase();
+
+            const filtered = appointments.filter(appointment => {
+                const matchesDate = !date || appointment.appointment_date === date;
+                const matchesDoctor = !doctor || String(appointment.doctor_id) === doctor;
+                const searchableText =
+                    `${appointment.patient_id} ${appointment.symptoms_notes}`.toLowerCase();
+                const matchesSearch = !search || searchableText.includes(search);
+
+                return matchesDate && matchesDoctor && matchesSearch;
+            });
+
+            rows.innerHTML = filtered.length
+                ? filtered.map(appointment => `
+                    <tr>
+                        <td>
+                            <strong>${safe(appointment.appointment_date)}</strong>
+                            <span class="patient-meta">${safe(appointment.time_slot)}</span>
+                        </td>
+                        <td>
+                            <span class="patient-name">Patient #${safe(appointment.patient_id)}</span>
+                            <span class="patient-meta">Appointment #${safe(appointment.appointment_id)}</span>
+                        </td>
+                        <td>${safe(appointment.symptoms_notes)}</td>
+                        <td>Doctor #${safe(appointment.doctor_id)}</td>
+                        <td><span class="status-chip">${safe(appointment.status)}</span></td>
+                        <td>—</td>
+                    </tr>
+                `).join('')
+                : '<tr><td class="empty-state" colspan="6">No appointments match these filters.</td></tr>';
+
+            document.getElementById('resultNote').textContent =
+                `Showing ${filtered.length} appointment${filtered.length === 1 ? '' : 's'}`;
+        }
+
+        async function loadAppointments() {
+            try {
+                const response = await fetch('api_Appointment.php', { cache: 'no-store' });
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Could not load appointments.');
+                }
+
+                appointments = Array.isArray(data.appointments) ? data.appointments : [];
+                renderAppointments();
+            } catch (error) {
+                document.getElementById('resultNote').textContent = error.message;
+            }
+        }
+
+        ['dateFilter', 'doctorFilter', 'searchFilter'].forEach(id => {
+            document.getElementById(id).addEventListener('input', renderAppointments);
+        });
+
+        loadAppointments();
+        window.setInterval(loadAppointments, 5000);
+    </script>
+</body>
+</html>
