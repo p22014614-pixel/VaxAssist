@@ -12,17 +12,15 @@ const VACCINE_NAMES = ['Yellow Fever', 'Typhoid', 'Hepatitis A', 'Rabies', 'Japa
     'Varicella', 'Td Booster', 'Influenza'];
 
 async function getChildren() {
-    return [{ id: 1, first_name: 'Aiden' }];
+    return (await VaxApi.get('api/children')).children;
 }
 
 async function getPreconsultations() {
-    try { return JSON.parse(localStorage.getItem('vaxPrecheck')) || []; } catch (e) { return []; }
+    return (await VaxApi.get('api/precheck-forms')).forms;
 }
 
 async function savePreconsultation(form) {
-    const all = await getPreconsultations();
-    all.unshift(form);
-    try { localStorage.setItem('vaxPrecheck', JSON.stringify(all.slice(0, 20))); } catch (e) {}
+    await VaxApi.post('api/precheck-forms', form);
     return form;
 }
 
@@ -124,15 +122,21 @@ formEl.addEventListener('submit', async function (e) {
     const answers = {};
     visible.forEach(function (q) { answers[q.id] = answer(q.id); });
 
-    const saved = await savePreconsultation({
-        patient_name: patientSel.options[patientSel.selectedIndex].text,
-        vaccine: vaccineSel.value,
-        answers: answers,
-        allergies: document.getElementById('allergies').value.trim(),
-        medications: document.getElementById('medications').value.trim(),
-        notes: document.getElementById('notes').value.trim(),
-        submitted_at: new Date().toISOString()
-    });
+    let saved;
+    try {
+        saved = await savePreconsultation({
+            patient: patientSel.value,
+            vaccine: vaccineSel.value,
+            answers: answers,
+            allergies: document.getElementById('allergies').value.trim(),
+            medications: document.getElementById('medications').value.trim(),
+            notes: document.getElementById('notes').value.trim()
+        });
+    } catch (err) {
+        formError.textContent = err.status && err.status < 500 ? err.message : 'Sorry, we could not send your form. Please try again.';
+        formError.classList.remove('d-none');
+        return;
+    }
 
     renderResult(saved, buildFlags(answers));
     renderHistory();
@@ -168,5 +172,5 @@ resultArea.addEventListener('click', function (e) {
 })();
 
 async function getCurrentUser() {
-    return VaxAuth.getUser();
+    return VaxAuth.fetchUser();
 }
