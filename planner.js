@@ -1,90 +1,30 @@
+function daysFromToday(n) {
+    const d = new Date();
+    d.setDate(d.getDate() + n);
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+
 async function getChildren() {
-    return [{ id: 1, first_name: 'Aiden', dob: daysFromToday(-430) }];
+    return (await VaxApi.get('api/children')).children;
 }
 
-const TRAVEL_VACCINES = {
-    'Yellow Fever':          { lead: 10, doctor: 1 },
-    'Typhoid':               { lead: 14, doctor: 1 },
-    'Hepatitis A':           { lead: 14, doctor: 1 },
-    'Rabies':                { lead: 28, doctor: 1 },
-    'Japanese Encephalitis': { lead: 28, doctor: 1 },
-    'Meningococcal ACWY':    { lead: 10, doctor: 1 },
-    'Cholera':               { lead: 14, doctor: 1 },
-    'Polio (IPV)':           { lead: 28, doctor: 1 },
-    'Influenza':             { lead: 14, doctor: 3 },
-    'Td Booster':            { lead: 14, doctor: 3 },
-    'MMR':                   { lead: 28, doctor: 3 }
-};
-
-function item(name, level, why) {
-    return { name: name, level: level, why: why };
+async function getVaccinations() {
+    return (await VaxApi.get('api/vaccination-records')).records;
 }
 
-const HEP_A  = item('Hepatitis A', 'recommended', 'Spread through food and water. Advised for almost every destination outside Europe and North America.');
-const TYPHOID = item('Typhoid', 'recommended', 'Spread through contaminated food and water, especially if you eat street food or stay with locals.');
-const RABIES = item('Rabies', 'recommended', 'Worth considering if you will be around dogs, bats or monkeys, or far from medical care.');
-const JE     = item('Japanese Encephalitis', 'recommended', 'Mosquito-borne. Advised for stays over a month or time spent in rural and farming areas.');
-const FLU    = item('Influenza', 'recommended', 'Flu circulates all year in the tropics and in winter elsewhere. Useful before long flights.');
-const TD     = item('Td Booster', 'recommended', 'Keeps tetanus and diphtheria cover up to date (every 10 years).');
-const MMR    = item('MMR', 'recommended', 'Measles outbreaks happen worldwide. Make sure you have had two doses.');
-const POLIO  = item('Polio (IPV)', 'recommended', 'Advised if you have not had a booster as an adult and are visiting a region where polio is still reported.');
-const CHOLERA = item('Cholera', 'recommended', 'Mainly for aid workers or travellers to areas with active outbreaks.');
-const MEN_REC = item('Meningococcal ACWY', 'recommended', 'Advised for the African meningitis belt, especially during the dry season.');
-const YF_REC  = item('Yellow Fever', 'recommended', 'Mosquito-borne and present in this region. One dose gives lifelong protection.');
-const YF_REQ  = item('Yellow Fever', 'required', 'A yellow fever certificate is required to enter. One dose gives lifelong protection.');
-const MEN_REQ = item('Meningococcal ACWY', 'required', 'Proof of vaccination is required for Hajj and Umrah visas.');
-
-async function getDestinations() {
-    return [
-        { id: 'AU', country: 'Australia',      region: 'Oceania',      vaccines: [FLU, TD, MMR] },
-        { id: 'BR', country: 'Brazil',         region: 'South America', vaccines: [YF_REC, HEP_A, TYPHOID, RABIES, FLU] },
-        { id: 'KH', country: 'Cambodia',       region: 'Asia',          vaccines: [HEP_A, TYPHOID, RABIES, JE] },
-        { id: 'CN', country: 'China',          region: 'Asia',          vaccines: [HEP_A, TYPHOID, JE, FLU, MMR] },
-        { id: 'EG', country: 'Egypt',          region: 'Middle East',   vaccines: [HEP_A, TYPHOID, POLIO, TD] },
-        { id: 'GH', country: 'Ghana',          region: 'Africa',        vaccines: [YF_REQ, HEP_A, TYPHOID, MEN_REC, RABIES, POLIO] },
-        { id: 'IN', country: 'India',          region: 'Asia',          vaccines: [HEP_A, TYPHOID, RABIES, JE, POLIO, CHOLERA] },
-        { id: 'ID', country: 'Indonesia',      region: 'Asia',          vaccines: [HEP_A, TYPHOID, RABIES, JE, TD] },
-        { id: 'JP', country: 'Japan',          region: 'Asia',          vaccines: [HEP_A, JE, FLU, MMR] },
-        { id: 'KE', country: 'Kenya',          region: 'Africa',        vaccines: [YF_REC, HEP_A, TYPHOID, RABIES, MEN_REC, POLIO] },
-        { id: 'NP', country: 'Nepal',          region: 'Asia',          vaccines: [HEP_A, TYPHOID, RABIES, JE, POLIO, MEN_REC] },
-        { id: 'NG', country: 'Nigeria',        region: 'Africa',        vaccines: [YF_REQ, HEP_A, TYPHOID, MEN_REC, POLIO, CHOLERA] },
-        { id: 'PE', country: 'Peru',           region: 'South America', vaccines: [YF_REC, HEP_A, TYPHOID, RABIES] },
-        { id: 'PH', country: 'Philippines',    region: 'Asia',          vaccines: [HEP_A, TYPHOID, RABIES, JE, CHOLERA] },
-        { id: 'SA', country: 'Saudi Arabia',   region: 'Middle East',   vaccines: [MEN_REQ, HEP_A, TYPHOID, FLU, POLIO] },
-        { id: 'SG', country: 'Singapore',      region: 'Asia',          vaccines: [HEP_A, TD] },
-        { id: 'ZA', country: 'South Africa',   region: 'Africa',        vaccines: [HEP_A, TYPHOID, RABIES, TD] },
-        { id: 'KR', country: 'South Korea',    region: 'Asia',          vaccines: [HEP_A, FLU, MMR] },
-        { id: 'TZ', country: 'Tanzania',       region: 'Africa',        vaccines: [YF_REC, HEP_A, TYPHOID, RABIES, MEN_REC, POLIO] },
-        { id: 'TH', country: 'Thailand',       region: 'Asia',          vaccines: [HEP_A, TYPHOID, RABIES, JE, TD] },
-        { id: 'UG', country: 'Uganda',         region: 'Africa',        vaccines: [YF_REQ, HEP_A, TYPHOID, RABIES, MEN_REC, POLIO] },
-        { id: 'GB', country: 'United Kingdom', region: 'Europe',        vaccines: [FLU, TD, MMR] },
-        { id: 'US', country: 'United States',  region: 'North America', vaccines: [FLU, TD, MMR] },
-        { id: 'VN', country: 'Vietnam',        region: 'Asia',          vaccines: [HEP_A, TYPHOID, RABIES, JE, TD] }
-    ];
-}
-
-async function getChildSchedule() {
-    return [
-        { months: 0,  name: 'BCG',                level: 'required',    dose: 'Single dose',  why: 'Protects against severe forms of tuberculosis.' },
-        { months: 0,  name: 'Hepatitis B',        level: 'required',    dose: 'Dose 1 of 3',  why: 'Protects the liver against hepatitis B infection.' },
-        { months: 1,  name: 'Hepatitis B',        level: 'required',    dose: 'Dose 2 of 3',  why: 'Second dose of the hepatitis B course.' },
-        { months: 2,  name: 'DTaP-IPV-Hib',       level: 'required',    dose: 'Dose 1 of 4',  why: 'Covers diphtheria, tetanus, whooping cough, polio and Hib in one injection.' },
-        { months: 2,  name: 'Pneumococcal (PCV)', level: 'required',    dose: 'Dose 1 of 4',  why: 'Protects against pneumonia, meningitis and ear infections.' },
-        { months: 2,  name: 'Rotavirus',          level: 'recommended', dose: 'Dose 1 of 2',  why: 'Oral vaccine that prevents severe diarrhoea in babies.' },
-        { months: 3,  name: 'DTaP-IPV-Hib',       level: 'required',    dose: 'Dose 2 of 4',  why: 'Second dose of the five-in-one vaccine.' },
-        { months: 3,  name: 'Pneumococcal (PCV)', level: 'required',    dose: 'Dose 2 of 4',  why: 'Second dose of the pneumococcal course.' },
-        { months: 3,  name: 'Rotavirus',          level: 'recommended', dose: 'Dose 2 of 2',  why: 'Completes the rotavirus course.' },
-        { months: 5,  name: 'DTaP-IPV-Hib',       level: 'required',    dose: 'Dose 3 of 4',  why: 'Third dose of the five-in-one vaccine.' },
-        { months: 5,  name: 'Pneumococcal (PCV)', level: 'required',    dose: 'Dose 3 of 4',  why: 'Third dose of the pneumococcal course.' },
-        { months: 6,  name: 'Hepatitis B',        level: 'required',    dose: 'Dose 3 of 3',  why: 'Completes the hepatitis B course.' },
-        { months: 6,  name: 'Influenza',          level: 'recommended', dose: 'Yearly',       why: 'Flu vaccine is advised every year from 6 months old.' },
-        { months: 9,  name: 'MMR',                level: 'required',    dose: 'Dose 1 of 2',  why: 'Protects against measles, mumps and rubella.' },
-        { months: 12, name: 'Pneumococcal (PCV)', level: 'required',    dose: 'Booster',      why: 'Booster dose to keep protection strong.' },
-        { months: 12, name: 'MMR',                level: 'required',    dose: 'Dose 2 of 2',  why: 'Second dose gives long-lasting protection.' },
-        { months: 12, name: 'Varicella',          level: 'recommended', dose: 'Dose 1 of 2',  why: 'Protects against chickenpox and shingles later in life.' },
-        { months: 18, name: 'DTaP-IPV-Hib',       level: 'required',    dose: 'Booster',      why: 'Booster dose of the five-in-one vaccine.' },
-        { months: 36, name: 'Varicella',          level: 'recommended', dose: 'Dose 2 of 2',  why: 'Second dose completes chickenpox protection.' }
-    ];
+async function getPlannerData() {
+    const loaded = await Promise.all([VaxApi.get('api/vaccines'), VaxApi.get('api/destinations'), VaxApi.get('api/child-schedule')]);
+    const vaccines = loaded[0].vaccines;
+    const info = {};
+    vaccines.forEach(function (v) { info[v.name] = { lead: v.lead_days, doctor: v.doctor_id }; });
+    const travel = vaccines.find(function (v) { return v.category === 'Travel vaccines'; });
+    return {
+        destinations: loaded[1].destinations,
+        schedule: loaded[2].schedule,
+        vaccines: info,
+        child_doctor: vaccines.length ? vaccines[0].child_doctor_id : null,
+        travel_doctor: travel ? travel.doctor_id : null
+    };
 }
 
 const travelForm = document.getElementById('travelPanel');
@@ -100,6 +40,9 @@ const results = document.getElementById('results');
 
 let destinations = [];
 let childSchedule = [];
+let travelInfo = {};
+let childDoctor = null;
+let travelDoctor = null;
 let records = [];
 
 function esc(text) {
@@ -141,11 +84,7 @@ function plural(n, word) {
 }
 
 function doseNumber(v) {
-    const m = /Dose (\d+)/.exec(v.dose);
-    if (m) return Number(m[1]);
-    if (v.dose === 'Single dose') return 1;
-    if (v.dose === 'Booster') return 4;
-    return 0;
+    return v.dose_number;
 }
 
 function latestRecord(list, name) {
@@ -160,7 +99,7 @@ function isProtected(v) {
 }
 
 function bookingLink(name, doctorId) {
-    return 'booking.html?vaccine=' + encodeURIComponent(name) + '&doctor_id=' + encodeURIComponent(doctorId);
+    return 'booking.html?vaccine=' + encodeURIComponent(name) + (doctorId ? '&doctor_id=' + encodeURIComponent(doctorId) : '');
 }
 
 function levelBadge(level) {
@@ -194,7 +133,7 @@ function printButton() {
 }
 
 function travelCard(v, departure) {
-    const info = TRAVEL_VACCINES[v.name] || { lead: 14, doctor: 1 };
+    const info = travelInfo[v.name] || { lead: 14, doctor: travelDoctor };
     const rec = latestRecord(records.filter(function (r) { return r.patient_type === 'self'; }), v.name);
 
     if (isProtected(v)) {
@@ -277,7 +216,7 @@ function renderTravel(dest, departure) {
     html += '<div class="group-title">Not sure what you need?</div>' +
         '<div class="vax-card"><div class="vax-main"><h3 class="vax-name">Travel consultation</h3>' +
         '<p class="vax-why">Talk through your itinerary, health and budget with a travel-medicine doctor.</p></div>' +
-        '<a class="btn appointment-btn" href="' + bookingLink('Vaccine consultation', 1) + '">Book a consultation</a></div>';
+        '<a class="btn appointment-btn" href="' + bookingLink('Vaccine consultation', travelDoctor) + '">Book a consultation</a></div>';
 
     results.innerHTML = html;
 }
@@ -324,7 +263,7 @@ function childCard(v, due, rec) {
         '<p class="vax-why">' + esc(v.dose) + ' &middot; ' + esc(v.why) + '</p>' +
         '<div class="vax-when ' + st.cls + '">&#128197; ' + esc(st.text) + '</div>' +
         '</div>' +
-        '<a class="btn appointment-btn" href="' + bookingLink(v.name, 2) + '">Book this dose</a>' +
+        '<a class="btn appointment-btn" href="' + bookingLink(v.name, childDoctor) + '">Book this dose</a>' +
         '</div>';
 }
 
@@ -360,7 +299,7 @@ function renderChild(dobIso, childName) {
             '<div class="group-title">Next step</div>' +
             '<div class="vax-card"><div class="vax-main"><h3 class="vax-name">Vaccine consultation</h3>' +
             '<p class="vax-why">A paediatrician can check which vaccines your child still needs.</p></div>' +
-            '<a class="btn appointment-btn" href="' + bookingLink('Vaccine consultation', 2) + '">Book a consultation</a></div>';
+            '<a class="btn appointment-btn" href="' + bookingLink('Vaccine consultation', childDoctor) + '">Book a consultation</a></div>';
         results.innerHTML = html;
         return;
     }
@@ -426,8 +365,12 @@ savedChildren.addEventListener('click', function (e) {
 });
 
 async function init() {
-    destinations = await getDestinations();
-    childSchedule = await getChildSchedule();
+    const planner = await getPlannerData();
+    destinations = planner.destinations;
+    childSchedule = planner.schedule;
+    travelInfo = planner.vaccines;
+    childDoctor = planner.child_doctor;
+    travelDoctor = planner.travel_doctor;
     const signedIn = !!VaxAuth.getUser();
     const children = signedIn ? await getChildren() : [];
     records = signedIn ? await getVaccinations() : [];
