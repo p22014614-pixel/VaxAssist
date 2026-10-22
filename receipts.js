@@ -1,33 +1,17 @@
 async function getCurrentUser() {
-    return VaxAuth.getUser();
+    return VaxAuth.fetchUser();
 }
 
-let payments = [
-    { id: 1, receipt_no: 'VA-2026-0148', date: daysFromToday(-12), description: 'Typhoid vaccine', patient: 'Myself',
-      doctor: 'Dr. Aisha Rahman', items: [{ label: 'Typhoid vaccine (1 dose)', amount: 95 }, { label: 'Consultation fee', amount: 40 }],
-      method: 'Credit card', insurance_covered: 0, status: 'paid' },
-    { id: 2, receipt_no: 'VA-2026-0131', date: daysFromToday(-41), description: 'Hepatitis A vaccine', patient: 'Myself',
-      doctor: 'Dr. Jason Wong', items: [{ label: 'Hepatitis A vaccine (dose 1)', amount: 120 }, { label: 'Consultation fee', amount: 40 }],
-      method: 'Insurance + e-wallet', insurance_covered: 100, status: 'paid' },
-    { id: 3, receipt_no: 'VA-2026-0109', date: daysFromToday(-30), description: 'DTaP-IPV-Hib vaccine', patient: 'Aiden (child)',
-      doctor: 'Dr. Siti Aminah', items: [{ label: 'DTaP-IPV-Hib (dose 3)', amount: 180 }, { label: 'Consultation fee', amount: 30 }],
-      method: 'E-wallet', insurance_covered: 0, status: 'paid' },
-    { id: 4, receipt_no: 'VA-2026-0162', date: daysFromToday(2), description: 'Influenza vaccine', patient: 'Myself',
-      doctor: 'Dr. Priya Nair', items: [{ label: 'Influenza vaccine', amount: 70 }, { label: 'Consultation fee', amount: 40 }],
-      method: '', insurance_covered: 0, status: 'pending' },
-    { id: 5, receipt_no: 'VA-2026-0097', date: daysFromToday(-60), description: 'Cancelled appointment deposit', patient: 'Myself',
-      doctor: 'Dr. Ahmad Farid', items: [{ label: 'Booking deposit (refunded)', amount: 20 }],
-      method: 'Credit card', insurance_covered: 0, status: 'refunded' }
-];
+let payments = [];
 
 async function getPayments() {
-    return payments;
+    return (await VaxApi.get('api/payments')).payments;
 }
 
 async function payNow(id, method) {
-    const p = payments.find(function (x) { return x.id === id; });
-    if (p) { p.status = 'paid'; p.method = method; p.date = daysFromToday(0); }
-    return p;
+    await VaxApi.patch('api/payments/' + encodeURIComponent(id), { status: 'paid', method: method });
+    payments = await getPayments();
+    return payments.find(function (p) { return p.id === id; });
 }
 
 const payList = document.getElementById('payList');
