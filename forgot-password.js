@@ -3,7 +3,7 @@ const email = document.getElementById("email");
 const sentBox = document.getElementById("sentBox");
 
 async function requestPasswordReset(address) {
-    return true;
+    return VaxApi.post("api/password-resets", { email: address });
 }
 
 form.addEventListener("submit", async function (e) {
@@ -12,7 +12,12 @@ form.addEventListener("submit", async function (e) {
     email.classList.toggle("is-invalid", !email.checkValidity());
     if (!email.checkValidity()) return;
 
-    await requestPasswordReset(email.value.trim());
+    try {
+        await requestPasswordReset(email.value.trim());
+    } catch (err) {
+        email.classList.add("is-invalid");
+        return;
+    }
     sentBox.classList.remove("d-none");
     form.reset();
 });
