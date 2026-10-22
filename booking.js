@@ -1,67 +1,21 @@
 async function getCurrentUser() {
-    return VaxAuth.getUser();
+    return VaxAuth.fetchUser();
 }
 
 async function getDoctors() {
-    return [
-        { id: 1, name: 'Dr. Aisha Rahman', specialty: 'Travel Medicine',     days: [1, 3, 5] },
-        { id: 2, name: 'Dr. Daniel Lim',   specialty: 'Paediatrics',         days: [1, 2, 4] },
-        { id: 3, name: 'Dr. Priya Nair',   specialty: 'General Practice',    days: [1, 2, 3, 4, 5] },
-        { id: 4, name: 'Dr. Ahmad Farid',  specialty: 'Internal Medicine',   days: [2, 3, 5] },
-        { id: 5, name: 'Dr. Mei Ling Tan', specialty: 'Infectious Diseases', days: [2, 4] },
-        { id: 6, name: 'Dr. Rajesh Kumar', specialty: 'Preventive Medicine', days: [1, 3] },
-        { id: 7, name: 'Dr. Siti Aminah',  specialty: 'Paediatrics',         days: [3, 4, 5] },
-        { id: 8, name: 'Dr. Jason Wong',   specialty: 'General Practice',    days: [1, 2, 3, 4, 5] }
-    ];
+    return (await VaxApi.get('api/doctors')).doctors;
 }
 
 async function getVaccines() {
-    return [
-        { id: 1,  name: 'Yellow Fever',          category: 'Travel vaccines' },
-        { id: 2,  name: 'Typhoid',               category: 'Travel vaccines' },
-        { id: 3,  name: 'Hepatitis A',           category: 'Travel vaccines' },
-        { id: 4,  name: 'Rabies',                category: 'Travel vaccines' },
-        { id: 5,  name: 'Japanese Encephalitis', category: 'Travel vaccines' },
-        { id: 6,  name: 'Meningococcal ACWY',    category: 'Travel vaccines' },
-        { id: 7,  name: 'Cholera',               category: 'Travel vaccines' },
-        { id: 8,  name: 'Polio (IPV)',           category: 'Travel vaccines' },
-        { id: 9,  name: 'BCG',                   category: 'Childhood vaccines' },
-        { id: 10, name: 'Hepatitis B',           category: 'Childhood vaccines' },
-        { id: 11, name: 'DTaP-IPV-Hib',          category: 'Childhood vaccines' },
-        { id: 12, name: 'Pneumococcal (PCV)',    category: 'Childhood vaccines' },
-        { id: 13, name: 'Rotavirus',             category: 'Childhood vaccines' },
-        { id: 14, name: 'MMR',                   category: 'Childhood vaccines' },
-        { id: 15, name: 'Varicella',             category: 'Childhood vaccines' },
-        { id: 16, name: 'Td Booster',            category: 'Boosters' },
-        { id: 17, name: 'Influenza',             category: 'Boosters' },
-        { id: 18, name: 'Vaccine consultation',  category: 'Consultation' }
-    ];
+    return (await VaxApi.get('api/vaccines')).vaccines;
 }
 
 async function getAvailableSlots(doctorId, date) {
-    const doctor = (await getDoctors()).find(function (d) { return d.id === doctorId; });
-    const parts = date.split('-').map(Number);
-    const day = new Date(parts[0], parts[1] - 1, parts[2]);
-    if (!doctor || doctor.days.indexOf(day.getDay()) === -1) return [];
-
-    const times = [];
-    for (let h = 9; h < 17; h++) {
-        if (h === 13) continue;                       // lunch break
-        times.push(pad(h) + ':00', pad(h) + ':30');
-    }
-
-    const now = new Date();
-    const isToday = day.toDateString() === now.toDateString();
-    return times.map(function (t, i) {
-        const taken = ((doctorId * 7 + day.getDate() * 3 + i * 5) % 4) === 0;
-        const hm = t.split(':').map(Number);
-        const passed = isToday && (hm[0] * 60 + hm[1]) < (now.getHours() * 60 + now.getMinutes() + 60);
-        return { time: t, available: !taken && !passed };
-    });
+    return (await VaxApi.get('api/doctors/' + encodeURIComponent(doctorId) + '/slots?date=' + encodeURIComponent(date))).slots;
 }
 
 async function saveBooking(booking) {
-    return { id: Math.floor(1000 + Math.random() * 9000) };
+    return VaxApi.post('api/appointments', booking);
 }
 
 const form = document.getElementById('bookingForm');
@@ -285,7 +239,7 @@ form.addEventListener('submit', async function (e) {
         const result = await saveBooking(booking);
         showSuccess(booking, result);
     } catch (err) {
-        showFormError('Sorry, we could not complete your booking. Please try again.');
+        showFormError(err.status && err.status < 500 ? err.message : 'Sorry, we could not complete your booking. Please try again.');
         submitBtn.disabled = false;
         submitBtn.textContent = 'Confirm booking';
     }
