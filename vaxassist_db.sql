@@ -148,11 +148,9 @@ CREATE TABLE `patients` (
   `allergies` text DEFAULT 'Penicillin',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
 --
 -- Dumping data for table `patients`
 --
-
 INSERT INTO `patients` (`patient_id`, `full_name`, `ic_passport`, `phone`, `dob`, `gender`, `blood_type`, `allergies`, `created_at`) VALUES
 (1, 'Michael Wong', '800820-07-5531', '0191112222', '1980-08-20', 'Male', 'O+', 'Penicillin', '2026-10-18 06:58:13'),
 (2, 'Sarah Jenkins', '920315-08-6622', '0183334444', '1992-03-15', 'Female', 'A+', 'None', '2026-10-18 06:58:13'),
