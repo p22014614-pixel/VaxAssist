@@ -1,72 +1,26 @@
 async function getCurrentUser() {
-    return VaxAuth.getUser();
+    return VaxAuth.fetchUser();
 }
 
 async function getDoctors() {
-    return [
-        { id: 1, name: 'Dr. Aisha Rahman', specialty: 'Travel Medicine',     days: [1, 3, 5] },
-        { id: 2, name: 'Dr. Daniel Lim',   specialty: 'Paediatrics',         days: [1, 2, 4] },
-        { id: 3, name: 'Dr. Priya Nair',   specialty: 'General Practice',    days: [1, 2, 3, 4, 5] },
-        { id: 4, name: 'Dr. Ahmad Farid',  specialty: 'Internal Medicine',   days: [2, 3, 5] },
-        { id: 5, name: 'Dr. Mei Ling Tan', specialty: 'Infectious Diseases', days: [2, 4] },
-        { id: 6, name: 'Dr. Rajesh Kumar', specialty: 'Preventive Medicine', days: [1, 3] },
-        { id: 7, name: 'Dr. Siti Aminah',  specialty: 'Paediatrics',         days: [3, 4, 5] },
-        { id: 8, name: 'Dr. Jason Wong',   specialty: 'General Practice',    days: [1, 2, 3, 4, 5] }
-    ];
+    return (await VaxApi.get('api/doctors')).doctors;
 }
 
 async function getAppointments() {
-    return [
-        { id: 1042, doctor_id: 1, doctor_name: 'Dr. Aisha Rahman', specialty: 'Travel Medicine', vaccine_name: 'Yellow Fever',
-          appointment_date: workingDayFrom(3, [1, 3, 5]), appointment_time: '10:00', patient_type: 'self', child_name: '',
-          notes: 'Travelling to Ghana next month.', status: 'booked' },
-        { id: 1043, doctor_id: 2, doctor_name: 'Dr. Daniel Lim', specialty: 'Paediatrics', vaccine_name: 'MMR',
-          appointment_date: workingDayFrom(9, [1, 2, 4]), appointment_time: '14:30', patient_type: 'child', child_name: 'Aiden',
-          notes: '', status: 'booked' },
-        { id: 1044, doctor_id: 3, doctor_name: 'Dr. Priya Nair', specialty: 'General Practice', vaccine_name: 'Influenza',
-          appointment_date: workingDayFrom(20, [1, 2, 3, 4, 5]), appointment_time: '09:30', patient_type: 'self', child_name: '',
-          notes: '', status: 'booked' },
-        { id: 1031, doctor_id: 1, doctor_name: 'Dr. Aisha Rahman', specialty: 'Travel Medicine', vaccine_name: 'Typhoid',
-          appointment_date: daysFromToday(-12), appointment_time: '11:00', patient_type: 'self', child_name: '',
-          notes: '', status: 'completed' },
-        { id: 1027, doctor_id: 7, doctor_name: 'Dr. Siti Aminah', specialty: 'Paediatrics', vaccine_name: 'DTaP-IPV-Hib',
-          appointment_date: daysFromToday(-30), appointment_time: '15:00', patient_type: 'child', child_name: 'Aiden',
-          notes: '', status: 'completed' },
-        { id: 1022, doctor_id: 8, doctor_name: 'Dr. Jason Wong', specialty: 'General Practice', vaccine_name: 'Hepatitis A',
-          appointment_date: daysFromToday(-41), appointment_time: '10:30', patient_type: 'self', child_name: '',
-          notes: '', status: 'cancelled' },
-        { id: 1015, doctor_id: 3, doctor_name: 'Dr. Priya Nair', specialty: 'General Practice', vaccine_name: 'Td Booster',
-          appointment_date: daysFromToday(-60), appointment_time: '16:00', patient_type: 'self', child_name: '',
-          notes: '', status: 'missed' }
-    ];
+    return (await VaxApi.get('api/appointments')).appointments;
 }
 
-async function getAvailableSlots(doctorId, date) {
-    const doctor = (await getDoctors()).find(function (d) { return d.id === doctorId; });
-    const day = parseISO(date);
-    if (!doctor || doctor.days.indexOf(day.getDay()) === -1) return [];
-
-    const times = [];
-    for (let h = 9; h < 17; h++) {
-        if (h === 13) continue;                       // lunch break
-        times.push(pad(h) + ':00', pad(h) + ':30');
-    }
-    const now = new Date();
-    const isToday = day.toDateString() === now.toDateString();
-    return times.map(function (t, i) {
-        const taken = ((doctorId * 7 + day.getDate() * 3 + i * 5) % 4) === 0;   // demo only
-        const hm = t.split(':').map(Number);
-        const passed = isToday && (hm[0] * 60 + hm[1]) < (now.getHours() * 60 + now.getMinutes() + 60);
-        return { time: t, available: !taken && !passed };
-    });
+async function getAvailableSlots(doctorId, date, ignoreId) {
+    return (await VaxApi.get('api/doctors/' + encodeURIComponent(doctorId) + '/slots?date=' + encodeURIComponent(date) +
+        (ignoreId ? '&ignore=' + encodeURIComponent(ignoreId) : ''))).slots;
 }
 
 async function rescheduleAppointment(id, date, time) {
-    return { ok: true };
+    return VaxApi.patch('api/appointments/' + encodeURIComponent(id), { date: date, time: time });
 }
 
 async function cancelAppointment(id, reason) {
-    return { ok: true };
+    return VaxApi.patch('api/appointments/' + encodeURIComponent(id), { status: 'cancelled', reason: reason });
 }
 
 const upcomingList = document.getElementById('upcomingList');
@@ -110,15 +64,6 @@ function parseISO(s) {
 function daysFromToday(n) {
     const d = new Date();
     return isoDate(new Date(d.getFullYear(), d.getMonth(), d.getDate() + n));
-}
-
-function workingDayFrom(n, days) {
-    const d = new Date();
-    for (let i = n; i < n + 14; i++) {
-        const check = new Date(d.getFullYear(), d.getMonth(), d.getDate() + i);
-        if (days.indexOf(check.getDay()) !== -1) return isoDate(check);
-    }
-    return daysFromToday(n);
 }
 
 function timeText(t) {
@@ -252,7 +197,7 @@ async function loadNewSlots() {
         newSlotMessage.textContent = 'Choose a date to see available times.';
         return;
     }
-    const slots = await getAvailableSlots(current.doctor_id, newDate.value);
+    const slots = await getAvailableSlots(current.doctor_id, newDate.value, current.id);
     if (!slots.length) {
         newSlotMessage.textContent = current.doctor_name + ' does not work on ' + DAY_NAMES[parseISO(newDate.value).getDay()] + 's.';
         return;
@@ -306,7 +251,7 @@ confirmRescheduleBtn.addEventListener('click', async function () {
         showTab('upcoming');
         showAlert('success', 'Your ' + current.vaccine_name + ' appointment is now on ' + longDate(current.appointment_date) + ' at ' + timeText(time) + '.');
     } catch (err) {
-        errorBox.textContent = 'Sorry, we could not change your appointment. Please try again.';
+        errorBox.textContent = err.status && err.status < 500 ? err.message : 'Sorry, we could not change your appointment. Please try again.';
         errorBox.classList.remove('d-none');
         confirmRescheduleBtn.disabled = false;
         confirmRescheduleBtn.textContent = 'Confirm new time';
@@ -333,7 +278,7 @@ confirmCancelBtn.addEventListener('click', async function () {
         showAlert('success', 'Your ' + current.vaccine_name + ' appointment has been cancelled. You can find it under History.');
     } catch (err) {
         const errorBox = document.getElementById('cancelError');
-        errorBox.textContent = 'Sorry, we could not cancel your appointment. Please try again.';
+        errorBox.textContent = err.status && err.status < 500 ? err.message : 'Sorry, we could not cancel your appointment. Please try again.';
         errorBox.classList.remove('d-none');
         confirmCancelBtn.disabled = false;
         confirmCancelBtn.textContent = 'Yes, cancel it';
