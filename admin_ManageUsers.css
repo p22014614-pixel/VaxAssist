@@ -257,8 +257,8 @@ body.staff-page {
 }
 
 .summary-card {
+    height: 154px;
     min-height: 154px;
-    padding: 21px 22px;
 }
 
 .summary-card span {
@@ -674,7 +674,8 @@ body.staff-page {
     }
 
     .summary-card {
-        min-height: 120px;
+        height: 135px;
+        min-height: 135px;
         padding: 17px;
     }
 

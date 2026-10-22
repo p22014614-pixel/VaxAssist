@@ -25,7 +25,7 @@
                 </a>
             </li>
             <li>
-                <a class="nav-link" href="admin-appointments.html">Appointments</a>
+                <a class="nav-link" href="admin_ViewAppointment.html">View Appointment</a>
             </li>
             <li>
                 <a class="nav-link" href="admin-patients.html">Patients</a>
@@ -56,7 +56,7 @@
                 </p>
             </div>
 
-            <a class="primary-action" href="admin-appointments.html">
+            <a class="primary-action" href="admin_ViewAppointment.html">
                 View appointments <span aria-hidden="true">→</span>
             </a>
         </header>
@@ -72,12 +72,14 @@
                 </div>
 
                 <div class="stats-grid">
-                    <article class="stat-card">
+                    <a class="stat-card stat-card-link"
+                        href="admin_ViewAppointment.html"
+                        aria-label="View all appointments">
                         <span class="stat-mark" aria-hidden="true">01</span>
-                        <h3>Appointments today</h3>
-                        <strong>38</strong>
-                        <p>Scheduled across the clinic</p>
-                    </article>
+                        <h3>Total appointments</h3>
+                        <strong id="dashboardAppointmentsToday" aria-live="polite">—</strong>
+                        <p>Scheduled across the clinic · View full schedule →</p>
+                    </a>
 
                     <article class="stat-card">
                         <span class="stat-mark" aria-hidden="true">02</span>
@@ -112,7 +114,7 @@
                             <p class="section-kicker">ON THE SCHEDULE</p>
                             <h2 id="appointments-title">Today's appointments</h2>
                         </div>
-                        <a href="admin-appointments.html">
+                        <a href="admin_ViewAppointment.html">
                             Full schedule <span aria-hidden="true">→</span>
                         </a>
                     </div>
@@ -132,34 +134,10 @@
                                     <th>Status</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Nur Hana</td>
-                                    <td>Influenza vaccine</td>
-                                    <td>10:30 AM</td>
-                                    <td>Farah Nadia</td>
-                                    <td><span class="status">Confirmed</span></td>
-                                </tr>
-                                <tr>
-                                    <td>Ryan Tan</td>
-                                    <td>Child immunisation</td>
-                                    <td>11:00 AM</td>
-                                    <td>Dr. Sarah Lim</td>
-                                    <td><span class="status status-pending">Check-in</span></td>
-                                </tr>
-                                <tr>
-                                    <td>Siti Aisyah</td>
-                                    <td>Travel consultation</td>
-                                    <td>11:30 AM</td>
-                                    <td>Dr. Sarah Lim</td>
-                                    <td><span class="status">Confirmed</span></td>
-                                </tr>
-                                <tr>
-                                    <td>Jason Lee</td>
-                                    <td>COVID-19 booster</td>
-                                    <td>12:00 PM</td>
-                                    <td>Farah Nadia</td>
-                                    <td><span class="status status-pending">Pending</span></td>
+                            <tbody 
+                                id="dashboardAppointmentRows">
+                                <tr>    
+                                    <td colspan="5">Loading appointments…</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -178,7 +156,7 @@
                             <a class="shortcut-link" href="admin_ManageUsers.html">
                                 <span class="shortcut-icon" aria-hidden="true">↗</span>
                                 <span>
-                                    <strong>Manage staff</strong>
+                                    <strong>Manage Users</strong>
                                     <small>Roles and account access</small>
                                 </span>
                                 <span class="shortcut-arrow" aria-hidden="true">→</span>
@@ -247,6 +225,60 @@
     </div>
 
     <script>
+        async function refreshAppointments() {
+            const count = document.getElementById('dashboardAppointmentsToday');
+            const rows = document.getElementById('dashboardAppointmentRows');
+
+            const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            }[char]));
+
+            try {
+                const response = await fetch('api_Appointment.php', {
+                    headers: { Accept: 'application/json' },
+                    cache: 'no-store'
+                });
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Could not load appointments.');
+                }
+
+                const appointments = Array.isArray(data.appointments)
+                    ? data.appointments
+                    : [];
+
+                // The total card counts all appointments.
+                if (count) count.textContent = appointments.length;
+
+                // The table shows today's appointments.
+                const now = new Date();
+                const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+                const todaysAppointments = appointments.filter(appointment =>
+                    String(appointment.appointment_date).slice(0, 10) === today
+                );
+
+                rows.innerHTML = todaysAppointments.length
+                    ? todaysAppointments.map(appointment => `
+                        <tr>
+                            <td>Patient #${escapeHtml(appointment.patient_id)}</td>
+                            <td>${escapeHtml(appointment.symptoms_notes || 'Appointment')}</td>
+                            <td>${escapeHtml(appointment.time_slot)}</td>
+                            <td>Doctor #${escapeHtml(appointment.doctor_id)}</td>
+                            <td>${escapeHtml(appointment.status || 'Scheduled')}</td>
+                        </tr>
+                    `).join('')
+                    : '<tr><td colspan="5">No appointments scheduled for today.</td></tr>';
+            } catch (error) {
+                if (count) count.textContent = '—';
+                rows.innerHTML = `<tr><td colspan="5">${escapeHtml(error.message)}</td></tr>`;
+            }
+        }
+
         async function refreshVaccineInventory() {
             const list = document.getElementById('dashboardVaccineList');
             const note = document.getElementById('dashboardVaccineNote');
@@ -343,13 +375,18 @@
                 document.getElementById('activeStaffCount').textContent = '—';
             });
 
+        refreshAppointments();
+
         refreshVaccineInventory();
 
         window.setInterval(refreshVaccineInventory, 15000);
 
+        window.setInterval(refreshAppointments, 5000);
+
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'visible') {
                 refreshVaccineInventory();
+                refreshAppointments();
             }
         });
     </script>
