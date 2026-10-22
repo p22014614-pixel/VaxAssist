@@ -4,6 +4,7 @@ const form = document.getElementById("registerForm");
 const password = document.getElementById("password");
 const confirmPassword = document.getElementById("confirmPassword");
 const dob = document.getElementById("dob");
+const registerError = document.getElementById("registerError");
 
 dob.max = new Date().toISOString().split("T")[0];
 
@@ -14,8 +15,9 @@ document.getElementById("togglePw").addEventListener("click", function () {
     this.setAttribute("aria-label", hidden ? "Hide password" : "Show password");
 });
 
-form.addEventListener("submit", function (e) {
+form.addEventListener("submit", async function (e) {
     e.preventDefault();
+    registerError.classList.add("d-none");
 
     confirmPassword.setCustomValidity(
         confirmPassword.value === password.value ? "" : "Passwords don't match."
@@ -29,6 +31,28 @@ form.addEventListener("submit", function (e) {
     });
 
     if (!valid) return;
+
+    const button = form.querySelector("button[type=submit]");
+    button.disabled = true;
+
+    try {
+        await VaxApi.post("api/patients", {
+            first_name: form.elements.first_name.value.trim(),
+            last_name: form.elements.last_name.value.trim(),
+            email: form.elements.email.value.trim(),
+            phone: form.elements.phone.value.trim(),
+            dob: form.elements.dob.value,
+            password: password.value
+        });
+    } catch (err) {
+        Object.keys(err.fields || {}).forEach(function (name) {
+            if (form.elements[name]) form.elements[name].classList.add("is-invalid");
+        });
+        registerError.textContent = err.message;
+        registerError.classList.remove("d-none");
+        button.disabled = false;
+        return;
+    }
 
     document.getElementById("successBox").style.display = "block";
     setTimeout(function () {
