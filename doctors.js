@@ -1,30 +1,5 @@
 async function getDoctors() {
-    return [
-        { id: 1, name: 'Dr. Aisha Rahman',  specialty: 'Travel Medicine',  years_experience: 12, rating: 4.9, languages: 'English, Malay',
-          bio: 'Advises travellers on vaccines, malaria prevention and health planning for overseas trips.',
-          days: [1, 3, 5], treats: ['travel', 'yellow fever', 'typhoid', 'hepatitis a', 'rabies', 'malaria'] },
-        { id: 2, name: 'Dr. Daniel Lim',    specialty: 'Paediatrics',      years_experience: 9,  rating: 4.8, languages: 'English, Mandarin',
-          bio: 'Looks after babies and children, including growth checks and the childhood vaccination schedule.',
-          days: [1, 2, 4], treats: ['child', 'baby', 'fever', 'mmr', 'booster', 'rotavirus', 'bcg'] },
-        { id: 3, name: 'Dr. Priya Nair',    specialty: 'General Practice', years_experience: 15, rating: 4.7, languages: 'English, Tamil, Malay',
-          bio: 'Family doctor for everyday health concerns, check-ups and vaccine advice for all ages.',
-          days: [1, 2, 3, 4, 5], treats: ['cough', 'cold', 'fever', 'flu', 'influenza', 'check-up', 'vaccine', 'tetanus'] },
-        { id: 4, name: 'Dr. Ahmad Farid',   specialty: 'Internal Medicine', years_experience: 18, rating: 4.8, languages: 'English, Malay',
-          bio: 'Manages long-term conditions such as diabetes, blood pressure and liver health.',
-          days: [2, 3, 5], treats: ['diabetes', 'blood pressure', 'hepatitis b', 'liver', 'fatigue'] },
-        { id: 5, name: 'Dr. Mei Ling Tan',  specialty: 'Infectious Diseases', years_experience: 8, rating: 4.6, languages: 'English, Mandarin',
-          bio: 'Treats infections and advises on vaccine-preventable diseases, outbreaks and post-exposure care.',
-          days: [2, 4], treats: ['infection', 'hepatitis b', 'rabies', 'post-exposure', 'measles', 'dengue', 'allergy', 'vaccine reaction'] },
-        { id: 6, name: 'Dr. Rajesh Kumar',  specialty: 'Preventive Medicine', years_experience: 14, rating: 4.7, languages: 'English, Hindi',
-          bio: 'Plans adult immunisation, health screening and workplace or community vaccination programmes.',
-          days: [1, 3], treats: ['adult vaccine', 'screening', 'influenza', 'tetanus', 'workplace', 'pneumococcal', 'booster'] },
-        { id: 7, name: 'Dr. Siti Aminah',   specialty: 'Paediatrics',      years_experience: 6,  rating: 4.8, languages: 'English, Malay',
-          bio: 'Child health and development, with a special interest in newborn care and immunisation.',
-          days: [3, 4, 5], treats: ['newborn', 'baby', 'child', 'hepatitis b', 'dtap', 'pneumococcal', 'vaccine'] },
-        { id: 8, name: 'Dr. Jason Wong',    specialty: 'General Practice', years_experience: 10, rating: 4.5, languages: 'English, Mandarin, Cantonese',
-          bio: 'Walk-in friendly family doctor offering vaccinations, travel health letters and minor procedures.',
-          days: [1, 2, 3, 4, 5], treats: ['vaccine', 'travel', 'typhoid', 'hepatitis a', 'cough', 'fever', 'headache'] }
-    ];
+    return (await VaxApi.get('api/doctors')).doctors;
 }
 
 const searchInput = document.getElementById('search');
@@ -74,7 +49,7 @@ function card(d) {
             '<div><h5>' + esc(d.name) + '</h5><div class="specialty">' + esc(d.specialty) + '</div></div>' +
         '</div>' +
         '<p class="bio">' + esc(d.bio) + '</p>' +
-        '<div class="meta mb-2">' + esc(d.years_experience) + ' years experience &middot; &#9733; ' + esc(d.rating) + '</div>' +
+        '<div class="meta mb-2">' + esc(d.years_experience) + ' years experience &middot; ' + (d.rating === null ? 'No reviews yet' : '&#9733; ' + esc(d.rating) + ' (' + esc(d.review_count) + ')') + '</div>' +
         '<div class="meta mb-3">Languages: ' + esc(d.languages) + '</div>' +
         '<div class="mb-3">' + pills + '</div>' +
         '<div class="mt-auto d-flex justify-content-between align-items-center gap-2">' +
