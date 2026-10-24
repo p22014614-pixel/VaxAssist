@@ -1,5 +1,5 @@
-// Database connection code
 <?php
+// Shared MySQL connection for the legacy doctor endpoints.
 $host = "localhost";
 $user = "root";
 $password = ""; // Default XAMPP password is empty

@@ -4,20 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Doctor Profile - VaxAssist</title>
-    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="nav.css">
+    <link rel="stylesheet" href="motion.css">
+    <link rel="stylesheet" href="doctor.css?v=2">
+    <link rel="stylesheet" href="login.css">
+    <link rel="stylesheet" href="styles.css?v=2">
+    <script src="auth.js?v=9" defer></script>
+    <script src="doctor_profile.js?v=1" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
 </head>
-<body>
+<body class="doctor-portal" data-require-role="doctor">
 
     <!-- Navigation -->
-    <nav>
-        <div class="logo">VaxAssist</div>
-        <ul>
-            <li><a href="doctor_dashboard.html">Dashboard</a></li>
-            <li><a href="doctor_appointments.html" style="color: var(--primary-color); font-weight: bold;">Appointments</a></li>
-            <li><a href="doctor_patient_record.html">Patient Record</a></li>
-            <li><a href="doctor_communications.html">Communications</a></li>
-            <li><a href="doctor_profile.html">Profile</a></li>
-        </ul>
+    <nav class="navbar navbar-expand-lg doctor-navbar">
+        <div class="container py-2">
+            <a class="navbar-brand fw-bold" href="doctor_dashboard.html">VaxAssist</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#doctorNav" aria-controls="doctorNav" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+            <div class="collapse navbar-collapse" id="doctorNav"><ul class="navbar-nav ms-auto align-items-lg-center">
+                <li class="nav-item"><a class="nav-link" href="doctor_dashboard.html">Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="doctor_appointments.html">Appointments</a></li>
+                <li class="nav-item"><a class="nav-link" href="doctor_patientRecord.html">Patient Record</a></li>
+                <li class="nav-item"><a class="nav-link" href="doctor_communications.html">Communications</a></li>
+                <li class="nav-item"><a class="nav-link active" aria-current="page" href="doctor_profile.html">Profile</a></li>
+                <li class="nav-item"><a class="nav-link logout-link" href="login.html" data-logout>Log out</a></li>
+            </ul></div>
+        </div>
     </nav>
 
     <div class="page-header-banner">
@@ -72,28 +84,36 @@
         </div>
     </div>
 
-    <div style="padding: 0 8% 30px 8%;">
-        <a href="logout.php" class="btn primary-btn" style="background-color: #d32f2f; display: inline-block; text-decoration: none;">Log out</a>
-    </div>
-
     <footer>
         <p>&copy; 2026 VaxAssist. All Rights Reserved.</p>
     </footer>
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            fetch("get_profile.php")
-                .then(res => res.json())
+            VaxApi.get("doctor_profile_backend.php")
                 .then(data => {
                     if (data.status === "error") {
-                        window.location.href = "login.html";
+                        throw new Error(data.message || "Your profile is unavailable.");
                     } else {
                         document.getElementById("fullName").value = data.fullName;
                         document.getElementById("email").value = data.email;
+                        document.getElementById("specialization").value = data.specialization;
+                        document.getElementById("consultationRoom").value = data.consultationRoom;
                         document.getElementById("welcome-message").innerText = 
                             `Welcome back, ${data.fullName}. Manage your personal details and leave requests.`;
                     }
+                }).catch(err => {
+                    document.getElementById("welcome-message").textContent = err.message || "Could not load your profile. Please refresh to try again.";
                 });
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const today = new Date().toISOString().slice(0, 10);
+            const start = document.getElementById("leaveStartDate");
+            const end = document.getElementById("leaveEndDate");
+            start.min = today;
+            end.min = today;
+            start.addEventListener("change", function () { end.min = start.value || today; });
         });
 
         function updateDoctorProfile() {
@@ -103,13 +123,9 @@
                 room: document.getElementById("consultationRoom").value
             };
 
-            fetch("api_profile.php", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload)
-            })
-            .then(res => res.json())
-            .then(data => alert(data.message));
+            VaxApi.post("doctor_profile_backend.php", payload)
+            .then(data => alert(data.message))
+            .catch(err => alert(err.message || "Could not update your profile."));
         }
 
         function submitDoctorLeave() {
@@ -120,16 +136,11 @@
                 reason: document.getElementById("leaveReason").value
             };
 
-            fetch("api_profile.php", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload)
-            })
-            .then(res => res.json())
+            VaxApi.post("doctor_profile_backend.php", payload)
             .then(data => {
                 alert(data.message);
                 if (data.status === "success") document.getElementById("leaveForm").reset();
-            });
+            }).catch(err => alert(err.message || "Could not submit your leave request."));
         }
     </script>
 </body>

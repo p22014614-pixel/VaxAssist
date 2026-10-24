@@ -1,55 +1,15 @@
-// this file is to get dashboard data from database
 <?php
-session_start();
-require_once 'db.php';
-header('Content-Type: application/json');
-
-if (!isset($_SESSION['user_id'])) {
-    echo json_encode(["status" => "error", "message" => "Unauthorized"]);
-    exit;
-}
-
-$user_id = $_SESSION['user_id'];
-
-// Get doctor_id
-$docStmt = $conn->prepare("SELECT doctor_id FROM doctors WHERE user_id = ?");
-$docStmt->bind_param("i", $user_id);
-$docStmt->execute();
-$docResult = $docStmt->get_result();
-$docRow = $docResult->fetch_assoc();
-$doctor_id = $docRow ? $docRow['doctor_id'] : 1;
-$docStmt->close();
-
-// 1. Today's Appointments Count
-$stmt1 = $conn->prepare("SELECT COUNT(*) as total FROM appointments WHERE doctor_id = ? AND appointment_date = CURRENT_DATE()");
-$stmt1->bind_param("i", $doctor_id);
-$stmt1->execute();
-$todayCount = $stmt1->get_result()->fetch_assoc()['total'];
-$stmt1->close();
-
-// 2. Weekly Bookings Count
-$stmt2 = $conn->prepare("SELECT COUNT(*) as total FROM appointments WHERE doctor_id = ? AND YEARWEEK(appointment_date, 1) = YEARWEEK(CURRENT_DATE(), 1)");
-$stmt2->bind_param("i", $doctor_id);
-$stmt2->execute();
-$weeklyCount = $stmt2->get_result()->fetch_assoc()['total'];
-$stmt2->close();
-
-// 3. Total Active Patients
-$stmt3 = $conn->query("SELECT COUNT(*) as total FROM patients");
-$patientsCount = $stmt3->fetch_assoc()['total'];
-
-// 4. Unread Messages Count
-$stmt4 = $conn->prepare("SELECT COUNT(*) as total FROM messages WHERE receiver_id = ? AND is_read = 0");
-$stmt4->bind_param("i", $user_id);
-$stmt4->execute();
-$messagesCount = $stmt4->get_result()->fetch_assoc()['total'];
-$stmt4->close();
-
-echo json_encode([
-    "status" => "success",
-    "today" => $todayCount,
-    "weekly" => $weeklyCount,
-    "patients" => $patientsCount,
-    "messages" => $messagesCount
-]);
-?>
+require __DIR__ . '/doctor_backend_auth.php';
+$today = $conn->prepare("SELECT COUNT(*) total FROM appointments WHERE doctor_id = ? AND appointment_date = CURRENT_DATE() AND status = 'Scheduled'");
+$today->bind_param('i', $doctor_id); $today->execute();
+$todayCount = (int) $today->get_result()->fetch_assoc()['total'];
+$week = $conn->prepare("SELECT COUNT(*) total FROM appointments WHERE doctor_id = ? AND YEARWEEK(appointment_date, 1) = YEARWEEK(CURRENT_DATE(), 1) AND status = 'Scheduled'");
+$week->bind_param('i', $doctor_id); $week->execute();
+$weeklyCount = (int) $week->get_result()->fetch_assoc()['total'];
+$patients = $conn->prepare('SELECT COUNT(DISTINCT patient_id) total FROM appointments WHERE doctor_id = ?');
+$patients->bind_param('i', $doctor_id); $patients->execute();
+$patientCount = (int) $patients->get_result()->fetch_assoc()['total'];
+$messages = $conn->prepare("SELECT COUNT(*) total FROM messages WHERE doctor_id = ? AND sender_type = 'patient' AND is_read = 0");
+$messages->bind_param('i', $doctor_id); $messages->execute();
+$messageCount = (int) $messages->get_result()->fetch_assoc()['total'];
+echo json_encode(['status' => 'success', 'today' => $todayCount, 'weekly' => $weeklyCount, 'patients' => $patientCount, 'messages' => $messageCount]);

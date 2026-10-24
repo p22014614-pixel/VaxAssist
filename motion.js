@@ -12,7 +12,9 @@
         '.filter-card', '.doctor-card', '.appt-card',
         '.login-wrap > *', '.register-wrap > *',
         '.form-card', '.side-card', '.summary-card', '.stat-card',
-        '.pay-card', '.review-card', '.vax-card', '.empty-state', '.empty-box'
+        '.pay-card', '.review-card', '.vax-card', '.empty-state', '.empty-box',
+        '.page-header-banner', '.nav-card', '.chat-layout', '.week-calendar-container', '.filter-bar',
+        '.time-slot-card', '.month-day-cell', '.msg-bubble'
     ].join(',');
 
     const observer = new IntersectionObserver(function (entries) {
