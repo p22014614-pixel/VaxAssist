@@ -3,6 +3,13 @@
 
 function session_show(array $p, array $in): void
 {
+    if (!empty($_SESSION['doctor_id'])) {
+        $stmt = db()->prepare('SELECT doctor_id, first_name, last_name, email FROM doctors WHERE doctor_id = ?');
+        $stmt->execute([$_SESSION['doctor_id']]);
+        $doctor = $stmt->fetch();
+        if (!$doctor) unset($_SESSION['doctor_id']);
+        else out(['user' => ['id' => (int) $doctor['doctor_id'], 'first_name' => $doctor['first_name'], 'last_name' => $doctor['last_name'], 'email' => $doctor['email'], 'role' => 'doctor'], 'csrf' => csrf_token(), 'unread_messages' => 0]);
+    }
     $patient = current_patient();
     $unread = 0;
     if ($patient) {
@@ -10,7 +17,9 @@ function session_show(array $p, array $in): void
         $stmt->execute([$patient['patient_id']]);
         $unread = (int) $stmt->fetchColumn();
     }
-    out(['user' => $patient ? user_payload($patient) : null, 'csrf' => csrf_token(), 'unread_messages' => $unread]);
+    $user = $patient ? user_payload($patient) : null;
+    if ($user) $user['role'] = 'patient';
+    out(['user' => $user, 'csrf' => csrf_token(), 'unread_messages' => $unread]);
 }
 
 // POST /session = log in
@@ -32,7 +41,20 @@ function session_create(array $p, array $in): void
     $hash  = $patient['password_hash'] ?? password_hash('not-a-real-password', PASSWORD_DEFAULT);
     $valid = password_verify($password, $hash) && $patient && $patient['password_hash'];
 
+    $doctor = null;
     if (!$valid) {
+        $stmt = db()->prepare('SELECT doctor_id, first_name, last_name, email, password_hash FROM doctors WHERE email = ?');
+        $stmt->execute([$email]);
+        $doctor = $stmt->fetch();
+        $doctorHash = $doctor['password_hash'] ?? password_hash('not-a-real-password', PASSWORD_DEFAULT);
+        $validDoctor = password_verify($password, $doctorHash) && $doctor && $doctor['password_hash'];
+        if ($validDoctor) {
+            session_regenerate_id(true);
+            unset($_SESSION['login_failures'], $_SESSION['login_locked_until'], $_SESSION['patient_id']);
+            $_SESSION['doctor_id'] = (int) $doctor['doctor_id'];
+            $user = ['id' => (int) $doctor['doctor_id'], 'first_name' => $doctor['first_name'], 'last_name' => $doctor['last_name'], 'email' => $doctor['email'], 'role' => 'doctor'];
+            out(['user' => $user, 'csrf' => csrf_token()], 201);
+        }
         $_SESSION['login_failures'] = ($_SESSION['login_failures'] ?? 0) + 1;
         if ($_SESSION['login_failures'] >= 5) {
             $_SESSION['login_locked_until'] = time() + 300;
@@ -43,6 +65,7 @@ function session_create(array $p, array $in): void
 
     session_regenerate_id(true);
     unset($_SESSION['login_failures'], $_SESSION['login_locked_until']);
+    unset($_SESSION['doctor_id']);
     $_SESSION['patient_id'] = (int) $patient['patient_id'];
 
     if (password_needs_rehash($patient['password_hash'], PASSWORD_DEFAULT)) {
@@ -50,7 +73,9 @@ function session_create(array $p, array $in): void
             ->execute([password_hash($password, PASSWORD_DEFAULT), $patient['patient_id']]);
     }
 
-    out(['user' => user_payload($patient), 'csrf' => csrf_token()], 201);
+    $user = user_payload($patient);
+    $user['role'] = 'patient';
+    out(['user' => $user, 'csrf' => csrf_token()], 201);
 }
 
 // DELETE /session = log out
@@ -116,13 +141,49 @@ function reset_request(array $p, array $in): void
         db()->prepare('UPDATE password_resets SET used = 1 WHERE patient_id = ? AND used = 0')->execute([$id]);
         db()->prepare('INSERT INTO password_resets (patient_id, token_hash, expires_at) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 1 HOUR))')
             ->execute([$id, hash('sha256', $token)]);
-        // No email server yet: the link is written to the PHP server's log (the terminal running php -S).
-        $origin = $_SERVER['HTTP_ORIGIN'] ?? 'http://127.0.0.1:8000';
-        error_log("[VaxAssist] Password reset link for $email: $origin/reset-password.html?token=$token");
+        error_log('[VaxAssist] Password reset link for ' . $email . ': ' . reset_link_url($token));
+    } else {
+        $doctor = db()->prepare('SELECT doctor_id FROM doctors WHERE email = ?');
+        $doctor->execute([$email]);
+        $doctorId = $doctor->fetchColumn();
+        if ($doctorId) {
+            // Doctor accounts use their own reset table because patient_id is a required patient foreign key.
+            db()->exec("CREATE TABLE IF NOT EXISTS doctor_password_resets (
+                reset_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                doctor_id INT NOT NULL,
+                token_hash CHAR(64) NOT NULL UNIQUE,
+                expires_at DATETIME NOT NULL,
+                used TINYINT(1) NOT NULL DEFAULT 0,
+                KEY idx_doctor_reset (doctor_id, used)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+            $token = bin2hex(random_bytes(32));
+            db()->prepare('UPDATE doctor_password_resets SET used = 1 WHERE doctor_id = ? AND used = 0')->execute([$doctorId]);
+            db()->prepare('INSERT INTO doctor_password_resets (doctor_id, token_hash, expires_at) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 1 HOUR))')
+                ->execute([$doctorId, hash('sha256', $token)]);
+            error_log('[VaxAssist] Password reset link for ' . $email . ': ' . reset_link_url($token));
+        }
     }
 
     // The same answer whether or not the email exists, so nobody can check who has an account.
     out(null, 202);
+}
+
+function reset_link_url(string $token): string
+{
+    $origin = rtrim((string) ($_SERVER['HTTP_ORIGIN'] ?? ''), '/');
+    if ($origin === '') {
+        $scheme = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? 'https' : 'http';
+        $origin = $scheme . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost');
+    }
+    $originHost = strtolower((string) parse_url($origin, PHP_URL_HOST));
+    $referer = parse_url((string) ($_SERVER['HTTP_REFERER'] ?? ''));
+    $refererHost = strtolower((string) ($referer['host'] ?? ''));
+    $basePath = '';
+    if ($refererHost !== '' && $refererHost === $originHost && !empty($referer['path'])) {
+        $basePath = rtrim(str_replace('\\', '/', dirname($referer['path'])), '/.');
+        if ($basePath === '/') $basePath = '';
+    }
+    return $origin . $basePath . '/reset-password.html?token=' . rawurlencode($token);
 }
 
 // PUT /password-resets/{token} = use the link to set a new password
@@ -133,14 +194,25 @@ function reset_complete(array $p, array $in): void
     if (!preg_match('/^[a-f0-9]{64}$/', $token)) fail(400, 'This reset link is not valid.');
     if (!strong_password($new)) fail(422, 'Your new password needs at least 8 characters, with letters and numbers.');
 
-    $stmt = db()->prepare('SELECT reset_id, patient_id FROM password_resets WHERE token_hash = ? AND used = 0 AND expires_at > NOW()');
-    $stmt->execute([hash('sha256', $token)]);
-    $row = $stmt->fetch();
-    if (!$row) fail(400, 'This reset link has expired or was already used. Please request a new one.');
-
     db()->beginTransaction();
-    db()->prepare('UPDATE patients SET password_hash = ? WHERE patient_id = ?')->execute([password_hash($new, PASSWORD_DEFAULT), $row['patient_id']]);
-    db()->prepare('UPDATE password_resets SET used = 1 WHERE patient_id = ?')->execute([$row['patient_id']]);
+    $hash = hash('sha256', $token);
+    $doctorReset = db()->prepare('SELECT reset_id, doctor_id FROM doctor_password_resets WHERE token_hash = ? AND used = 0 AND expires_at > NOW() FOR UPDATE');
+    $doctorReset->execute([$hash]);
+    $doctorRow = $doctorReset->fetch();
+    if ($doctorRow) {
+        db()->prepare('UPDATE doctors SET password_hash = ? WHERE doctor_id = ?')->execute([password_hash($new, PASSWORD_DEFAULT), $doctorRow['doctor_id']]);
+        db()->prepare('UPDATE doctor_password_resets SET used = 1 WHERE reset_id = ?')->execute([$doctorRow['reset_id']]);
+    } else {
+        $stmt = db()->prepare('SELECT reset_id, patient_id FROM password_resets WHERE token_hash = ? AND used = 0 AND expires_at > NOW() FOR UPDATE');
+        $stmt->execute([$hash]);
+        $row = $stmt->fetch();
+        if (!$row) {
+            db()->rollBack();
+            fail(400, 'This reset link has expired or was already used. Please request a new one.');
+        }
+        db()->prepare('UPDATE patients SET password_hash = ? WHERE patient_id = ?')->execute([password_hash($new, PASSWORD_DEFAULT), $row['patient_id']]);
+        db()->prepare('UPDATE password_resets SET used = 1 WHERE reset_id = ?')->execute([$row['reset_id']]);
+    }
     db()->commit();
 
     out(null, 204);

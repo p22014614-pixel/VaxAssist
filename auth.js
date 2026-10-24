@@ -2,9 +2,10 @@
     const KEY = 'vaxUser';
     let csrf = null;
 
-    // The API (PHP) runs on port 8000. When the page itself comes from another port
-    // (Live Server / Live Preview), call it directly on the same host.
-    const API_BASE = (location.protocol === 'http:' && location.port && location.port !== '8000')
+    // XAMPP serves both the pages and /api on the same origin. Only the VS Code
+    // preview ports need to forward requests to the PHP development server.
+    const previewPorts = ['3000', '5500'];
+    const API_BASE = (location.protocol === 'http:' && previewPorts.includes(location.port))
         ? location.protocol + '//' + location.hostname + ':8000/'
         : '';
 
@@ -75,16 +76,29 @@
 
     let sessionPromise = null;
 
-    function loadSession() {
-        sessionPromise = Api.get('api/session').then(function (session) {
+    function loadSession(force) {
+        if (!force && sessionPromise) return sessionPromise;
+        const request = Api.get('api/session').then(function (session) {
             csrf = session.csrf;
             return session;
         });
+        let wrappedRequest;
+        wrappedRequest = request.catch(function (err) {
+            if (sessionPromise === wrappedRequest) sessionPromise = null;
+            throw err;
+        });
+        sessionPromise = wrappedRequest;
         return sessionPromise;
     }
 
     async function send(method, url, data) {
-        if (!csrf) await (sessionPromise || loadSession());
+        if (!csrf) {
+            try {
+                await (sessionPromise || loadSession());
+            } catch (e) {
+                await loadSession();
+            }
+        }
 
         function once() {
             return fetch(API_BASE + url, {
@@ -100,7 +114,7 @@
         } catch (err) {
             // The security token went stale (for example the session was reset): get a new one and retry once.
             if (err.status !== 403) throw err;
-            await loadSession();
+            await loadSession(true);
             return await once();
         }
     }
@@ -120,6 +134,10 @@
     window.VaxAuth = {
         getUser: read,
 
+        getDashboardForRole: function (role) {
+            return role === 'doctor' ? 'doctor_dashboard.html' : role === 'admin' ? 'admin_dashboard.html' : 'patient_dashboard.html';
+        },
+
         fetchUser: async function () {
             try {
                 const session = await loadSession();
@@ -127,15 +145,17 @@
                 showUnread(session.user ? session.unread_messages || 0 : 0);
                 return session.user;
             } catch (e) {
-                // Only log the person out when the server answered "nobody is logged in".
-                // If the server could not be reached, keep what we already know.
-                return read();
+                // Cached browser state is only a display hint; the server session is authoritative.
+                applyUser(null);
+                showUnread(0);
+                return null;
             }
         },
 
         login: async function (email, password) {
             const result = await Api.post('api/session', { email: email, password: password });
             csrf = result.csrf;
+            sessionPromise = Promise.resolve({ user: result.user, csrf: result.csrf, unread_messages: 0 });
             applyUser(result.user);
             return result.user;
         },
@@ -143,13 +163,19 @@
         logout: async function () {
             try { await Api.delete('api/session'); } catch (e) {}
             applyUser(null);
-            window.location.href = 'index.html';
+            window.location.href = 'login.html';
         },
 
         setUnread: showUnread,
 
-        safeNext: function (next, fallback) {
-            return /^[a-z0-9_-]+\.html(\?[A-Za-z0-9%&=._-]*)?$/i.test(next || '') ? next : fallback;
+        safeNext: function (next, fallback, role) {
+            if (!/^[a-z0-9_-]+\.html(\?[A-Za-z0-9%&=._-]*)?$/i.test(next || '')) return fallback;
+            const page = next.split('?')[0].toLowerCase();
+            if (role === 'doctor' && !page.startsWith('doctor_')) return fallback;
+            if (role === 'patient' && (page.startsWith('doctor_') || page.startsWith('admin_'))) return fallback;
+            if (role === 'patient' && !['patient_dashboard.html', 'booking.html', 'appointments.html', 'vaccinations.html', 'precheck.html', 'receipts.html', 'reviews.html', 'messages.html', 'notifications.html', 'profile.html', 'planner.html'].includes(page)) return fallback;
+            if (role === 'admin' && !page.startsWith('admin_')) return fallback;
+            return next;
         }
     };
 
@@ -157,7 +183,17 @@
 
     document.addEventListener('DOMContentLoaded', function () {
         showUser(read());
-        window.VaxAuth.fetchUser();
+        window.VaxAuth.fetchUser().then(function (user) {
+            const requiredRole = document.body.dataset.requireRole;
+            if (requiredRole && (!user || user.role !== requiredRole)) {
+                if (user) {
+                    location.replace(window.VaxAuth.getDashboardForRole(user.role));
+                } else {
+                    const next = encodeURIComponent(location.pathname.split('/').pop() + location.search);
+                    location.replace('login.html?next=' + next);
+                }
+            }
+        });
     });
 
     document.addEventListener('click', function (e) {
