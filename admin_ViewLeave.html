@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f7fafb">
+    <title>Doctor Leave Review | VaxAssist</title>
+
+    <link href="nav.css" rel="stylesheet">
+    <link href="motion.css" rel="stylesheet">
+    <script src="auth.js"></script>
+    <script src="motion.js" defer></script>
+    <link rel="stylesheet" href="admin_ViewLeave.css?v=3">
+</head>
+<body class="admin-dashboard leave-review-page">
+    <nav class="admin-topbar admin-nav" aria-label="Admin navigation">
+        <a class="logo" href="admin_Dashboard.html">VaxAssist</a>
+        <ul>
+            <li><a class="nav-link" href="admin_Dashboard.html">Dashboard</a></li>
+            <li><a class="nav-link" href="admin_ViewAppointment.html">View Appointment</a></li>
+            <li><a class="nav-link active" aria-current="page" href="admin_ViewLeave.html">Doctor Leave</a></li>
+            <li><a class="nav-link" href="admin-communications.html">Communications</a></li>
+            <li><a class="nav-link" href="admin_ManageUsers.html">Manage Users</a></li>
+            <li><a class="nav-link" href="admin_VaccineInventory.html">Vaccine Stock</a></li>
+        </ul>
+        <a class="admin-account" href="admin-profile.html">Admin profile</a>
+    </nav>
+
+    <div class="admin-main-content">
+        <header class="leave-hero">
+            <div class="leave-hero-copy">
+                <p class="eyebrow">CLINIC ADMINISTRATION <span aria-hidden="true">/</span> STAFF</p>
+                <h1>Doctor leave</h1>
+                <p>Review leave requests and keep clinic coverage on track.</p>
+            </div>
+            <div class="hero-date">
+                <span class="date-icon" aria-hidden="true">&#128197;</span>
+                <span><small>Today</small><strong id="todayLabel"></strong></span>
+            </div>
+        </header>
+
+        <main class="leave-main">
+            <section class="leave-metrics" aria-label="Leave request summary">
+                <article class="metric-card">
+                    <span class="metric-icon metric-clock" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="9"></circle>
+                            <path d="M12 7v5l3 2"></path>
+                        </svg>
+                    </span>
+                    <div><p>Awaiting review</p><strong id="pendingCount">0</strong></div>
+                </article>
+
+                <article class="metric-card">
+                    <span class="metric-icon metric-calendar" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3.5" y="5" width="17" height="16" rx="2"></rect>
+                            <path d="M16 3v4M8 3v4M3.5 10h17M8 14h3M8 17h6"></path>
+                        </svg>
+                    </span>
+                    <div><p>Upcoming leave</p><strong id="upcomingCount">0</strong></div>
+                </article>
+
+                <article class="metric-card">
+                    <span class="metric-icon metric-team" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="9" cy="8" r="3"></circle>
+                            <path d="M3.5 19v-1.5A4.5 4.5 0 0 1 8 13h2a4.5 4.5 0 0 1 4.5 4.5V19zM16 5.5a3 3 0 0 1 0 5.8M17 13h.5a3.5 3.5 0 0 1 3.5 3.5V19h-4"></path>
+                        </svg>
+                    </span>
+                    <div><p>Coverage checks</p><strong id="coverageCount">0</strong></div>
+                </article>
+            </section>
+
+            <section class="leave-workspace" aria-label="Leave requests">
+                <div class="request-column">
+                    <div class="request-heading">
+                        <div>
+                            <p class="section-kicker">STAFF REQUESTS</p>
+                            <h2>Leave applications <span id="requestTotal" class="count-pill">0</span></h2>
+                        </div>
+                        <button class="refresh-button" id="refreshButton" type="button" aria-label="Refresh requests">&#8635;</button>
+                    </div>
+
+                    <div class="request-tools">
+                        <label class="search-box">
+                            <span aria-hidden="true">&#128269;</span>
+                            <span class="sr-only">Search doctor or leave type</span>
+                            <input id="searchInput" type="search" placeholder="Search doctor or leave type">
+                        </label>
+
+                        <label class="filter-label">
+                            <span class="sr-only">Filter by request status</span>
+                            <select id="statusFilter">
+                                <option value="all">All requests</option>
+                                <option value="Pending">Pending</option>
+                                <option value="Approved">Approved</option>
+                                <option value="Declined">Declined</option>
+                            </select>
+                        </label>
+                    </div>
+
+                    <div class="request-list" id="requestList" role="list" aria-live="polite">
+                        <p class="loading-state">Loading leave requests…</p>
+                    </div>
+                    <p class="demo-note" id="requestMessage" role="status" aria-live="polite"></p>
+                </div>
+
+                <article class="review-panel" id="reviewPanel" aria-live="polite" aria-label="Selected leave request"></article>
+            </section>
+        </main>
+
+        <footer class="admin-footer">
+            <p>&copy; 2026 VaxAssist. All Rights Reserved.</p>
+        </footer>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script>
+        const apiUrl = 'api_Leave.php';
+        let requests = [];
+        let selectedId = null;
+
+        const safe = value =>
+            String(value ?? '').replace(/[&<>"']/g, character => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            }[character]));
+
+        const formatDate = value => {
+            const date = new Date(`${value}T12:00:00`);
+            return Number.isNaN(date.getTime())
+                ? value
+                : date.toLocaleDateString('en-MY', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric'
+                });
+        };
+
+        const dateRange = request =>
+            request.start === request.end
+                ? formatDate(request.start)
+                : `${formatDate(request.start)} &ndash; ${formatDate(request.end)}`;
+
+        const statusClass = status => String(status || 'Pending').toLowerCase();
+
+        function mapRequest(row) {
+            const firstName = row.first_name || '';
+            const lastName = row.last_name || '';
+            const startDate = row.start_date;
+            const endDate = row.end_date;
+            const start = new Date(`${startDate}T00:00:00`);
+            const end = new Date(`${endDate}T00:00:00`);
+            const days = Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())
+                ? 1
+                : Math.max(1, Math.round((end - start) / 86400000) + 1);
+
+            return {
+                id: String(row.leave_id),
+                name: `Dr. ${firstName} ${lastName}`.trim(),
+                initials: `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase() || 'DR',
+                role: row.specialization || 'Doctor',
+                department: '',
+                type: 'Leave request',
+                start: startDate,
+                end: endDate,
+                days,
+                submitted: row.created_at || '',
+                reason: row.reason || '',
+                coverage: 'No coverage details provided.',
+                status: row.status || 'Pending',
+                color: 'blue'
+            };
+        }
+
+        async function loadLeaveRequests() {
+            const list = document.getElementById('requestList');
+            const message = document.getElementById('requestMessage');
+
+            try {
+                const response = await fetch(apiUrl, {
+                    headers: { Accept: 'application/json' },
+                    cache: 'no-store'
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Could not load leave requests.');
+                }
+
+                requests = (data.requests || []).map(mapRequest);
+
+                if (!requests.some(request => request.id === selectedId)) {
+                    selectedId = requests[0]?.id ?? null;
+                }
+
+                message.textContent = '';
+                renderList();
+            } catch (error) {
+                list.innerHTML = '<div class="empty-state"><strong>Unable to load requests</strong><p></p></div>';
+                list.querySelector('.empty-state p').textContent = error.message;
+                document.getElementById('requestTotal').textContent = '0';
+                document.getElementById('pendingCount').textContent = '—';
+                document.getElementById('upcomingCount').textContent = '—';
+                document.getElementById('coverageCount').textContent = '—';
+                document.getElementById('reviewPanel').innerHTML =
+                    '<div class="detail-empty"><h2>Requests unavailable</h2><p>Check the admin API and database connection, then refresh.</p></div>';
+            }
+        }
+
+        function renderList() {
+            const query = document.getElementById('searchInput').value.trim().toLowerCase();
+            const filter = document.getElementById('statusFilter').value;
+
+            const shown = requests.filter(request => {
+                const matchesStatus = filter === 'all' || request.status === filter;
+                const matchesSearch = `${request.name} ${request.type} ${request.id}`
+                    .toLowerCase()
+                    .includes(query);
+
+                return matchesStatus && matchesSearch;
+            });
+
+            document.getElementById('pendingCount').textContent =
+                requests.filter(request => request.status === 'Pending').length;
+            document.getElementById('upcomingCount').textContent =
+                requests.filter(request => request.status === 'Approved').length;
+            document.getElementById('coverageCount').textContent =
+                requests.filter(request => request.status === 'Pending').length;
+            document.getElementById('requestTotal').textContent = shown.length;
+
+            if (!shown.some(request => request.id === selectedId)) {
+                selectedId = shown[0]?.id ?? null;
+            }
+
+            const list = document.getElementById('requestList');
+
+            if (shown.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <strong>No requests found</strong>
+                        <p>${requests.length ? 'Try a different search or status filter.' : 'No leave requests have been submitted yet.'}</p>
+                    </div>
+                `;
+            } else {
+                list.innerHTML = shown.map(request => `
+                    <button
+                        class="request-card ${request.id === selectedId ? 'is-selected' : ''}"
+                        type="button"
+                        role="listitem"
+                        data-id="${safe(request.id)}"
+                        aria-pressed="${request.id === selectedId}"
+                    >
+                        <span class="doctor-avatar ${safe(request.color)}">${safe(request.initials)}</span>
+                        <span class="request-card-main">
+                            <span class="request-card-top">
+                                <strong>${safe(request.name)}</strong>
+                                <span class="status-chip ${statusClass(request.status)}">${safe(request.status)}</span>
+                            </span>
+                            <span class="request-kind">${safe(request.type)} <span>&middot;</span> ${request.days} ${request.days === 1 ? 'day' : 'days'}</span>
+                            <span class="request-range"><span aria-hidden="true">&#128197;</span> ${dateRange(request)}</span>
+                            <span class="request-submitted">Submitted ${safe(request.submitted)}</span>
+                        </span>
+                        <span class="request-chevron" aria-hidden="true">&#8250;</span>
+                    </button>
+                `).join('');
+
+                list.querySelectorAll('.request-card').forEach(button => {
+                    button.addEventListener('click', () => {
+                        selectedId = button.dataset.id;
+                        renderList();
+                    });
+                });
+            }
+
+            renderDetails();
+        }
+
+        function renderDetails() {
+            const request = requests.find(item => item.id === selectedId);
+            const panel = document.getElementById('reviewPanel');
+
+            if (!request) {
+                panel.innerHTML = `
+                    <div class="detail-empty">
+                        <h2>Select a request</h2>
+                        <p>Choose a leave application from the list to review its details.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const actionable = request.status === 'Pending';
+
+            panel.innerHTML = `
+                <div class="detail-topline">
+                    <div>
+                        <p class="section-kicker">APPLICATION DETAILS</p>
+                        <span class="application-id">LV-${safe(request.id)}</span>
+                    </div>
+                    <span class="status-chip ${statusClass(request.status)}">${safe(request.status)}</span>
+                </div>
+
+                <div class="doctor-profile">
+                    <span class="doctor-avatar profile-avatar ${safe(request.color)}">${safe(request.initials)}</span>
+                    <div>
+                        <h2>${safe(request.name)}</h2>
+                        <p>${safe(request.role)}${request.department ? ` <span>&middot;</span> ${safe(request.department)}` : ''}</p>
+                    </div>
+                </div>
+
+                <div class="detail-divider"></div>
+
+                <div class="detail-section">
+                    <h3>Leave period</h3>
+                    <div class="period-card">
+                        <span class="period-icon" aria-hidden="true">&#128197;</span>
+                        <div>
+                            <strong>${dateRange(request)}</strong>
+                            <span>${request.days} ${request.days === 1 ? 'day' : 'days'} away from clinic</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-facts">
+                    <div><span>Leave type</span><strong>${safe(request.type)}</strong></div>
+                    <div><span>Submitted</span><strong>${safe(request.submitted)}</strong></div>
+                </div>
+
+                <div class="detail-section reason-section">
+                    <h3>Reason for leave</h3>
+                    <p>${safe(request.reason)}</p>
+                </div>
+
+                <div class="coverage-card">
+                    <div class="coverage-heading">
+                        <span class="coverage-icon" aria-hidden="true">&#10003;</span>
+                        <div><strong>Coverage plan</strong><span>Submitted by doctor</span></div>
+                    </div>
+                    <p>${safe(request.coverage)}</p>
+                </div>
+
+                ${actionable
+                    ? `<div class="review-actions">
+                           <button class="decline-button" type="button" data-decision="Declined">Decline</button>
+                           <button class="approve-button" type="button" data-decision="Approved">&#10003; Approve leave</button>
+                       </div>
+                       <p class="action-hint">Decision saving must be enabled by the API.</p>`
+                    : `<div class="decision-note ${statusClass(request.status)}">
+                           This application has been ${safe(request.status.toLowerCase())}.
+                       </div>`}
+            `;
+
+            panel.querySelectorAll('[data-decision]').forEach(button => {
+                button.addEventListener('click', () => decideLocally(request, button.dataset.decision));
+            });
+        }
+
+        function decideLocally(request, decision) {
+            request.status = decision;
+            renderList();
+
+            const toast = document.getElementById('toast');
+            toast.textContent = `${request.name}'s request marked ${decision.toLowerCase()} in this view.`;
+            toast.classList.add('show');
+            window.setTimeout(() => toast.classList.remove('show'), 2800);
+        }
+
+        document.getElementById('searchInput').addEventListener('input', renderList);
+        document.getElementById('statusFilter').addEventListener('change', renderList);
+
+        document.getElementById('refreshButton').addEventListener('click', event => {
+            event.currentTarget.classList.add('spinning');
+            loadLeaveRequests().finally(() => {
+                window.setTimeout(() => event.currentTarget.classList.remove('spinning'), 450);
+            });
+        });
+
+        document.getElementById('todayLabel').textContent =
+            new Date().toLocaleDateString('en-MY', {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+
+        loadLeaveRequests();
+        window.setInterval(loadLeaveRequests, 15000);
+    </script>
+</body>
+</html>
