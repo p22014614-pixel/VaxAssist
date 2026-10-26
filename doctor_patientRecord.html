@@ -1,3 +1,4 @@
+<!-- Doctor patient records: search patients in the doctor's care and save consultation notes. -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -87,6 +88,7 @@
             if (searchVal) searchPatient();
         });
 
+        // Searches only for patients associated with the signed-in doctor's care.
         function searchPatient() {
             const q = document.getElementById("patientSearchInput").value.trim();
             if (!q) { alert("Enter a patient name or IC/passport number."); return; }
@@ -107,6 +109,7 @@
                 }).catch(() => alert("Could not load patient records. Please try again."));
         }
 
+        // Submits the SOAP notes for the patient currently selected in the record page.
         function saveSoapRecord() {
             const payload = {
                 patient_id: document.getElementById("activePatientId").value,

@@ -1,3 +1,4 @@
+/* Shared visual theme, layout, responsive rules, and animations for doctor portal pages. */
 :root {
     --primary-color: #167d8d;
     --primary-dark: #126a78;
@@ -258,3 +259,4 @@ footer {
 
 .profile-logout-btn { margin-top: 12px; border: 1px solid #c85a5a; border-radius: 8px; background: #fff; color: #a33e3e; font-weight: 600; transition: color .2s ease, background-color .2s ease, transform .2s ease; }
 .profile-logout-btn:hover { transform: translateY(-1px); background: #a33e3e; color: #fff; }
+/* Shared visual theme, layout, responsive rules, and animations for doctor portal pages. */

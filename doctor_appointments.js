@@ -1,3 +1,4 @@
+// Adds scroll-reveal animation to the doctor appointment calendar sections.
 (() => {
     const targets = document.querySelectorAll(".page-header-banner, .filter-bar, #week-range-title, .week-calendar-container, .month-calendar-container");
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;

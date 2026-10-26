@@ -1,3 +1,4 @@
+/* Shared base layout and component styles loaded by the doctor portal pages. */
 /* General Styles */
 :root {
     --primary-color: #1976d2;
@@ -833,3 +834,4 @@ footer {
     .doctor-portal .btn-export,
     .doctor-portal .appointment-btn { transition: none; }
 }
+/* Shared base layout and component styles loaded by the doctor portal pages. */

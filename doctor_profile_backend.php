@@ -1,10 +1,12 @@
 <?php
+// Reads and updates the signed-in doctor's profile, photo, and leave requests.
 require __DIR__ . '/doctor_backend_auth.php';
 
 $input = json_decode(file_get_contents('php://input'), true) ?: [];
 $action = $_GET['action'] ?? $_POST['action'] ?? $input['action'] ?? 'get_profile';
 
 if ($action === 'profile_photo' && $_SERVER['REQUEST_METHOD'] === 'GET') {
+    // Streams this doctor's private profile image from the database.
     $stmt = $conn->prepare('SELECT profile_photo, profile_photo_mime FROM doctors WHERE doctor_id = ?');
     $stmt->bind_param('i', $doctor_id);
     $stmt->execute();
@@ -21,6 +23,7 @@ if ($action === 'profile_photo' && $_SERVER['REQUEST_METHOD'] === 'GET') {
 }
 
 if ($action === 'get_profile' && $_SERVER['REQUEST_METHOD'] === 'GET') {
+    // Returns editable profile fields and whether a stored photo exists.
     $stmt = $conn->prepare('SELECT first_name, last_name, email, specialization, consultation_room, profile_photo IS NOT NULL AS has_photo FROM doctors WHERE doctor_id = ?');
     $stmt->bind_param('i', $doctor_id);
     $stmt->execute();
@@ -42,6 +45,7 @@ if ($action === 'get_profile' && $_SERVER['REQUEST_METHOD'] === 'GET') {
 }
 
 if ($action === 'upload_photo' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Checks the image type and size, then saves it to this doctor's profile row.
     $token = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
     if (empty($_SESSION['csrf']) || !hash_equals($_SESSION['csrf'], $token)) {
         http_response_code(403);
@@ -88,6 +92,7 @@ if ($action === 'upload_photo' && $_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 if ($action === 'delete_photo' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Removes the saved image from this doctor's profile.
     $stmt = $conn->prepare('UPDATE doctors SET profile_photo = NULL, profile_photo_mime = NULL WHERE doctor_id = ?');
     $stmt->bind_param('i', $doctor_id);
     if (!$stmt->execute()) {
@@ -100,6 +105,7 @@ if ($action === 'delete_photo' && $_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 if ($action === 'update_profile' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Saves the doctor's specialization and consultation room after validation.
     $specialization = trim($input['specialization'] ?? '');
     $room = trim($input['room'] ?? '');
     if ($specialization === '' || mb_strlen($specialization) > 150 || $room === '' || mb_strlen($room) > 20) {
@@ -114,6 +120,7 @@ if ($action === 'update_profile' && $_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 if ($action === 'submit_leave' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Validates the requested dates and creates a leave request for this doctor.
     $start = $input['start_date'] ?? '';
     $end = $input['end_date'] ?? '';
     $reason = trim($input['reason'] ?? '');

@@ -1,6 +1,7 @@
 <?php
 // Sessions and accounts: log in, log out, register, reset a password.
 
+// Returns the current signed-in user, role, and CSRF token to the browser.
 function session_show(array $p, array $in): void
 {
     if (!empty($_SESSION['doctor_id'])) {
@@ -23,6 +24,7 @@ function session_show(array $p, array $in): void
 }
 
 // POST /session = log in
+// Authenticates a patient or doctor account and starts the matching session.
 function session_create(array $p, array $in): void
 {
     $email    = strtolower(trim((string) ($in['email'] ?? '')));
@@ -81,6 +83,7 @@ function session_create(array $p, array $in): void
 }
 
 // DELETE /session = log out
+// Ends the signed-in session and clears its cookie.
 function session_delete(array $p, array $in): void
 {
     $_SESSION = [];
@@ -93,6 +96,7 @@ function session_delete(array $p, array $in): void
 }
 
 // POST /patients = register
+// Validates and creates a patient account.
 function patient_create(array $p, array $in): void
 {
     $first    = trim((string) ($in['first_name'] ?? ''));
@@ -129,6 +133,7 @@ function patient_create(array $p, array $in): void
 }
 
 // POST /password-resets = ask for a reset link
+// Creates a time-limited password-reset request for an eligible account.
 function reset_request(array $p, array $in): void
 {
     $email = strtolower(trim((string) ($in['email'] ?? '')));
@@ -170,6 +175,7 @@ function reset_request(array $p, array $in): void
     out(null, 202);
 }
 
+// Builds the local reset-page URL containing the one-time reset token.
 function reset_link_url(string $token): string
 {
     $origin = rtrim((string) ($_SERVER['HTTP_ORIGIN'] ?? ''), '/');
@@ -189,6 +195,7 @@ function reset_link_url(string $token): string
 }
 
 // PUT /password-resets/{token} = use the link to set a new password
+// Validates a reset token and saves the account's new password hash.
 function reset_complete(array $p, array $in): void
 {
     $token = (string) $p['token'];

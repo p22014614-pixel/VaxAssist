@@ -1,6 +1,8 @@
 <?php
+// Searches patients connected to the doctor and stores that doctor's consultation notes.
 require __DIR__ . '/doctor_backend_auth.php';
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    // Finds matching patients only when this doctor has an appointment or conversation with them.
     $q = trim($_GET['query'] ?? '');
     if ($q === '') { http_response_code(422); echo json_encode(['status'=>'error','message'=>'Enter a patient name or IC/passport number.']); exit; }
     $like = '%' . $q . '%';
@@ -14,7 +16,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     }
     echo json_encode(['status'=>'success','patient'=>$results[0],'patients'=>$results]); exit;
 }
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Validates doctor access to the patient, then saves the consultation record.
     $data=json_decode(file_get_contents('php://input'),true) ?: [];
     $patient_id=filter_var($data['patient_id']??null,FILTER_VALIDATE_INT);
     $notes=array_map(static fn($key)=>trim((string)($data[$key]??'')),['subjective','objective','assessment','plan']);

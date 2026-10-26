@@ -1,3 +1,4 @@
+// Loads and updates the doctor's profile, photo, and leave requests.
 (() => {
     const targets = document.querySelectorAll('.page-header-banner, .form-card');
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -50,16 +51,20 @@
         }
     });
 
+    // Returns today's date in local YYYY-MM-DD format for the leave form.
     function localDate() {
         const now = new Date();
         return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
     }
+    // Creates the two-letter fallback shown when the doctor has no profile photo.
     function initials(name) { return name.replace(/^Dr\.\s*/i, '').split(/\s+/).map((part) => part[0]).slice(0, 2).join('').toUpperCase() || 'DR'; }
+    // Loads the saved profile photo from the authenticated profile endpoint.
     function loadStoredPhoto() {
         photo.onload = () => { photo.hidden = false; document.getElementById('profileInitials').hidden = true; };
         photo.onerror = () => { photo.hidden = true; document.getElementById('profileInitials').hidden = false; };
         photo.src = `doctor_profile_backend.php?action=profile_photo&v=${Date.now()}`;
     }
+    // Previews the selected image locally before it is uploaded.
     function previewPhoto() {
         photoStatus.textContent = '';
         if (previewUrl) URL.revokeObjectURL(previewUrl);
@@ -69,6 +74,7 @@
         photo.hidden = false;
         document.getElementById('profileInitials').hidden = true;
     }
+    // Validates and uploads a doctor's profile photo to the database.
     async function uploadPhoto() {
         const file = photoFile.files[0];
         if (!file) { photoStatus.textContent = 'Choose a profile photo first.'; return; }
@@ -97,6 +103,7 @@
             button.disabled = false;
         }
     }
+    // Deletes the saved profile photo and restores the initials fallback.
     async function deletePhoto() {
         if (!window.confirm('Delete your profile photo?')) return;
         const button = document.getElementById('deleteProfilePhoto');
@@ -117,6 +124,7 @@
             button.disabled = false;
         }
     }
+    // Saves editable doctor profile fields through the profile backend.
     async function updateDoctorProfile() {
         const payload = {
             action: 'update_profile',
@@ -128,6 +136,7 @@
             alert(data.message || 'Profile updated.');
         } catch (error) { alert(error.message || 'Could not update your profile.'); }
     }
+    // Submits the doctor's requested leave dates and reason.
     async function submitDoctorLeave() {
         const form = document.getElementById('leaveForm');
         if (!form.reportValidity()) return;

@@ -23,12 +23,14 @@
         // Storage can be unavailable in private or restricted browsing modes.
     }
 
+    // Shows login feedback such as invalid credentials or a session error.
     function showStatus(message, type) {
         statusBox.textContent = message;
         statusBox.classList.toggle('info', type === 'info');
         statusBox.hidden = !message;
     }
 
+    // Disables the form while a login request is being processed.
     function setBusy(busy) {
         submitButton.disabled = busy;
         submitButton.querySelector('.button-label').textContent = busy ? 'Signing in…' : 'Log in';
@@ -36,6 +38,7 @@
         passwordInput.disabled = busy;
     }
 
+    // Routes a signed-in account to the correct role-specific starting page.
     function destinationFor(user) {
         if (user.role === 'doctor') return 'doctor_dashboard.html';
         if (user.role === 'admin') return 'admin_dashboard.html';
@@ -43,12 +46,14 @@
         throw new Error('Your account has no supported portal. Please contact the clinic.');
     }
 
+    // Adds headers needed by the configured API or local development preview.
     function requestHeaders(extra) {
         const headers = Object.assign({ Accept: 'application/json' }, extra || {});
         if (useHeaderSession && devSession) headers['X-Dev-Session'] = devSession;
         return headers;
     }
 
+    // Sends a login-page request and turns server failures into readable errors.
     async function request(path, options) {
         let response;
         try {
@@ -81,6 +86,7 @@
         return payload;
     }
 
+    // Gets the current server session and its CSRF token before a login write.
     function loadSession(force) {
         if (!force && sessionRequest) return sessionRequest;
         sessionRequest = request('api/session').then((session) => {
@@ -93,6 +99,7 @@
         return sessionRequest;
     }
 
+    // Clears stale field-level validation messages before another attempt.
     function clearValidation() {
         emailError.textContent = '';
         passwordError.textContent = '';
@@ -100,6 +107,7 @@
         passwordInput.removeAttribute('aria-invalid');
     }
 
+    // Checks the email and password fields before submitting credentials.
     function validate() {
         clearValidation();
         let valid = true;

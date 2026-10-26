@@ -1,3 +1,4 @@
+/* Shared navigation styling used by patient pages and the doctor portal. */
 /* Shared dropdown for the logged-in pages in the top navigation */
 .navbar .dropdown-menu {
     border: 1px solid #e8eef0;
@@ -68,3 +69,4 @@ html.logged-in [data-auth="out"] {
     background: #d9534f;
     vertical-align: middle;
 }
+/* Shared navigation styling used by patient pages and the doctor portal. */

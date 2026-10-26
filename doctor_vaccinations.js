@@ -1,3 +1,4 @@
+// Loads the doctor's assigned vaccination appointments, pre-checks, and dose-record form.
 (() => {
     const list = document.getElementById('vaccinationPatientList');
     const details = document.getElementById('vaccinationPatientDetails');
@@ -28,6 +29,7 @@
         });
     }
 
+    // Displays a success or error message beside the vaccination workflow.
     function setStatus(message, isError = false) {
         status.textContent = message;
         status.hidden = !message;
@@ -35,17 +37,20 @@
         status.classList.toggle('is-error', Boolean(message) && isError);
     }
 
+    // Formats a database date for display in the vaccination page.
     function formatDate(value) {
         if (!value) return 'Not provided';
         const date = new Date(`${value}T12:00:00`);
         return Number.isNaN(date.getTime()) ? value : new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' }).format(date);
     }
 
+    // Converts stored screening values into readable answers.
     function yesNo(value) {
         if (value === null || value === undefined || value === '') return 'Not stated';
         return Number(value) === 1 ? 'Yes' : 'No';
     }
 
+    // Builds the list of scheduled patients assigned to this doctor.
     function renderRoster() {
         list.replaceChildren();
         if (!roster.length) {
@@ -75,6 +80,7 @@
         });
     }
 
+    // Displays the pre-check form linked to the selected appointment.
     function renderPrecheck(patient) {
         precheck.replaceChildren();
         if (!patient.form_id) {
@@ -116,6 +122,7 @@
         downloadButton.disabled = false;
     }
 
+    // Fills the vaccine selector and locks it when the appointment specifies a vaccine.
     function populateVaccines(patient) {
         vaccineSelect.replaceChildren();
         const prompt = document.createElement('option');
@@ -138,6 +145,7 @@
         populateBatches();
     }
 
+    // Shows only available stock batches for the selected vaccine.
     function populateBatches() {
         const vaccineId = Number(vaccineSelect.value);
         batchSelect.replaceChildren();
@@ -153,6 +161,7 @@
         });
     }
 
+    // Loads the selected patient's details and prepares the vaccination record form.
     function selectPatient(patient) {
         selected = patient;
         renderRoster();
@@ -179,6 +188,7 @@
         populateVaccines(patient);
     }
 
+    // Fetches the doctor's appointment roster, vaccine catalogue, and available batches.
     async function loadRoster() {
         setStatus('');
         list.innerHTML = '<p class="text-muted">Loading scheduled patients…</p>';
@@ -203,6 +213,7 @@
         }
     }
 
+    // Downloads the selected appointment's pre-check responses as a CSV file.
     function downloadPrecheckCsv() {
         if (!selected?.form_id) return;
         const rows = [

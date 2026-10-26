@@ -1,7 +1,9 @@
 <?php
+// Handles the authenticated doctor's calendar queries and appointment completion requests.
 require __DIR__ . '/doctor_backend_auth.php';
 $action = $_GET['action'] ?? 'get_day';
 if ($action === 'complete' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Completes only a scheduled appointment owned by this doctor that is due today or earlier.
     $data = json_decode(file_get_contents('php://input'), true) ?: [];
     $appointment_id = filter_var($data['appointment_id'] ?? null, FILTER_VALIDATE_INT);
     if (!$appointment_id) { http_response_code(422); echo json_encode(['status'=>'error','message'=>'Choose a valid appointment.']); exit; }
@@ -11,7 +13,9 @@ if ($action === 'complete' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($stmt->affected_rows !== 1) { http_response_code(409); echo json_encode(['status'=>'error','message'=>'This appointment must belong to your account, still be scheduled, and be today or earlier before it can be completed.']); exit; }
     echo json_encode(['status'=>'success','message'=>'Appointment marked as completed.']); exit;
 }
+
 if ($action === 'get_day') {
+    // Returns this doctor's scheduled appointments for one validated calendar date.
     $date = $_GET['date'] ?? date('Y-m-d');
     $d = DateTime::createFromFormat('Y-m-d', $date);
     if (!$d || $d->format('Y-m-d') !== $date) { http_response_code(422); echo json_encode(['status'=>'error','message'=>'Choose a valid date.']); exit; }
@@ -23,7 +27,9 @@ if ($action === 'get_day') {
     }
     echo json_encode(['status'=>'success','data'=>$items]); exit;
 }
+
 if ($action === 'get_month') {
+    // Returns scheduled appointment counts by day for the selected month.
     $year = filter_var($_GET['year'] ?? date('Y'), FILTER_VALIDATE_INT);
     $month = filter_var($_GET['month'] ?? date('n'), FILTER_VALIDATE_INT);
     if (!$year || $year < 2000 || $year > 2100 || !$month || $month < 1 || $month > 12) { http_response_code(422); echo json_encode(['status'=>'error','message'=>'Choose a valid month.']); exit; }

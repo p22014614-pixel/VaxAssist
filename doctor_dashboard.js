@@ -1,3 +1,4 @@
+// Loads database-backed doctor dashboard data, displays analytics and patient updates, and exports reports.
 (() => {
     const targets = document.querySelectorAll('.page-header-banner, .dashboard-report > h2, .dashboard-grid > h2, .stat-card, .analytics-card, .nav-card-link');
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -34,6 +35,7 @@
         if (type === 'word') exportWord();
     }));
 
+    // Fetches dashboard metrics and updates, then refreshes the cards, chart, and login pop-up.
     async function loadDashboard() {
         try {
             const data = await window.VaxApi.get('doctor_dashboard_backend.php');
@@ -59,6 +61,7 @@
         }
     }
 
+    // Builds the patient update list safely from the backend response.
     function renderPatientUpdates(updates) {
         const container = document.getElementById('patientUpdatesList');
         container.replaceChildren();
@@ -92,6 +95,7 @@
         });
     }
 
+    // Draws the monthly scheduled-versus-completed appointments chart.
     function renderTrend(months) {
         const chart = document.getElementById('appointmentTrend');
         chart.replaceChildren();
@@ -125,6 +129,7 @@
         if (!months.length) chart.innerHTML = '<p class="trend-empty">No appointment history is available yet.</p>';
     }
 
+    // Converts the dashboard metrics into rows shared by each export format.
     function metricRows() {
         const m = dashboardData.metrics;
         return [
@@ -136,10 +141,12 @@
         ];
     }
 
+    // Converts monthly appointment totals into exportable table rows.
     function trendRows() {
         return [['Month', 'Scheduled', 'Completed'], ...dashboardData.trend.map((m) => [m.month, m.scheduled, m.completed])];
     }
 
+    // Downloads the dashboard metrics and appointment trend as an Excel workbook or CSV fallback.
     function exportExcel() {
         const rows = [['VaxAssist Doctor Dashboard Analytics'], [], ['Database Metric', 'Value'], ...metricRows(), [], ...trendRows()];
         if (window.XLSX && window.XLSX.utils) {
@@ -153,8 +160,10 @@
         downloadBlob(new Blob([rows.map((row) => row.map(csvCell).join(',')).join('\r\n')], { type: 'text/csv;charset=utf-8' }), 'VaxAssist_Doctor_Analytics.csv');
     }
 
+    // Escapes one value so it is valid inside a CSV cell.
     function csvCell(value) { return `"${String(value ?? '').replace(/"/g, '""')}"`; }
 
+    // Downloads a PDF report or opens the browser print dialog if the PDF library is unavailable.
     function exportPdf() {
         const element = document.getElementById('printable-dashboard');
         if (typeof window.html2pdf === 'function') {
@@ -164,14 +173,17 @@
         window.print();
     }
 
+    // Encodes report text before inserting it into the generated Word-compatible HTML file.
     function escapeHtml(value) { return String(value ?? '').replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]); }
 
+    // Downloads a Word-compatible report containing the metrics and trend data.
     function exportWord() {
         const table = (rows) => `<table><tbody>${rows.map((row, index) => `<tr>${row.map((cell) => index === 0 ? `<th>${escapeHtml(cell)}</th>` : `<td>${escapeHtml(cell)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
         const documentHtml = `<!doctype html><html><head><meta charset="utf-8"><title>VaxAssist Doctor Analytics</title><style>body{font:14px Arial;color:#183642}h1,h2{color:#126a78}table{border-collapse:collapse;width:100%;margin:12px 0 28px}th,td{border:1px solid #dbe5e8;padding:8px;text-align:left}th{background:#e8f5f6}</style></head><body><h1>VaxAssist Doctor Dashboard Analytics</h1><h2>Clinic metrics</h2>${table([['Database metric','Value'],...metricRows()])}<h2>Appointment activity from the database</h2>${table(trendRows())}</body></html>`;
         downloadBlob(new Blob(['\ufeff', documentHtml], { type: 'application/msword;charset=utf-8' }), 'VaxAssist_Doctor_Analytics.doc');
     }
 
+    // Starts a browser download for a generated report file.
     function downloadBlob(blob, filename) {
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
@@ -183,6 +195,7 @@
         setTimeout(() => URL.revokeObjectURL(url), 1000);
     }
 
+    // Shows a dashboard message when an export is requested before data has loaded.
     function showExportError() {
         const alert = document.getElementById('dashboardError');
         alert.textContent = 'Load dashboard analytics before exporting.';

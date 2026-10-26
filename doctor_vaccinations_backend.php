@@ -1,6 +1,8 @@
 <?php
+// Serves only the signed-in doctor's appointments and records completed vaccination doses.
 require __DIR__ . '/doctor_backend_auth.php';
 
+// Sends a JSON response and stops further request processing.
 function vaccine_json(array $payload, int $status = 200): void
 {
     http_response_code($status);
@@ -10,6 +12,7 @@ function vaccine_json(array $payload, int $status = 200): void
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    // Loads the doctor's scheduled patients, their appointment-linked pre-checks, and vaccine stock.
     $stmt = $conn->prepare("SELECT a.appointment_id, a.patient_id, a.child_id, a.vaccine_id, a.appointment_date, a.appointment_time, a.time_slot, a.status, a.symptoms_notes,
             p.full_name, p.dob, p.phone, c.first_name AS child_name, c.dob AS child_dob, v.name AS vaccine_name, v.total_doses,
             pf.form_id, pf.has_fever, pf.severe_reaction, pf.weak_immune_system, pf.pregnant_or_breastfeeding, pf.recent_vaccine,
@@ -40,6 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') vaccine_json(['status' => 'error', 'message' => 'Method not allowed.'], 405);
 
+// Validates and saves the dose, completes its appointment, adjusts stock, and notifies the patient.
 $input = json_decode(file_get_contents('php://input'), true) ?: [];
 $appointmentId = filter_var($input['appointment_id'] ?? null, FILTER_VALIDATE_INT);
 $vaccineId = filter_var($input['vaccine_id'] ?? null, FILTER_VALIDATE_INT);

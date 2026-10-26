@@ -1,3 +1,4 @@
+// Shared login/session helper used by doctor pages to check roles and call protected backends.
 (function () {
     const KEY = 'vaxUser';
     let csrf = null;
@@ -9,18 +10,22 @@
         ? location.protocol + '//' + location.hostname + ':8000/'
         : '';
 
+    // Reads the cached user summary used to render protected pages while the server session loads.
     function read() {
         try { return JSON.parse(localStorage.getItem(KEY)); } catch (e) { return null; }
     }
 
+    // Stores the current user summary in the browser for display purposes.
     function write(user) {
         try { localStorage.setItem(KEY, JSON.stringify(user)); } catch (e) {}
     }
 
+    // Removes cached user information after logout or an expired session.
     function clear() {
         try { localStorage.removeItem(KEY); } catch (e) {}
     }
 
+    // Updates shared page elements that display the signed-in user's name.
     function showUser(user) {
         document.documentElement.classList.toggle('logged-in', !!user);
         document.querySelectorAll('[data-user-name]').forEach(function (el) {
@@ -28,6 +33,7 @@
         });
     }
 
+    // Updates shared unread-message badges from the session response.
     function showUnread(count) {
         document.querySelectorAll('[data-unread-messages]').forEach(function (el) {
             el.textContent = count;
@@ -38,6 +44,7 @@
         });
     }
 
+    // Synchronizes cached user data and shared login-state display.
     function applyUser(user) {
         if (user) write(user); else clear();
         showUser(user);
@@ -49,11 +56,13 @@
     let devSession = null;
     try { devSession = sessionStorage.getItem('vaxDevSession') || localStorage.getItem('vaxDevSession'); } catch (e) {}
 
+    // Adds the development preview session header when running on its supported port.
     function devHeaders(headers) {
         if (HEADER_SESSION && devSession) headers['X-Dev-Session'] = devSession;
         return headers;
     }
 
+    // Parses server responses and turns HTTP errors into useful JavaScript errors.
     async function parse(response) {
         if (response.status === 204 || response.status === 202) {
             return {};
@@ -76,6 +85,7 @@
 
     let sessionPromise = null;
 
+    // Loads the authoritative server session and reuses its CSRF token.
     function loadSession(force) {
         if (!force && sessionPromise) return sessionPromise;
         const request = Api.get('api/session').then(function (session) {
@@ -91,6 +101,7 @@
         return sessionPromise;
     }
 
+    // Sends a protected JSON write request, refreshing its CSRF token once if needed.
     async function send(method, url, data) {
         if (!csrf) {
             try {
@@ -100,6 +111,7 @@
             }
         }
 
+        // Performs one JSON request attempt using the current session token.
         function once() {
             return fetch(API_BASE + url, {
                 method: method,
@@ -119,6 +131,7 @@
         }
     }
 
+    // Sends a protected multipart request, such as a doctor's profile photo upload.
     async function sendForm(url, formData) {
         if (!csrf) await (sessionPromise || loadSession());
         const once = function () {
@@ -139,25 +152,34 @@
     }
 
     const Api = {
+        // Sends a read-only request to a PHP API or doctor backend endpoint.
         get: async function (url) {
             return parse(await fetch(API_BASE + url, { credentials: 'include', headers: devHeaders({ 'Accept': 'application/json' }) }));
         },
+        // Sends a CSRF-protected request that creates or changes a record.
         post: function (url, data) { return send('POST', url, data); },
+        // Sends a CSRF-protected file upload without changing the browser-generated form boundary.
         postFormData: function (url, formData) { return sendForm(url, formData); },
+        // Sends a CSRF-protected full update request.
         put: function (url, data) { return send('PUT', url, data); },
+        // Sends a CSRF-protected partial update request.
         patch: function (url, data) { return send('PATCH', url, data); },
+        // Sends a CSRF-protected delete request.
         delete: function (url) { return send('DELETE', url); }
     };
 
     window.VaxApi = Api;
 
     window.VaxAuth = {
+        // Returns the cached user summary for navigation labels and role hints.
         getUser: read,
 
+        // Chooses the correct landing page for a signed-in role.
         getDashboardForRole: function (role) {
             return role === 'doctor' ? 'doctor_dashboard.html' : role === 'admin' ? 'admin_dashboard.html' : 'patient_dashboard.html';
         },
 
+        // Checks the server session and redirects away from pages that require another role.
         fetchUser: async function () {
             try {
                 const session = await loadSession();
@@ -172,6 +194,7 @@
             }
         },
 
+        // Signs in through the session API and caches the returned user and security token.
         login: async function (email, password) {
             const result = await Api.post('api/session', { email: email, password: password });
             csrf = result.csrf;
@@ -180,6 +203,7 @@
             return result.user;
         },
 
+        // Ends the server session, clears cached user state, and returns to login.
         logout: async function () {
             try { await Api.delete('api/session'); } catch (e) {}
             applyUser(null);
@@ -188,6 +212,7 @@
 
         setUnread: showUnread,
 
+        // Allows only role-appropriate local HTML destinations after login.
         safeNext: function (next, fallback, role) {
             if (!/^[a-z0-9_-]+\.html(\?[A-Za-z0-9%&=._-]*)?$/i.test(next || '')) return fallback;
             const page = next.split('?')[0].toLowerCase();

@@ -1,13 +1,16 @@
+// Loads the signed-in doctor's initials or saved photo into each page's navigation bar.
 (() => {
     const initials = document.querySelectorAll('[data-doctor-initials]');
     const photos = document.querySelectorAll('[data-doctor-photo]');
     let hasPhoto = false;
 
+    // Creates a short name fallback for navigation when no image is available.
     function setInitials(name) {
         const letters = String(name || 'Doctor').replace(/^Dr\.\s*/i, '').trim().split(/\s+/).map((part) => part[0]).slice(0, 2).join('').toUpperCase() || 'DR';
         initials.forEach((item) => { item.textContent = letters; item.hidden = false; });
     }
 
+    // Shows the doctor's latest stored photo or returns to the initials fallback.
     function refreshPhoto() {
         if (!hasPhoto) {
             photos.forEach((image) => { image.hidden = true; image.removeAttribute('src'); });
