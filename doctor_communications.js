@@ -1,3 +1,4 @@
+// Adds scroll-reveal animation to the doctor communications panels.
 (() => {
     const targets = document.querySelectorAll(".page-header-banner, .chat-sidebar, .chat-main");
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;

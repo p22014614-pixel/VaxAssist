@@ -1,3 +1,4 @@
+/* Login visual theme, also reused for shared doctor portal controls and form elements. */
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap');
 
 :root { --teal: #167d8d; --teal-dark: #126a78; --ink: #183642; --muted: #667980; --line: #dbe5e8; }
@@ -32,3 +33,4 @@ body.login-page footer span { color: #7fc9d2; }
 @keyframes login-enter { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 @media (max-width: 575px) { .login-main { padding: 34px 0; } .login-card { padding: 25px 21px; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+/* Shared login-page styling also reused for common doctor portal controls and form elements. */

@@ -1,3 +1,4 @@
+<!-- Doctor communications: read and send messages in the doctor's patient conversations. -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -72,6 +73,7 @@
     <script>
         document.addEventListener("DOMContentLoaded", loadMessages);
 
+        // Loads the selected doctor's conversation and refreshes the patient selector.
         function loadMessages() {
             const selected = document.getElementById("conversationPatient").value;
             VaxApi.get("doctor_communications_backend.php" + (selected ? "?patient_id=" + encodeURIComponent(selected) : ""))
@@ -108,6 +110,7 @@
                 .catch(err => console.error("Error loading messages:", err));
         }
 
+        // Sends the doctor's reply to the selected patient and reloads the conversation.
         function sendMessage() {
             const input = document.getElementById("chatInputText");
             const text = input.value.trim();

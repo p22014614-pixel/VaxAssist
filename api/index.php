@@ -1,4 +1,5 @@
 <?php
+// Routes browser API requests to the shared login, patient, appointment, and messaging handlers.
 // Front controller: every request to /api/... comes through here.
 // METHOD + path -> handler, using real HTTP verbs on named resources.
 require __DIR__ . '/lib.php';

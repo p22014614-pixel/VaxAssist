@@ -1,6 +1,8 @@
 <?php
+// Returns analytics and login-time updates belonging to the authenticated doctor.
 require __DIR__ . '/doctor_backend_auth.php';
 
+// Build appointment metrics and the monthly trend for this doctor's dashboard.
 try {
     $summary = $conn->prepare("SELECT
         COALESCE(SUM(appointment_date = CURRENT_DATE() AND status = 'Scheduled'), 0) AS today,
@@ -34,6 +36,7 @@ try {
         $months[] = ['month' => $row['month'], 'scheduled' => (int) $row['scheduled'], 'completed' => (int) $row['completed']];
     }
 
+    // Collects updates since this doctor's previous login, while keeping patient records doctor-scoped.
     $showLoginUpdates = !empty($_SESSION['doctor_notifications_pending']);
     $patientUpdates = $_SESSION['doctor_login_updates'] ?? [];
     if ($showLoginUpdates) {

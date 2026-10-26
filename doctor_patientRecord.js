@@ -1,3 +1,4 @@
+// Adds scroll-reveal animation to the doctor patient-record panels.
 (() => {
     const targets = document.querySelectorAll(".page-header-banner, .form-card:not(#patientDetailsCard)");
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;

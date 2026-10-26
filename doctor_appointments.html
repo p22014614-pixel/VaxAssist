@@ -1,3 +1,4 @@
+<!-- Doctor appointment calendar: view assigned visits and complete eligible appointments. -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -139,6 +140,7 @@
         const slotKeys = ["08:00 AM - 10:00 AM", "10:00 AM - 12:00 PM", "01:00 PM - 03:00 PM", "03:00 PM - 05:00 PM"];
 
         // Format Date object into YYYY-MM-DD local string to prevent timezone day rollback
+        // Formats a calendar date consistently for backend requests.
         function formatLocalDateString(dateObj) {
             const year = dateObj.getFullYear();
             const month = String(dateObj.getMonth() + 1).padStart(2, '0');
@@ -154,6 +156,7 @@
             renderFullMonthGrid(today.getFullYear(), today.getMonth() + 1);
         };
 
+        // Builds the current week's day selector and loads today's appointment slots.
         function buildCurrentLiveWeekCalendar() {
             const headerContainer = document.getElementById("week-days-header");
             headerContainer.innerHTML = "";
@@ -189,6 +192,7 @@
         }
 
         let activeDate = formatLocalDateString(new Date());
+        // Fetches and displays this doctor's appointments for the selected day.
         function loadDaySlots(dateStr, formattedDate) {
             activeDate = dateStr;
             document.getElementById("selected-day-title").innerText = `Time Slots for ${formattedDate}`;
@@ -264,6 +268,7 @@
             }
         });
 
+        // Loads monthly counts and renders the appointment heatmap calendar.
         function renderFullMonthGrid(year, month) {
             const gridContainer = document.getElementById("month-grid-container");
             gridContainer.innerHTML = "";
@@ -328,6 +333,7 @@
                 });
         }
 
+        // Switches between weekly and monthly calendar views.
         function toggleViewMode() {
             const mode = document.getElementById("view-mode").value;
             document.getElementById("week-view-section").style.display = (mode === "week") ? "block" : "none";
@@ -337,6 +343,7 @@
             document.getElementById("apply-filter-btn").style.display = (mode === "month") ? "inline-block" : "none";
         }
 
+        // Applies the selected year and month to the monthly calendar.
         function applyMonthFilter() {
             const year = parseInt(document.getElementById("input-year").value);
             const month = parseInt(document.getElementById("select-month").value);
