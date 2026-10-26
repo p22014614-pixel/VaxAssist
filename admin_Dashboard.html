@@ -20,9 +20,9 @@
 
         <ul>
             <li><a class="nav-link active" aria-current="page" href="admin_Dashboard.html">Dashboard</a></li>
+            <li><a class="nav-link" href="about.html">About Us</a></li>
             <li><a class="nav-link" href="admin_ViewAppointment.html">View Appointment</a></li>
-            <li><a class="nav-link" href="admin_ViewLeave.html">Doctor Leave</a></li>
-            <li><a class="nav-link" href="admin-communications.html">Communications</a></li>
+            <li><a class="nav-link" href="admin_ViewLeave.html">Leave Review</a></li>
             <li><a class="nav-link" href="admin_ManageUsers.html">Manage Users</a></li>
             <li><a class="nav-link" href="admin_VaccineInventory.html">Vaccine Stock</a></li>
         </ul>
@@ -56,13 +56,12 @@
                 </div>
 
                 <div class="stats-grid">
-                    <a class="stat-card stat-card-link"
-                        href="admin_ViewAppointment.html"
+                    <a class="stat-card"
                         aria-label="View all appointments">
                         <span class="stat-mark" aria-hidden="true">01</span>
                         <h3>Total appointments</h3>
                         <strong id="dashboardAppointmentsToday" aria-live="polite">—</strong>
-                        <p>Scheduled across the clinic · View full schedule →</p>
+                        <p>Scheduled across the clinic</p>
                     </a>
 
                     <article class="stat-card">
@@ -79,7 +78,7 @@
                         <p>Current clinic team</p>
                     </article>
 
-                    <article class="stat-card attention-card">
+                    <article class="stat-card">
                         <span class="stat-mark" aria-hidden="true">04</span>
                         <h3>Items needing attention</h3>
                         <strong>3</strong>
@@ -146,11 +145,11 @@
                                 <span class="shortcut-arrow" aria-hidden="true">→</span>
                             </a>
 
-                            <a class="shortcut-link" href="admin-patients.html">
-                                <span class="shortcut-icon" aria-hidden="true">＋</span>
+                            <a class="shortcut-link" href="admin_ViewAppointment.html">
+                                <span class="shortcut-icon" aria-hidden="true">&#128197;</span>
                                 <span>
-                                    <strong>Patient records</strong>
-                                    <small>Find patient information</small>
+                                    <strong>Find Your Schedule</strong>
+                                    <small>View and manage appointments</small>
                                 </span>
                                 <span class="shortcut-arrow" aria-hidden="true">→</span>
                             </a>
@@ -252,7 +251,7 @@
                             <td>Patient #${escapeHtml(appointment.patient_id)}</td>
                             <td>${escapeHtml(appointment.symptoms_notes || 'Appointment')}</td>
                             <td>${escapeHtml(appointment.time_slot)}</td>
-                            <td>Doctor #${escapeHtml(appointment.doctor_id)}</td>
+                            <td>${escapeHtml(appointment.doctor_name || 'Unassigned')}</td>
                             <td>${escapeHtml(appointment.status || 'Scheduled')}</td>
                         </tr>
                     `).join('')
