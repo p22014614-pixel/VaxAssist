@@ -52,6 +52,8 @@ function session_create(array $p, array $in): void
             session_regenerate_id(true);
             unset($_SESSION['login_failures'], $_SESSION['login_locked_until'], $_SESSION['patient_id']);
             $_SESSION['doctor_id'] = (int) $doctor['doctor_id'];
+            $_SESSION['doctor_notifications_pending'] = true;
+            unset($_SESSION['doctor_login_updates']);
             $user = ['id' => (int) $doctor['doctor_id'], 'first_name' => $doctor['first_name'], 'last_name' => $doctor['last_name'], 'email' => $doctor['email'], 'role' => 'doctor'];
             out(['user' => $user, 'csrf' => csrf_token()], 201);
         }

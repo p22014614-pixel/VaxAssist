@@ -66,7 +66,7 @@
         let json;
         try { json = await response.json(); } catch (e) { json = { ok: false, error: 'Unexpected response from the server.' }; }
         if (!response.ok) {
-            const err = new Error(json.error || 'Something went wrong. Please try again.');
+            const err = new Error(json.error || json.message || 'Something went wrong. Please try again.');
             err.status = response.status;
             err.fields = json.fields || {};
             throw err;
@@ -119,11 +119,31 @@
         }
     }
 
+    async function sendForm(url, formData) {
+        if (!csrf) await (sessionPromise || loadSession());
+        const once = function () {
+            return fetch(API_BASE + url, {
+                method: 'POST',
+                credentials: 'include',
+                headers: devHeaders({ 'Accept': 'application/json', 'X-CSRF-Token': csrf }),
+                body: formData
+            }).then(parse);
+        };
+        try {
+            return await once();
+        } catch (err) {
+            if (err.status !== 403) throw err;
+            await loadSession(true);
+            return await once();
+        }
+    }
+
     const Api = {
         get: async function (url) {
             return parse(await fetch(API_BASE + url, { credentials: 'include', headers: devHeaders({ 'Accept': 'application/json' }) }));
         },
         post: function (url, data) { return send('POST', url, data); },
+        postFormData: function (url, formData) { return sendForm(url, formData); },
         put: function (url, data) { return send('PUT', url, data); },
         patch: function (url, data) { return send('PATCH', url, data); },
         delete: function (url) { return send('DELETE', url); }
