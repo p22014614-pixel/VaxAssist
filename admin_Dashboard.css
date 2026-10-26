@@ -289,11 +289,6 @@
     letter-spacing: 1px;
 }
 
-.attention-card {
-    background: var(--admin-soft);
-    border-color: #d9ebed;
-}
-
 /* Appointments, shortcuts, and inventory */
 .dashboard-grid {
     display: grid;
