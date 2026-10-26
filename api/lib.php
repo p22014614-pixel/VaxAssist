@@ -232,10 +232,10 @@ function available_slots(int $doctorId, string $date, ?int $ignoreAppointment = 
     return $slots;
 }
 
-function add_notification(int $patientId, string $type, string $title, string $body, ?string $url = null, ?string $label = null): void
+function add_notification(int $patientId, string $type, string $title, string $body, ?string $url = null, ?string $label = null, ?int $doctorId = null, ?int $appointmentId = null): void
 {
-    db()->prepare('INSERT INTO notifications (patient_id, type, title, body, action_url, action_label) VALUES (?, ?, ?, ?, ?, ?)')
-        ->execute([$patientId, $type, $title, $body, $url, $label]);
+    db()->prepare('INSERT INTO notifications (patient_id, doctor_id, appointment_id, type, title, body, action_url, action_label) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
+        ->execute([$patientId, $doctorId, $appointmentId, $type, $title, $body, $url, $label]);
 }
 
 function iso_time(string $dbTime): string

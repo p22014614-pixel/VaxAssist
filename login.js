@@ -31,7 +31,7 @@
 
     function setBusy(busy) {
         submitButton.disabled = busy;
-        submitButton.querySelector('.button-label').textContent = busy ? 'Signing in…' : 'Sign in';
+        submitButton.querySelector('.button-label').textContent = busy ? 'Signing in…' : 'Log in';
         emailInput.disabled = busy;
         passwordInput.disabled = busy;
     }
