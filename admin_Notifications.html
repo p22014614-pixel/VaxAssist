@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f4f8fb">
+    <title>My Notifications | VaxAssist</title>
+
+    <link href="nav.css" rel="stylesheet">
+    <link href="motion.css" rel="stylesheet">
+    <script src="auth.js"></script>
+    <script src="motion.js" defer></script>
+    <link rel="stylesheet" href="admin_Notifications.css">
+</head>
+<body class="patient-notifications">
+    <nav aria-label="Main navigation">
+        <a class="logo" href="admin_Dashboard.html">VaxAssist</a>
+        <ul>
+            <li><a class="nav-link" href="admin_Dashboard.html">Dashboard</a></li>
+            <li><a class="nav-link" href="about.html">About Us</a></li>
+            <li><a class="nav-link" href="admin_ViewAppointment.html">View Appointment</a></li>
+            <li><a class="nav-link" href="admin_ViewLeave.html">Leave Review</a></li>
+            <li><a class="nav-link" href="admin_ManageUsers.html">Manage Users</a></li>
+            <li><a class="nav-link" href="admin_VaccineInventory.html">Vaccine Stock</a></li>
+            <li>
+                <a class="notification-nav-icon"
+                    href="admin_Notifications.html"
+                    aria-label="My notifications"
+                    title="My notifications">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/>
+                    </svg>
+                </a>
+            </li>
+        </ul>
+        <a class="admin-account" href="admin-profile.html">Admin profile</a>
+        </ul>
+    </nav>
+
+    <header class="notifications-hero">
+        <p class="eyebrow">YOUR VAXASSIST ACCOUNT</p>
+        <h1>Notifications &amp; health forms</h1>
+        <p>Keep up with clinic updates and prepare for your next visit.</p>
+    </header>
+
+    <main class="notifications-main">
+        <div id="pageMessage" class="page-message" role="status" hidden></div>
+
+        <section class="panel" aria-labelledby="notification-title">
+            <div class="panel-heading">
+                <div>
+                    <p class="section-kicker">STAY UP TO DATE</p>
+                    <h2 id="notification-title">
+                        Notifications
+                        <span id="unreadCount" class="count-badge">0 unread</span>
+                    </h2>
+                </div>
+                <button id="markAllRead" class="quiet-button" type="button">
+                    Mark all as read
+                </button>
+            </div>
+            <div id="notificationList" class="notification-list" aria-live="polite">
+                <p class="loading">Loading notifications…</p>
+            </div>
+        </section>
+
+        <section class="panel" aria-labelledby="preferences-title">
+            <div class="panel-heading">
+                <div>
+                    <p class="section-kicker">YOUR CHOICES</p>
+                    <h2 id="preferences-title">Notification preferences</h2>
+                </div>
+            </div>
+            <form id="preferencesForm" class="preferences-grid">
+                <label class="preference-row">
+                    <span><strong>Email reminders</strong><small>Appointment and care reminders by email</small></span>
+                    <input type="checkbox" name="email_reminders">
+                </label>
+                <label class="preference-row">
+                    <span><strong>SMS reminders</strong><small>Time-sensitive updates by text message</small></span>
+                    <input type="checkbox" name="sms_reminders">
+                </label>
+                <label class="preference-row">
+                    <span><strong>Booster alerts</strong><small>When a follow-up dose may be due</small></span>
+                    <input type="checkbox" name="booster_alerts">
+                </label>
+                <label class="preference-row">
+                    <span><strong>Clinic news</strong><small>Service updates and clinic announcements</small></span>
+                    <input type="checkbox" name="clinic_news">
+                </label>
+                <div class="form-actions">
+                    <button class="primary-button" type="submit">Save preferences</button>
+                    <span id="preferencesStatus" class="inline-status" role="status"></span>
+                </div>
+            </form>
+        </section>
+
+        <section class="panel" aria-labelledby="precheck-title">
+            <div class="panel-heading">
+                <div>
+                    <p class="section-kicker">BEFORE YOUR VISIT</p>
+                    <h2 id="precheck-title">Pre-consultation health form</h2>
+                </div>
+            </div>
+            <p class="panel-intro">
+                Share these details before your visit. Your care team will review them with you;
+                this form does not replace medical advice.
+            </p>
+
+            <form id="precheckForm">
+                <div class="form-grid">
+                    <label class="field-label" for="vaccine">
+                        Vaccine or service <span>(optional)</span>
+                        <input id="vaccine" name="vaccine" maxlength="150"
+                               placeholder="e.g. Influenza vaccination">
+                    </label>
+
+                    <fieldset class="question-grid">
+                        <legend>Please answer each question</legend>
+                        <label>Do you currently have a fever?
+                            <select name="fever" required>
+                                <option value="" selected disabled>Choose</option>
+                                <option value="no">No</option><option value="yes">Yes</option>
+                            </select>
+                        </label>
+                        <label>Have you had a severe reaction to a vaccine?
+                            <select name="reaction" required>
+                                <option value="" selected disabled>Choose</option>
+                                <option value="no">No</option><option value="yes">Yes</option>
+                            </select>
+                        </label>
+                        <label>Do you have an immune system condition?
+                            <select name="immune" required>
+                                <option value="" selected disabled>Choose</option>
+                                <option value="no">No</option><option value="yes">Yes</option>
+                            </select>
+                        </label>
+                        <label>Are you pregnant or breastfeeding?
+                            <select name="pregnant" required>
+                                <option value="" selected disabled>Choose</option>
+                                <option value="no">No</option><option value="yes">Yes</option>
+                            </select>
+                        </label>
+                        <label>Have you recently received another vaccine?
+                            <select name="recent" required>
+                                <option value="" selected disabled>Choose</option>
+                                <option value="no">No</option><option value="yes">Yes</option>
+                            </select>
+                        </label>
+                        <label>Do you have a bleeding disorder or take blood thinners?
+                            <select name="bleeding" required>
+                                <option value="" selected disabled>Choose</option>
+                                <option value="no">No</option><option value="yes">Yes</option>
+                            </select>
+                        </label>
+                    </fieldset>
+
+                    <label class="field-label" for="allergies">
+                        Known allergies <span>(optional)</span>
+                        <textarea id="allergies" name="allergies" maxlength="300" rows="2"></textarea>
+                    </label>
+                    <label class="field-label" for="medications">
+                        Current medicines <span>(optional)</span>
+                        <textarea id="medications" name="medications" maxlength="300" rows="2"></textarea>
+                    </label>
+                    <label class="field-label full-field" for="notes">
+                        Anything else your care team should know? <span>(optional)</span>
+                        <textarea id="notes" name="notes" maxlength="500" rows="3"></textarea>
+                    </label>
+                </div>
+                <div class="form-actions">
+                    <button class="primary-button" type="submit">Submit health form</button>
+                    <span id="precheckStatus" class="inline-status" role="status"></span>
+                </div>
+            </form>
+
+            <div class="submitted-forms">
+                <h3>Recently submitted</h3>
+                <ul id="precheckHistory"><li class="loading">Loading forms…</li></ul>
+            </div>
+        </section>
+
+        <p class="sign-in-prompt" id="signInPrompt" hidden>
+            Please <a href="login.html">sign in</a> to view your notifications and health forms.
+        </p>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 VaxAssist. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        const api = 'api_Notifications.php';
+
+        const showMessage = (message, isError = false) => {
+            const box = document.getElementById('pageMessage');
+            box.textContent = message;
+            box.classList.toggle('error', isError);
+            box.hidden = !message;
+        };
+
+        async function request(action, options = {}) {
+            const query = new URLSearchParams({ action });
+            if (options.id) query.set('id', options.id);
+
+            const response = await fetch(`${api}?${query}`, {
+                method: options.method || 'GET',
+                headers: {
+                    Accept: 'application/json',
+                    ...(options.body ? { 'Content-Type': 'application/json' } : {})
+                },
+                ...(options.body ? { body: JSON.stringify(options.body) } : {}),
+                cache: 'no-store'
+            });
+
+            if (response.status === 204) return {};
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'Could not complete the request.');
+            return data;
+        }
+
+        const formatDate = value => new Intl.DateTimeFormat(undefined, {
+            dateStyle: 'medium',
+            timeStyle: 'short'
+        }).format(new Date(value));
+
+        function makeNotification(item) {
+            const article = document.createElement('article');
+            article.className = `notification-item${item.is_read ? '' : ' unread'}`;
+
+            const marker = document.createElement('span');
+            marker.className = 'notification-marker';
+            marker.setAttribute('aria-hidden', 'true');
+
+            const content = document.createElement('div');
+            content.className = 'notification-copy';
+
+            const heading = document.createElement('h3');
+            heading.textContent = item.title;
+
+            const message = document.createElement('p');
+            message.textContent = item.message;
+
+            const meta = document.createElement('div');
+            meta.className = 'notification-meta';
+
+            const date = document.createElement('time');
+            date.dateTime = item.created_at;
+            date.textContent = formatDate(item.created_at);
+            meta.append(date);
+
+            if (item.action_url && item.action_label) {
+                try {
+                    const url = new URL(item.action_url, location.href);
+                    if (url.origin === location.origin) {
+                        const link = document.createElement('a');
+                        link.href = url.href;
+                        link.textContent = item.action_label;
+                        meta.append(link);
+                    }
+                } catch (_) {
+                    // Ignore invalid action links.
+                }
+            }
+
+            content.append(heading, message, meta);
+
+            const controls = document.createElement('div');
+            controls.className = 'notification-controls';
+
+            if (!item.is_read) {
+                const read = document.createElement('button');
+                read.type = 'button';
+                read.textContent = 'Mark read';
+                read.addEventListener('click', async () => {
+                    try {
+                        await request('notifications', {
+                            method: 'PATCH',
+                            id: item.id,
+                            body: { is_read: true }
+                        });
+                        await loadNotifications();
+                    } catch (error) {
+                        showMessage(error.message, true);
+                    }
+                });
+                controls.append(read);
+            }
+
+            const remove = document.createElement('button');
+            remove.type = 'button';
+            remove.className = 'remove-button';
+            remove.textContent = 'Remove';
+            remove.setAttribute('aria-label', `Remove notification: ${item.title}`);
+            remove.addEventListener('click', async () => {
+                try {
+                    await request('notifications', { method: 'DELETE', id: item.id });
+                    await loadNotifications();
+                } catch (error) {
+                    showMessage(error.message, true);
+                }
+            });
+
+            controls.append(remove);
+            article.append(marker, content, controls);
+            return article;
+        }
+
+        async function loadNotifications() {
+            const list = document.getElementById('notificationList');
+            const { notifications = [] } = await request('notifications');
+            list.replaceChildren();
+
+            const unread = notifications.filter(item => !item.is_read).length;
+            document.getElementById('unreadCount').textContent = `${unread} unread`;
+            document.getElementById('markAllRead').disabled = unread === 0;
+
+            if (!notifications.length) {
+                const empty = document.createElement('p');
+                empty.className = 'empty-state';
+                empty.textContent = 'You’re all caught up. New clinic updates will appear here.';
+                list.append(empty);
+                return;
+            }
+
+            notifications.forEach(item => list.append(makeNotification(item)));
+        }
+
+        async function loadPreferences() {
+            const { preferences } = await request('preferences');
+            Object.entries(preferences).forEach(([name, checked]) => {
+                const input = document.querySelector(`[name="${name}"]`);
+                if (input) input.checked = checked;
+            });
+        }
+
+        async function loadPrecheckHistory() {
+            const { forms = [] } = await request('precheck-forms');
+            const list = document.getElementById('precheckHistory');
+            list.replaceChildren();
+
+            if (!forms.length) {
+                const empty = document.createElement('li');
+                empty.textContent = 'No forms submitted yet.';
+                list.append(empty);
+                return;
+            }
+
+            forms.forEach(form => {
+                const item = document.createElement('li');
+                item.textContent =
+                    `${form.vaccine || 'Pre-consultation form'} · ${formatDate(form.submitted_at)}`;
+                list.append(item);
+            });
+        }
+
+        (async () => {
+            try {
+                await Promise.all([
+                    loadNotifications(),
+                    loadPreferences(),
+                    loadPrecheckHistory()
+                ]);
+            } catch (error) {
+                showMessage(error.message, true);
+                if (error.message.includes('sign in')) {
+                    document.getElementById('signInPrompt').hidden = false;
+                }
+            }
+        })();
+
+        document.getElementById('markAllRead').addEventListener('click', async () => {
+            try {
+                await request('notifications', {
+                    method: 'PATCH',
+                    body: { is_read: true }
+                });
+                await loadNotifications();
+            } catch (error) {
+                showMessage(error.message, true);
+            }
+        });
+
+        document.getElementById('preferencesForm').addEventListener('submit', async event => {
+            event.preventDefault();
+            const form = event.currentTarget;
+            const body = Object.fromEntries(
+                [...form.querySelectorAll('input[type="checkbox"]')]
+                    .map(input => [input.name, input.checked])
+            );
+
+            const status = document.getElementById('preferencesStatus');
+            status.textContent = 'Saving…';
+
+            try {
+                await request('preferences', { method: 'PATCH', body });
+                status.textContent = 'Preferences saved.';
+            } catch (error) {
+                status.textContent = error.message;
+            }
+        });
+
+        document.getElementById('precheckForm').addEventListener('submit', async event => {
+            event.preventDefault();
+            const form = event.currentTarget;
+            const values = new FormData(form);
+            const answers = {};
+
+            ['fever', 'reaction', 'immune', 'pregnant', 'recent', 'bleeding']
+                .forEach(key => answers[key] = values.get(key));
+
+            const status = document.getElementById('precheckStatus');
+            status.textContent = 'Submitting…';
+
+            try {
+                await request('precheck-forms', {
+                    method: 'POST',
+                    body: {
+                        vaccine: values.get('vaccine'),
+                        answers,
+                        allergies: values.get('allergies'),
+                        medications: values.get('medications'),
+                        notes: values.get('notes')
+                    }
+                });
+                form.reset();
+                status.textContent = 'Health form submitted.';
+                await loadPrecheckHistory();
+            } catch (error) {
+                status.textContent = error.message;
+            }
+        });
+    </script>
+</body>
+</html>

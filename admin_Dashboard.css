@@ -25,6 +25,35 @@
     transform: scaleX(1);
 }
 
+.notification-nav-icon {
+    display: inline-grid;
+    flex: 0 0 34px;
+    width: 34px;
+    height: 34px;
+    place-items: center;
+    padding: 0;
+    border: 1px solid #dce6e8;
+    border-radius: 7px;
+    color: #52676e;
+    text-decoration: none;
+}
+
+.notification-nav-icon:hover,
+.notification-nav-icon:focus-visible {
+    color: #1976d2;
+    background: #eaf5ff;
+}
+
+.notification-nav-icon svg {
+    width: 19px;
+    height: 19px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
 .admin-dashboard {
     --admin-teal: #168091;
     --admin-teal-dark: #116d7b;
