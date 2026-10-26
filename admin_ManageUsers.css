@@ -98,6 +98,7 @@ body.staff-page {
     transform-origin: left;
     transition: transform 0.25s ease;
 }
+
 .nav-link:hover::after,
 .nav-link.active::after {
     transform: scaleX(1);
@@ -110,6 +111,42 @@ body.staff-page {
 
 .staff-nav .admin-account {
     position: relative;
+}
+
+.notification-nav-icon {
+    display: inline-grid;
+    width: 34px;
+    height: 34px;
+    place-items: center;
+    color: #52676e;
+    text-decoration: none;
+}
+
+.notification-nav-icon:hover,
+.notification-nav-icon:focus-visible {
+    color: #168091;
+}
+
+.notification-nav-icon svg {
+    display: block;
+    width: 17px;
+    height: 17px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.admin-topbar .notification-nav-icon svg {
+    display: block;
+    width: 14px !important;
+    height: 14px !important;
+    fill: none !important;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
 }
 
 .admin-account {
