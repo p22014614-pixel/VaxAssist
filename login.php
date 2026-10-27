@@ -13,7 +13,7 @@ $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$user || !password_verify($password, $user["password_hash"])) {
     http_response_code(401);
-    exit("Email or password is incorrect. <a href='adminLogin.html'>Try again</a>");
+    exit("Email or password is incorrect. <a href='login.html'>Try again</a>");
 }
 
 session_regenerate_id(true);
