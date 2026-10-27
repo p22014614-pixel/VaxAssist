@@ -10,7 +10,7 @@
     <link href="motion.css" rel="stylesheet">
     <script src="auth.js"></script>
     <script src="motion.js" defer></script>
-    <link rel="stylesheet" href="admin_Profile.css?v=4">
+    <link rel="stylesheet" href="admin_Profile.css?v=8">
 </head>
 <body>
     <nav class="topbar" aria-label="Main navigation">
@@ -99,20 +99,50 @@
 
                     <form id="passwordForm" class="password-form">
                         <div class="field">
-                            <label for="currentPassword">Current password</label>
-                            <input id="currentPassword" type="password" autocomplete="current-password" placeholder="Enter your current password" required>
+                            <label for="currentPassword">
+                                Current password
+                            </label>
+                            <div class="password-input">
+                                <input id="currentPassword" type="password" autocomplete="current-password" placeholder="Enter your current password" required>
+                                <button class="password-visibility" type="button" aria-label="Show current password" aria-controls="currentPassword" aria-pressed="false">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                                        <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/>
+                                        <circle cx="12" cy="12" r="3"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label for="newPassword">
+                                New password
+                            </label>
+                            <div class="password-input">
+                                <input id="newPassword" type="password" minlength="8" autocomplete="new-password" placeholder="At least 8 characters" required>
+                                <button class="password-visibility" type="button" aria-label="Show new password" aria-controls="newPassword" aria-pressed="false">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                                        <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/>
+                                        <circle cx="12" cy="12" r="3"/>
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
                         <div class="field">
-                            <label for="newPassword">New password</label>
-                            <input id="newPassword" type="password" minlength="8" autocomplete="new-password" placeholder="At least 8 characters" required>
-                        </div>
-                        <div class="field">
-                            <label for="confirmPassword">Confirm new password</label>
-                            <input id="confirmPassword" type="password" minlength="8" autocomplete="new-password" placeholder="Enter it again" required>
-                        </div>
+                            <label for="confirmPassword">
+                                Confirm new password
+                            </label>
+                            <div class="password-input">
+                                <input id="confirmPassword" type="password" minlength="8" autocomplete="new-password" placeholder="Enter it again" required>
+                                <button class="password-visibility" type="button" aria-label="Show confirm password" aria-controls="confirmPassword" aria-pressed="false">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                                        <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/>
+                                        <circle cx="12" cy="12" r="3"/>
+                                    </svg>
+                                </button>
+                            </div>
                         <div class="form-actions">
                             <span id="passwordMessage" class="inline-message" role="status" aria-live="polite"></span>
-                            <button class="secondary-button" type="submit">Update password</button>
+                            <button class="primary-button" type="submit">Update password</button>
                         </div>
                     </form>
                 </section>
@@ -120,9 +150,8 @@
         </div>
     </main>
 
-    <footer>
-        <span>&copy; 2026 VaxAssist</span>
-        <span>Clinic administration portal</span>
+    <footer class="admin-footer">
+            <p>&copy; 2026 VaxAssist. All Rights Reserved.</p>
     </footer>
 
     <script>
@@ -182,6 +211,17 @@
                     byId('saveMessage').textContent = error.message;
                 }
             }
+
+            document.querySelectorAll('.password-visibility').forEach(button => {
+                button.addEventListener('click', () => {
+                    const field = byId(button.getAttribute('aria-controls'));
+                    const showPassword = field.type === 'password';
+                    field.type = showPassword ? 'text' : 'password';
+                    button.setAttribute('aria-pressed', String(showPassword));
+                    const label = field.id === 'currentPassword' ? 'current password' : field.id === 'newPassword' ? 'new password' : 'password confirmation';
+                    button.setAttribute('aria-label', `${showPassword ? 'Hide' : 'Show'} ${label}`);
+                });
+            });
 
             byId('profileForm').addEventListener('submit', async event => {
                 event.preventDefault();

@@ -23,7 +23,7 @@
             <li><a class="nav-link" href="admin_ManageUsers.html">Manage Users</a></li>
             <li><a class="nav-link" href="admin_VaccineInventory.html">Vaccine Stock</a></li>
         </ul>
-        <a class="admin-account" href="admin_Profile.html">Admin profile</a>
+        <a class="admin-account" href="admin_Profile.html">Admin Profile</a>
     </nav>
 
     <div class="admin-main-content">
@@ -121,15 +121,61 @@
             </div>
             <form class="booking-form" id="editForm">
                 <input type="hidden" name="appointment_id">
-                <label class="field">Appointment date<input name="appointment_date" type="date" required></label>
-                <label class="field">Time<input name="time_slot" type="text" maxlength="100" required></label>
-                <label class="field">Doctor<select name="doctor_id" required></select></label>
-                <label class="field">Status<select name="status" required><option>Scheduled</option><option>Pending</option><option>Completed</option><option>Cancelled</option></select></label>
-                <label class="field edit-notes">Appointment notes<textarea name="symptoms_notes" rows="3" maxlength="2000"></textarea></label>
+                <label class="field">
+                    Appointment date
+                    <input name="appointment_date" type="date" required>
+                </label>
+
+                <label class="field">Time
+                    <input name="time_slot" type="text" maxlength="100" required>
+                </label>
+
+                <label class="field">Doctor
+                    <select name="doctor_id" required></select>
+                </label>
+
+                <label class="field">Status
+                    <select name="status" required>
+                        <option>Scheduled</option>
+                        <option>Pending</option>
+                        <option>Completed</option>
+                        <option>Cancelled</option>
+                    </select>
+                </label>
+
+                <label class="field edit-notes">Appointment notes
+                    <textarea name="symptoms_notes" rows="3" maxlength="2000"></textarea>
+                </label>
+
                 <p class="schedule-note edit-notice" id="editMessage" aria-live="polite"></p>
                 <div class="form-actions">
                     <button class="secondary-button" id="cancelEdit" type="button">Cancel</button>
                     <button class="primary-action" type="submit">Save changes</button>
+                </div>
+            </form>
+        </section>
+    </div>
+
+    <div class="modal-backdrop" id="addBackdrop" role="presentation">
+        <section class="booking-modal" role="dialog" aria-modal="true" aria-labelledby="addTitle">
+            <div class="modal-heading">
+                <div>
+                    <h2 id="addTitle">Add appointment</h2>
+                    <p>Enter the patient and booking details below.</p>
+                </div>
+                <button class="close-modal" id="closeAdd" type="button" aria-label="Close">×</button>
+            </div>
+            <form class="booking-form" id="addForm">
+                <label class="field">Patient ID<input name="patient_id" type="number" min="1" step="1" required></label>
+                <label class="field">Appointment date<input name="appointment_date" type="date" required></label>
+                <label class="field">Time<input name="time_slot" type="text" maxlength="100" placeholder="e.g. 08:00 AM - 09:00 AM" required></label>
+                <label class="field">Doctor<select name="doctor_id" required></select></label>
+                <label class="field">Status<select name="status" required><option>Scheduled</option><option>Pending</option><option>Confirmed</option><option>Completed</option><option>Cancelled</option></select></label>
+                <label class="field edit-notes">Appointment notes<textarea name="symptoms_notes" rows="3" maxlength="2000"></textarea></label>
+                <p class="schedule-note edit-notice" id="addMessage" aria-live="polite"></p>
+                <div class="form-actions">
+                    <button class="secondary-button" id="cancelAdd" type="button">Cancel</button>
+                    <button class="primary-action" type="submit">Add appointment</button>
                 </div>
             </form>
         </section>
