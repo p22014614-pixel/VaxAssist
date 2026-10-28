@@ -56,3 +56,36 @@
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
     else start();
 })();
+
+(function () {
+    const nav = document.querySelector('.navbar');
+    if (nav) {
+        const update = function () {
+            nav.classList.toggle('scrolled', window.scrollY > 8);
+        };
+        update();
+        window.addEventListener('scroll', update, { passive: true });
+    }
+
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    document.addEventListener('click', function (e) {
+        if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+        const link = e.target.closest('a[href]');
+        if (!link || link.target || link.hasAttribute('download') || link.hasAttribute('data-bs-toggle') || link.hasAttribute('data-logout')) return;
+
+        const url = new URL(link.href, window.location.href);
+        if (url.origin !== window.location.origin) return;
+        if (url.pathname === window.location.pathname && url.search === window.location.search) return;
+        if (!/\.html$/.test(url.pathname)) return;
+
+        e.preventDefault();
+        document.body.classList.add('leaving');
+        setTimeout(function () { window.location.href = link.href; }, 160);
+        setTimeout(function () { document.body.classList.remove('leaving'); }, 2000);
+    });
+
+    window.addEventListener('pageshow', function (e) {
+        if (e.persisted) document.body.classList.remove('leaving');
+    });
+})();
