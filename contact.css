@@ -131,3 +131,33 @@ footer {
 footer span {
     color: #7fc9d2;
 }
+
+.error-box {
+    background: #fdeeee;
+    color: #9b2c2c;
+    border: 1px solid #f5cccc;
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 0.9rem;
+}
+
+.form-text {
+    color: #708087;
+    font-size: 0.82rem;
+}
+
+.success-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    background: #e8f5f6;
+    color: #167d8d;
+    font-size: 2rem;
+    line-height: 64px;
+}
+
+.book-link {
+    display: inline-block;
+    margin-top: 32px;
+}
