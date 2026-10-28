@@ -270,6 +270,21 @@ CREATE TABLE IF NOT EXISTS `precheck_forms` (
   CONSTRAINT `fk_precheck_vaccine` FOREIGN KEY (`vaccine_id`) REFERENCES `vaccines` (`vaccine_id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+CREATE TABLE IF NOT EXISTS `contact_messages` (
+  `message_id` int(11) NOT NULL AUTO_INCREMENT,
+  `patient_id` int(11) DEFAULT NULL COMMENT 'set when the sender was logged in',
+  `name` varchar(100) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `subject` varchar(100) NOT NULL,
+  `message` varchar(1000) NOT NULL,
+  `ip_address` varchar(45) NOT NULL,
+  `status` enum('New','Read','Replied') NOT NULL DEFAULT 'New',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`message_id`),
+  KEY `idx_contact_ip_time` (`ip_address`,`created_at`),
+  CONSTRAINT `fk_contact_patient` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`patient_id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 -- ---------------------------------------------------------------------
 -- 3. Reference data (same lists the Planner and Booking pages use)
 --    Prices are demo prices in RM.
