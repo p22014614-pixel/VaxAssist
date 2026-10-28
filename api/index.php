@@ -22,6 +22,7 @@ $routes = [
     ['GET',    '/vaccines',                         'vaccines_list'],
     ['GET',    '/destinations',                     'destinations_list'],
     ['GET',    '/child-schedule',                   'schedule_list'],
+    ['POST',   '/contact-messages',                 'contact_create'],
 
     // the logged-in patient
     ['GET',    '/me',                               'me_show'],
