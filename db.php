@@ -1,5 +1,6 @@
-// Database connection code
 <?php
+// Opens the MySQLi database connection used by the doctor portal backends.
+// Shared MySQL connection for the legacy doctor endpoints.
 $host = "localhost";
 $user = "root";
 $password = ""; // Default XAMPP password is empty

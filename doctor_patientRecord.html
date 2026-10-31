@@ -1,0 +1,134 @@
+<!-- Doctor patient records: search patients in the doctor's care and save consultation notes. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Records - VaxAssist</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="nav.css">
+    <link rel="stylesheet" href="motion.css">
+    <link rel="stylesheet" href="doctor.css?v=4">
+    <link rel="stylesheet" href="login.css">
+    <link rel="stylesheet" href="styles.css?v=2">
+    <script src="auth.js?v=9" defer></script>
+    <script src="doctor_nav.js?v=1" defer></script>
+    <script src="doctor_patientRecord.js?v=1" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
+</head>
+<body class="doctor-portal" data-require-role="doctor">
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg doctor-navbar">
+        <div class="container py-2">
+            <a class="navbar-brand fw-bold" href="doctor_dashboard.html">VaxAssist</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#doctorNav" aria-controls="doctorNav" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+            <div class="collapse navbar-collapse" id="doctorNav"><ul class="navbar-nav ms-auto align-items-lg-center">
+                <li class="nav-item"><a class="nav-link" href="doctor_dashboard.html">Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="doctor_appointments.html">Appointments</a></li>
+                <li class="nav-item"><a class="nav-link" href="doctor_vaccinations.html">Vaccinations</a></li>
+                <li class="nav-item"><a class="nav-link active" aria-current="page" href="doctor_patientRecord.html">Patient Record</a></li>
+                <li class="nav-item"><a class="nav-link" href="doctor_communications.html">Communications</a></li>
+                <li class="nav-item doctor-nav-avatar-item"><a class="doctor-nav-avatar" href="doctor_profile.html" aria-label="Open doctor profile"><span data-doctor-initials>DR</span><img data-doctor-photo alt="Doctor profile photo" hidden></a></li>
+            </ul></div>
+        </div>
+    </nav>
+
+    <div class="page-header-banner">
+        <div>
+            <h1>Patient Medical Workspace</h1>
+            <p>Look up patient files and write SOAP clinical consultation records.</p>
+        </div>
+    </div>
+
+    <div style="padding: 30px 8%;">
+        <div class="form-card" style="padding: 20px;">
+            <div style="display: flex; gap: 15px;">
+                <input type="text" id="patientSearchInput" class="form-control" placeholder="Search by Patient Name, IC Number (e.g., Michael Wong)...">
+                <button class="btn primary-btn" onclick="searchPatient()">Search</button>
+            </div>
+        </div>
+
+        <div class="form-card" id="patientDetailsCard" style="display:none">
+            <h2 id="patientNameHeader" style="color: var(--primary-dark); margin-bottom: 10px;">Michael Wong (ID: P-1)</h2>
+            <p id="patientInfoSubtext" style="color: var(--text-muted); margin-bottom: 25px;"><strong>Age:</strong> 45 | <strong>Gender:</strong> Male | <strong>Blood Type:</strong> O+ | <strong>Allergies:</strong> Penicillin</p>
+
+            <form id="soapForm">
+                <input type="hidden" id="activePatientId" value="">
+                <div class="form-group">
+                    <label>Subjective (Patient Complaints)</label>
+                    <textarea id="notesSubjective" class="form-control" placeholder="Describe symptoms..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Objective (Vitals & Physical Assessment)</label>
+                    <textarea id="notesObjective" class="form-control" placeholder="BP, Heart Rate, Temp..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Assessment / Diagnosis</label>
+                    <input type="text" id="notesAssessment" class="form-control" placeholder="Primary Diagnosis...">
+                </div>
+                <div class="form-group">
+                    <label>Plan & Treatment</label>
+                    <textarea id="notesPlan" class="form-control" placeholder="Prescribe medication, treatment advice..."></textarea>
+                </div>
+                <button type="button" class="btn primary-btn" onclick="saveSoapRecord()">Save Medical Record</button>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 VaxAssist. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            const searchVal = urlParams.get('search') || '';
+            document.getElementById("patientSearchInput").value = searchVal;
+            if (searchVal) searchPatient();
+        });
+
+        // Searches only for patients associated with the signed-in doctor's care.
+        function searchPatient() {
+            const q = document.getElementById("patientSearchInput").value.trim();
+            if (!q) { alert("Enter a patient name or IC/passport number."); return; }
+            VaxApi.get(`doctor_patientRecord_backend.php?query=${encodeURIComponent(q)}`)
+                .then(data => {
+                    if (data.status === "success") {
+                        const p = data.patient;
+                        document.getElementById("patientDetailsCard").style.display = "block";
+                        document.getElementById("activePatientId").value = p.patient_id;
+                        document.getElementById("patientNameHeader").innerText = `${p.name} (ID: P-${p.patient_id})`;
+                        document.getElementById("patientInfoSubtext").textContent =
+                            `Age: ${p.age} | Gender: ${p.gender} | Blood Type: ${p.blood_type} | Allergies: ${p.allergies || 'None recorded'}`;
+                    } else {
+                        document.getElementById("activePatientId").value = "";
+                        document.getElementById("patientDetailsCard").style.display = "none";
+                        alert("No patient found matching search criteria.");
+                    }
+                }).catch(() => alert("Could not load patient records. Please try again."));
+        }
+
+        // Submits the SOAP notes for the patient currently selected in the record page.
+        function saveSoapRecord() {
+            const payload = {
+                patient_id: document.getElementById("activePatientId").value,
+                subjective: document.getElementById("notesSubjective").value,
+                objective: document.getElementById("notesObjective").value,
+                assessment: document.getElementById("notesAssessment").value,
+                plan: document.getElementById("notesPlan").value
+            };
+
+            if (!payload.patient_id) { alert("Search for a patient before saving a record."); return; }
+
+            VaxApi.post("doctor_patientRecord_backend.php", payload)
+            .then(data => {
+                alert(data.message);
+                if (data.status === "success") {
+                    document.getElementById("soapForm").reset();
+                }
+            }).catch(err => alert(err.message || "Could not save the medical record."));
+        }
+    </script>
+</body>
+</html>

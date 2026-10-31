@@ -1,4 +1,5 @@
 <?php
+// Routes browser API requests to the shared login, patient, appointment, and messaging handlers.
 // Front controller: every request to /api/... comes through here.
 // METHOD + path -> handler, using real HTTP verbs on named resources.
 require __DIR__ . '/lib.php';
@@ -22,7 +23,6 @@ $routes = [
     ['GET',    '/vaccines',                         'vaccines_list'],
     ['GET',    '/destinations',                     'destinations_list'],
     ['GET',    '/child-schedule',                   'schedule_list'],
-    ['POST',   '/contact-messages',                 'contact_create'],
 
     // the logged-in patient
     ['GET',    '/me',                               'me_show'],

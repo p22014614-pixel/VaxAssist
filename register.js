@@ -1,4 +1,6 @@
-if (VaxAuth.getUser()) window.location.href = "index.html";
+VaxAuth.fetchUser().then(function (user) {
+    if (user) window.location.replace(VaxAuth.getDashboardForRole(user.role));
+});
 
 const form = document.getElementById("registerForm");
 const password = document.getElementById("password");

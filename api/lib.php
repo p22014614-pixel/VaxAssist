@@ -1,4 +1,5 @@
 <?php
+// Shared API bootstrap: configures database/session/security helpers; doctor auth reuses its session setup.
 // Shared helpers for every patient-side API file.
 // This file is separate from the team's db.php on purpose, so the patient side
 // never changes the files the doctor/admin side relies on.
@@ -51,6 +52,7 @@ header('Content-Type: application/json; charset=utf-8');
 header('X-Content-Type-Options: nosniff');
 header('Cache-Control: no-store');
 
+// Opens and reuses the PDO connection used by the shared API.
 function db(): PDO
 {
     static $pdo = null;
@@ -75,6 +77,7 @@ function db(): PDO
     return $pdo;
 }
 
+// Sends a JSON response with the requested HTTP status.
 function out($data, int $status = 200): void
 {
     global $devPreview;
@@ -89,17 +92,20 @@ function out($data, int $status = 200): void
 }
 
 // 201 Created, with the address of the new resource in the Location header.
+// Sends a 201 response for a newly created API resource.
 function created(string $location, $data): void
 {
     header('Location: ' . $location);
     out($data, 201);
 }
 
+// Returns a consistent JSON error response and stops the request.
 function fail(int $status, string $message, array $fields = []): void
 {
     out(['ok' => false, 'error' => $message, 'fields' => $fields], $status);
 }
 
+// Creates or returns the CSRF token shared by protected API requests.
 function csrf_token(): string
 {
     if (empty($_SESSION['csrf'])) {
@@ -108,6 +114,7 @@ function csrf_token(): string
     return $_SESSION['csrf'];
 }
 
+// Loads the patient attached to the current API session, if one is signed in.
 function current_patient(): ?array
 {
     if (empty($_SESSION['patient_id'])) {
@@ -119,6 +126,7 @@ function current_patient(): ?array
     return $row ?: null;
 }
 
+// Requires a valid patient session before protected patient API actions continue.
 function require_login(): array
 {
     $patient = current_patient();
@@ -128,6 +136,7 @@ function require_login(): array
     return $patient;
 }
 
+// Converts a patient row into the safe user summary returned to the browser.
 function user_payload(array $patient): array
 {
     $parts = explode(' ', trim($patient['full_name']), 2);
@@ -139,6 +148,7 @@ function user_payload(array $patient): array
     ];
 }
 
+// Rejects requests whose HTTP method is not GET.
 function only_get(): void
 {
     if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
@@ -147,24 +157,28 @@ function only_get(): void
     }
 }
 
+// Trims and limits user-provided text to the requested maximum length.
 function text_in($value, int $max): string
 {
     $value = trim((string) $value);
     return mb_substr($value, 0, $max);
 }
 
+// Checks that a value is a real date written in YYYY-MM-DD format.
 function valid_date(string $date): bool
 {
     $d = DateTime::createFromFormat('Y-m-d', $date);
     return $d && $d->format('Y-m-d') === $date;
 }
 
+// Normalizes a time value to 24-hour HH:MM format.
 function hm(?string $time): string
 {
     return $time ? substr($time, 0, 5) : '';
 }
 
 // The team's appointments table stores a 2-hour window; patient bookings fill it in too.
+// Maps a clock time to one of the appointment booking windows.
 function time_window(string $hm): string
 {
     $h = (int) substr($hm, 0, 2);
@@ -174,6 +188,7 @@ function time_window(string $hm): string
     return '03:00 PM - 05:00 PM';
 }
 
+// Returns the starting time represented by a booking-window label.
 function window_start(?string $window): string
 {
     if (!$window || !preg_match('/^(\d\d):(\d\d) (AM|PM)/', $window, $m)) return '';
@@ -181,6 +196,7 @@ function window_start(?string $window): string
     return sprintf('%02d:%s', $h, $m[2]);
 }
 
+// Lists the clinic's bookable half-hour appointment times.
 function slot_times(): array
 {
     $times = [];
@@ -191,6 +207,7 @@ function slot_times(): array
     return $times;
 }
 
+// Checks the doctor's weekday availability and approved leave for a date.
 function doctor_works_on(int $doctorId, string $date): bool
 {
     if (!valid_date($date)) return false;
@@ -205,6 +222,7 @@ function doctor_works_on(int $doctorId, string $date): bool
 }
 
 // Every half-hour slot for a doctor on a date, marked available or not.
+// Marks appointment times as available or taken for a doctor and date.
 function available_slots(int $doctorId, string $date, ?int $ignoreAppointment = null): array
 {
     if (!doctor_works_on($doctorId, $date) || $date < date('Y-m-d')) return [];
@@ -232,23 +250,27 @@ function available_slots(int $doctorId, string $date, ?int $ignoreAppointment = 
     return $slots;
 }
 
-function add_notification(int $patientId, string $type, string $title, string $body, ?string $url = null, ?string $label = null): void
+// Saves a patient notification and, when supplied, links it to its responsible doctor visit.
+function add_notification(int $patientId, string $type, string $title, string $body, ?string $url = null, ?string $label = null, ?int $doctorId = null, ?int $appointmentId = null): void
 {
-    db()->prepare('INSERT INTO notifications (patient_id, type, title, body, action_url, action_label) VALUES (?, ?, ?, ?, ?, ?)')
-        ->execute([$patientId, $type, $title, $body, $url, $label]);
+    db()->prepare('INSERT INTO notifications (patient_id, doctor_id, appointment_id, type, title, body, action_url, action_label) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
+        ->execute([$patientId, $doctorId, $appointmentId, $type, $title, $body, $url, $label]);
 }
 
+// Formats a database time value as an ISO-compatible timestamp.
 function iso_time(string $dbTime): string
 {
     return (new DateTime($dbTime))->format('c');
 }
 
+// Converts a submitted gender value to the database enum spelling.
 function gender_to_db($g): string
 {
     $g = strtolower((string) $g);
     return $g === 'male' ? 'Male' : ($g === 'female' ? 'Female' : 'Other');
 }
 
+// Loads one patient record by its database ID.
 function patient_row(int $id): array
 {
     $stmt = db()->prepare('SELECT * FROM patients WHERE patient_id = ?');
@@ -256,18 +278,21 @@ function patient_row(int $id): array
     return $stmt->fetch();
 }
 
+// Splits a full name into first and remaining name parts.
 function split_name(string $full): array
 {
     $parts = explode(' ', trim($full), 2);
     return [$parts[0], $parts[1] ?? ''];
 }
 
+// Checks the minimum password length and character requirements.
 function strong_password(string $p): bool
 {
     return strlen($p) >= 8 && preg_match('/[A-Za-z]/', $p) && preg_match('/\d/', $p);
 }
 
 // For POST, PUT, PATCH and DELETE: check the security token and read the JSON body.
+// Validates the CSRF token and decodes a protected JSON request body.
 function write_input(): array
 {
     $sent = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
