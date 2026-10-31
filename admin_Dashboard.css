@@ -1,4 +1,39 @@
-/* Dashboard-only visual theme */
+.admin-dashboard .admin-account.profile-link {
+    display: grid;
+    flex: 0 0 44px;
+    width: 44px;
+    height: 44px;
+    place-items: center;
+    margin: 0;
+    padding: 0;
+    transform: none;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    font-size: 0;
+}
+
+.admin-dashboard .admin-account.profile-link:hover,
+.admin-dashboard .admin-account.profile-link:focus-visible {
+    background: transparent;
+}
+
+.admin-dashboard .admin-account.profile-link::after {
+    display: none;
+}
+
+.admin-dashboard .admin-account.profile-link .nav-avatar {
+    display: block;
+    width: 36px;
+    height: 36px;
+}
+
+.nav-avatar {
+    display: block;
+    width: 36px;
+    height: 36px;
+}
+
 .nav-link {
     position: relative;
     color: #52676e !important;
@@ -592,6 +627,17 @@
 
     .appointment-table {
         min-width: 650px;
+    }
+
+    .admin-dashboard .admin-account.profile-link {
+        flex-basis: 40px;
+        width: 40px;
+        height: 40px;
+    }
+
+    .admin-dashboard .admin-account.profile-link .nav-avatar {
+        width: 32px;
+        height: 32px;
     }
 }
 

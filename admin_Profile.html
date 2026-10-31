@@ -10,21 +10,20 @@
     <link href="motion.css" rel="stylesheet">
     <script src="auth.js"></script>
     <script src="motion.js" defer></script>
-    <link rel="stylesheet" href="admin_Profile.css?v=8">
+    <link rel="stylesheet" href="admin_Profile.css?v=12">
 </head>
 <body>
     <nav class="topbar" aria-label="Main navigation">
         <a class="brand" href="admin_Dashboard.html">VaxAssist</a>
         <button class="menu-toggle" id="menuToggle" type="button" aria-expanded="false" aria-controls="mainNav">Menu</button>
         <ul class="nav-links" id="mainNav">
-            <li><a href="admin_Dashboard.html">Dashboard</a></li>
-            <li><a href="about.html">About Us</a></li>
-            <li><a href="admin_ViewAppointment.html">View Appointment</a></li>
-            <li><a href="admin_ViewLeave.html">Leave Review</a></li>
-            <li><a href="admin_ManageUsers.html">Manage Users</a></li>
-            <li><a href="admin_VaccineInventory.html">Vaccine Stock</a></li>
-            <li><a class="profile-link active" aria-current="page" href="admin_Profile.html?rev=4">Admin profile</a></li>
-        </ul>
+            <li><a class="nav-link" href="admin_Dashboard.html">Dashboard</a></li>
+            <li><a class="nav-link" href="about.html">About Us</a></li>
+            <li><a class="nav-link" href="admin_ViewAppointment.html">View Appointment</a></li>
+            <li><a class="nav-link" href="admin_ViewLeave.html">Leave Review</a></li>
+            <li><a class="nav-link" href="admin_ManageUsers.html">Manage Users</a></li>
+            <li><a class="nav-link" href="admin_VaccineInventory.html">Vaccine Stock</a></li>
+            <li><a class="nav-link profile-link active" aria-label="Admin profile" aria-current="page" href="admin_Profile.html?rev=4"><svg class="nav-avatar" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="20" fill="#e5eef2"/><circle cx="20" cy="14" r="6" fill="#203c47"/><path d="M8.5 33c1.2-6.4 5.3-9.7 11.5-9.7s10.3 3.3 11.5 9.7A16 16 0 0 1 20 36a16 16 0 0 1-11.5-3Z" fill="#203c47"/></svg></a></li>
     </nav>
 
     <main class="page-shell">
@@ -46,6 +45,7 @@
                 <p class="summary-label">ACCOUNT CREATED</p>
                 <strong id="accountCreated">—</strong>
                 <a class="summary-action" href="admin_Dashboard.html">Return to Dashboard <span aria-hidden="true">→</span></a>
+                <a class="summary-action summary-logout" href="api_Logout.php">Log out <span aria-hidden="true">&#8594;</span></a>
             </aside>
 
             <div class="settings-column">
@@ -161,13 +161,14 @@
 
             function updateIdentity() {
                 const name = byId('fullName').value.trim() || 'Admin';
-                byId('summaryName').textContent = name;
+                const initials = name;
                 byId('avatarInitials').textContent = name
                     .split(/\s+/)
                     .slice(0, 2)
                     .map(part => part.charAt(0))
                     .join('')
                     .toUpperCase();
+                byId('avatarInitials').textContent = initials;
             }
 
             async function loadProfile() {
