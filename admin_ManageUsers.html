@@ -11,6 +11,7 @@
     <script src="auth.js"></script>
     <script src="motion.js" defer></script>
     <link rel="stylesheet" href="admin_ManageUsers.css">
+    <link rel="stylesheet" href="admin_ProfileAvatar.css">
 
 </head>
 <body class="staff-page">
@@ -24,7 +25,14 @@
             <li><a class="nav-link active" aria-current="page" href="admin_ManageUsers.html">Manage Users</a></li>
             <li><a class="nav-link" href="admin_VaccineInventory.html">Vaccine Stock</a></li>
         </ul>
-        <a class="admin-account" href="admin_Profile.html">Admin Profile</a>
+
+        <a class="avatar-link" href="admin_Profile.html" aria-label="Admin profile" title="Admin profile">
+            <svg class="avatar-image" viewBox="0 0 40 40" aria-hidden="true">
+                <circle cx="20" cy="20" r="20" fill="#e5eef2"/>
+                <circle cx="20" cy="14" r="6" fill="#203c47" />
+                <path d="M8.5 33c1.2-6.4 5.3-9.7 11.5-9.7s10.3 3.3 11.5 9.7A16 16 0 0 1 20 36a16 16 0 0 1-11.5-3Z" fill="#203c47" />
+            </svg>
+        </a>
     </nav>
 
     <header class="staff-banner">
@@ -55,8 +63,6 @@
                         <option value="">Choose a role</option>
                         <option>Administrator</option>
                         <option>Doctor</option>
-                        <option>Nurse</option>
-                        <option>Receptionist</option>
                     </select>
                 </div>
                 <div class="field">
