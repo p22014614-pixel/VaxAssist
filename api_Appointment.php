@@ -33,7 +33,7 @@ if ($method === 'GET') {
     try {
         $appointments = $pdo->query(
             'SELECT a.appointment_id, a.doctor_id, a.patient_id, a.appointment_date,
-                    a.time_slot, a.status, a.symptoms_notes, a.created_at,
+                    a.time_slot, a.status, a.symptoms_notes, a.edit_reason, a.created_at,
                     TRIM(CONCAT(d.first_name, " ", d.last_name)) AS doctor_name
              FROM appointments AS a
              INNER JOIN doctors AS d ON d.doctor_id = a.doctor_id
@@ -112,6 +112,7 @@ try {
 
     $timeSlot = trim((string) ($payload['time_slot'] ?? ''));
     $notes = trim((string) ($payload['symptoms_notes'] ?? ''));
+    $editReason = trim((string) ($payload['edit_reason'] ?? ''));
     $status = trim((string) ($payload['status'] ?? ''));
     $doctorId = filter_var(
         $payload['doctor_id'] ?? null,
@@ -119,8 +120,12 @@ try {
         ['options' => ['min_range' => 1]]
     );
 
-    if ($timeSlot === '' || strlen($timeSlot) > 100 || strlen($notes) > 2000 || !$doctorId) {
-        respond(422, ['error' => 'Enter a valid time, notes, and registered doctor.']);
+    $validTimeSlots = ['08:00 AM - 10:00 AM', '10:00 AM - 12:00 PM', '01:00 PM - 03:00 PM', '03:00 PM - 05:00 PM'];
+
+    if (!in_array($timeSlot, $validTimeSlots, true) || strlen($notes) > 2000 || strlen($editReason) > 1000 || !$editReason || !$doctorId) {
+            http_response_code(422);
+            echo json_encode(['error' => 'Enter a valid time, notes, reason for edit, and registered doctor.']);
+            exit;
     }
 
     if (!in_array($status, ['Scheduled', 'Pending', 'Completed', 'Cancelled'], true)) {
@@ -142,7 +147,8 @@ try {
              time_slot = :time_slot,
              doctor_id = :doctor_id,
              symptoms_notes = :symptoms_notes,
-             status = :status
+             status = :status,
+             edit_reason = :edit_reason
          WHERE appointment_id = :appointment_id'
     );
 
@@ -152,6 +158,7 @@ try {
         'doctor_id' => $doctorId,
         'symptoms_notes' => $notes,
         'status' => $status,
+        'edit_reason' => $editReason,
         'appointment_id' => $appointmentId,
     ]);
 

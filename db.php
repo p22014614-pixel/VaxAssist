@@ -24,12 +24,10 @@ try {
         (string) ($_SERVER['SCRIPT_NAME'] ?? '')
     );
 
-    $expectsJson =
-        str_contains(
-            strtolower((string) ($_SERVER['HTTP_ACCEPT'] ?? '')),
-            'application/json'
-        ) ||
-        str_ends_with($scriptName, '_api.php');
+    $acceptHeader = strtolower((string) ($_SERVER['HTTP_ACCEPT'] ?? ''));
+    $expectsJson = strpos($acceptHeader, 'application/json') !== false
+        || strpos(strtolower($scriptName), 'api_') === 0
+        || substr(strtolower($scriptName), -8) === '_api.php';
 
     if ($expectsJson) {
         header('Content-Type: application/json; charset=utf-8');
