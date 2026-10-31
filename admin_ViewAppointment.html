@@ -101,6 +101,7 @@
                                 <th>Patient</th>
                                 <th>Appointment</th>
                                 <th>Doctor</th>
+                                <th>Reason</th>
                                 <th>Status</th>
                                 <th>Action</th>
                             </tr>
@@ -152,6 +153,11 @@
 
                 <label class="field edit-notes">Appointment notes
                     <textarea name="symptoms_notes" rows="3" maxlength="2000"></textarea>
+                </label>
+
+                <label class="field edit-notes">Reason for edit
+                    <textarea 
+                        name="edit_reason" rows="2" maxlength="1000" required placeholder="Why is this appointment being changed?"></textarea>
                 </label>
 
                 <p class="schedule-note edit-notice" id="editMessage" aria-live="polite"></p>
@@ -283,6 +289,7 @@
                         </td>
                         <td>${safe(appointment.symptoms_notes)}</td>
                         <td>${safe(appointment.doctor_name)}</td>
+                        <td>${safe(appointment.edit_reason || '—')}</td>
                         <td><span class="status-chip status-${safe(String(appointment.status || 'Scheduled').trim().toLowerCase().replace(/[^a-z0-9-]+/g, '-'))}">${safe(appointment.status || 'Scheduled')}</span></td>
                         <td class="actions-cell">
                             <button
@@ -300,7 +307,7 @@
                         </td>
                     </tr>
                 `).join('')
-                : '<tr><td class="empty-state" colspan="6">No appointments match these filters.</td></tr>';
+                : `<tr><td class="empty-state" colspan="7">${appointments.length ? 'No appointments match these filters.' : 'No appointments have been added yet.'}</td></tr>`;
 
             setResultMessage(`Showing ${filtered.length} appointment${filtered.length === 1 ? '' : 's'}`);
         }
@@ -323,8 +330,22 @@
 
         async function loadAppointments() {
             try {
-                const response = await fetch('api_Appointment.php', { cache: 'no-store' });
-                const data = await response.json();
+                const response = await fetch('api_Appointment.php', {
+                    headers: { Accept: 'application/json' },
+                    cache: 'no-store'
+                });
+                const responseText = await response.text();
+                let data;
+                try {
+                    data = JSON.parse(responseText);
+                } catch {
+                    const responseSummary = responseText
+                        .replace(/<[^>]*>/g, ' ')
+                        .replace(/\s+/g, ' ')
+                        .trim()
+                        .slice(0, 240);
+                    throw new Error(`Appointment service error (HTTP ${response.status}): ${responseSummary || 'The server returned an invalid response.'}`);
+                }
 
                 if (!response.ok) {
                     throw new Error(data.error || 'Could not load appointments.');
@@ -371,6 +392,7 @@
                 editForm.elements.doctor_id.value = appointment.doctor_id;
                 editForm.elements.status.value = appointment.status || 'Scheduled';
                 editForm.elements.symptoms_notes.value = appointment.symptoms_notes || '';
+                editForm.elements.edit_reason.value = appointment.edit_reason || '';
                 editBackdrop.classList.add('open');
                 editForm.elements.appointment_date.focus();
             }
