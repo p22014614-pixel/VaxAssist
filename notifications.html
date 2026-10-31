@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>VaxAssist | Notifications</title>
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link href="nav.css" rel="stylesheet">
+    <link href="motion.css" rel="stylesheet">
+    <link href="notifications.css" rel="stylesheet">
+    <link href="polish.css?v=1" rel="stylesheet">
+    <script src="auth.js?v=5"></script>
+    <script src="motion.js?v=2" defer></script>
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container py-2">
+
+            <a class="navbar-brand fw-bold" href="index.html">
+                VaxAssist
+            </a>
+
+            <button class="navbar-toggler" type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbarNav"
+                    aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+
+                <ul class="navbar-nav ms-auto align-items-lg-center">
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Home</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="about.html">About</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="services.html">Services</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="doctors.html">Doctors</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="planner.html">Planner</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="contact.html">Contact</a>
+                    </li>
+
+                    <li class="nav-item dropdown" data-auth="in">
+                        <a class="nav-link dropdown-toggle active" href="#" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">Hi, <span data-user-name>there</span><span class="msg-dot" data-unread-dot hidden></span></a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="booking.html">Book an Appointment</a></li>
+                            <li><a class="dropdown-item" href="appointments.html">My Appointments</a></li>
+                            <li><a class="dropdown-item" href="vaccinations.html">My Vaccinations</a></li>
+                            <li><a class="dropdown-item" href="precheck.html">Pre-consultation Form</a></li>
+                            <li><a class="dropdown-item" href="receipts.html">Payments &amp; Receipts</a></li>
+                            <li><a class="dropdown-item" href="reviews.html">Reviews &amp; Ratings</a></li>
+                            <li><a class="dropdown-item" href="messages.html">Messages <span class="msg-badge" data-unread-messages hidden></span></a></li>
+                            <li><a class="dropdown-item active" href="notifications.html">Notifications</a></li>
+                            <li><a class="dropdown-item" href="profile.html">My Profile</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item logout-link" href="#" data-logout>Log out</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="nav-item" data-auth="out">
+                        <a class="nav-link" href="login.html">Log in</a>
+                    </li>
+
+                    <li class="nav-item ms-lg-3 mt-3 mt-lg-0" data-auth="out">
+                        <a class="btn appointment-btn" href="register.html">
+                            Create Account
+                        </a>
+                    </li>
+
+                </ul>
+
+            </div>
+        </div>
+    </nav>
+
+
+    <main class="flex-grow-1">
+
+        <section class="page-header">
+            <div class="container">
+                <div class="header-row">
+                    <div>
+                        <div class="section-label mb-2">Notifications</div>
+                        <h1 class="mb-3">Stay on top of your vaccines</h1>
+                        <p class="mb-0">Appointment reminders, booster alerts and updates from your clinic, all in one place.</p>
+                    </div>
+                    <div class="bell" aria-hidden="true">
+                        <span class="icon">&#128276;</span>
+                        <span class="count zero" id="bellCount">0</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="pb-5">
+            <div class="container">
+                <div class="row g-4">
+
+                    <!-- Notification feed -->
+                    <div class="col-lg-8">
+
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-2">
+                            <div class="chip-row" id="filterChips" role="group" aria-label="Filter notifications"></div>
+                            <button type="button" class="btn-small-outline" id="markAllBtn">Mark all as read</button>
+                        </div>
+
+                        <div id="feed" aria-live="polite">
+                            <div class="skeleton" style="margin-top: 20px"></div>
+                            <div class="skeleton"></div>
+                            <div class="skeleton"></div>
+                        </div>
+                    </div>
+
+                    <!-- Preferences -->
+                    <div class="col-lg-4">
+                        <div class="panel-card">
+                            <h2>How should we reach you?</h2>
+                            <p class="hint">Choose which reminders you would like to receive.</p>
+
+                            <div id="prefError" class="alert alert-danger py-2 small d-none" role="alert"></div>
+
+                            <form id="prefForm">
+                                <div class="pref-row">
+                                    <div>
+                                        <div class="name">Email reminders</div>
+                                        <div class="desc">Appointment reminders by email</div>
+                                    </div>
+                                    <div class="form-check form-switch m-0">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="email_reminders" name="email_reminders" aria-label="Email reminders">
+                                    </div>
+                                </div>
+                                <div class="pref-row">
+                                    <div>
+                                        <div class="name">SMS reminders</div>
+                                        <div class="desc">A text message the day before</div>
+                                    </div>
+                                    <div class="form-check form-switch m-0">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="sms_reminders" name="sms_reminders" aria-label="SMS reminders">
+                                    </div>
+                                </div>
+                                <div class="pref-row">
+                                    <div>
+                                        <div class="name">Booster alerts</div>
+                                        <div class="desc">When a next dose is coming up</div>
+                                    </div>
+                                    <div class="form-check form-switch m-0">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="booster_alerts" name="booster_alerts" aria-label="Booster alerts">
+                                    </div>
+                                </div>
+                                <div class="pref-row">
+                                    <div>
+                                        <div class="name">Clinic news and offers</div>
+                                        <div class="desc">Discounted booster slots and announcements</div>
+                                    </div>
+                                    <div class="form-check form-switch m-0">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="clinic_news" name="clinic_news" aria-label="Clinic news and offers">
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn appointment-btn w-100 mt-3" id="prefBtn">Save preferences</button>
+                            </form>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <div class="toast-note" id="toast" role="status" aria-live="polite"></div>
+
+
+    <!-- Footer -->
+    <footer class="text-center p-4">
+        <nav class="footer-links" aria-label="Footer"><a href="index.html">Home</a><a href="about.html">About</a><a href="services.html">Services</a><a href="doctors.html">Doctors</a><a href="planner.html">Planner</a><a href="contact.html">Contact</a></nav>
+        <p class="mb-0">
+            &copy; 2026 <span>VaxAssist</span> |
+            All Rights Reserved
+        </p>
+    </footer>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="notifications.js"></script>
+
+</body>
+</html>

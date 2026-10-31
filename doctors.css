@@ -1,0 +1,188 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8fbfc;
+    color: #183642;
+}
+
+.navbar {
+    background-color: #ffffff !important;
+    border-bottom: 1px solid #e8eef0;
+}
+
+.navbar-brand {
+    color: #167d8d !important;
+    font-size: 1.35rem;
+    letter-spacing: -0.5px;
+}
+
+.nav-link {
+    color: #52676e !important;
+    margin: 0 8px;
+    font-size: 0.95rem;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    color: #167d8d !important;
+}
+
+.appointment-btn {
+    background-color: #167d8d;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+}
+
+.appointment-btn:hover {
+    background-color: #126a78;
+    color: white;
+}
+
+.section-label {
+    color: #167d8d;
+    font-size: 0.8rem;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.page-header {
+    padding: 60px 0 30px;
+}
+
+.page-header h1 {
+    font-size: 2.6rem;
+    font-weight: 700;
+    letter-spacing: -1.5px;
+}
+
+.page-header p {
+    color: #667980;
+    font-size: 1.05rem;
+    line-height: 1.8;
+    max-width: 620px;
+}
+
+/* Filter bar */
+.filter-card {
+    background: #e8f5f6;
+    border-radius: 24px;
+    padding: 28px 30px;
+}
+
+.form-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.form-control,
+.form-select {
+    border: 1px solid #dbe5e8;
+    border-radius: 8px;
+    padding: 12px 14px;
+    color: #183642;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #167d8d;
+    box-shadow: 0 0 0 0.2rem rgba(22, 125, 141, 0.15);
+}
+
+/* Doctor cards */
+.doctor-card {
+    background: white;
+    border: 1px solid #e7edef;
+    border-radius: 16px;
+    padding: 26px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    transition: 0.25s ease;
+}
+
+.doctor-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(24, 54, 66, 0.08);
+}
+
+.avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: #e8f5f6;
+    color: #167d8d;
+    font-weight: 700;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.doctor-card h5 {
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.specialty {
+    color: #167d8d;
+    font-size: 0.88rem;
+    font-weight: 600;
+}
+
+.bio {
+    color: #708087;
+    font-size: 0.93rem;
+    line-height: 1.6;
+}
+
+.meta {
+    color: #52676e;
+    font-size: 0.85rem;
+}
+
+.day-pill {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    border-radius: 20px;
+    padding: 4px 10px;
+    margin-right: 4px;
+    background: #eef2f3;
+    color: #98a6ab;
+}
+
+.day-pill.on {
+    background: #e8f5f6;
+    color: #126a78;
+}
+
+.empty-state {
+    background: white;
+    border: 1px solid #e7edef;
+    border-radius: 16px;
+    padding: 40px 20px;
+    text-align: center;
+    color: #708087;
+}
+
+footer {
+    background-color: #183642;
+    color: #c9d7da;
+}
+
+footer span {
+    color: #7fc9d2;
+}
+
+@media (max-width: 575px) {
+    .page-header h1 {
+        font-size: 2.1rem;
+    }
+
+    .filter-card {
+        padding: 22px 20px;
+    }
+}

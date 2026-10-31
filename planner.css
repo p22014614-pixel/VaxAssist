@@ -1,0 +1,485 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8fbfc;
+    color: #183642;
+}
+
+.navbar {
+    background-color: #ffffff !important;
+    border-bottom: 1px solid #e8eef0;
+}
+
+.navbar-brand {
+    color: #167d8d !important;
+    font-size: 1.35rem;
+    letter-spacing: -0.5px;
+}
+
+.nav-link {
+    color: #52676e !important;
+    margin: 0 8px;
+    font-size: 0.95rem;
+    transition: color 0.2s ease;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    color: #167d8d !important;
+}
+
+.appointment-btn {
+    background-color: #167d8d;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.appointment-btn:hover {
+    background-color: #126a78;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(22, 125, 141, 0.28);
+}
+
+.appointment-btn:active {
+    transform: translateY(0);
+}
+
+.section-label {
+    color: #167d8d;
+    font-size: 0.8rem;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+/* ---------- Page header ---------- */
+.page-header {
+    padding: 60px 0 30px;
+}
+
+.page-header h1 {
+    font-size: 2.6rem;
+    font-weight: 700;
+    letter-spacing: -1.5px;
+}
+
+.page-header p {
+    color: #667980;
+    font-size: 1.05rem;
+    line-height: 1.8;
+    max-width: 620px;
+}
+
+.header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.header-art {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    flex: 0 0 auto;
+}
+
+.header-art .pulse {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: #e8f5f6;
+    animation: pulse 2.8s ease-out infinite;
+}
+
+.header-art .pulse.two {
+    animation-delay: 1.4s;
+}
+
+.header-art .core {
+    position: absolute;
+    inset: 22px;
+    border-radius: 50%;
+    background: white;
+    border: 1px solid #d3e9ec;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.2rem;
+    animation: floaty 3.4s ease-in-out infinite;
+    box-shadow: 0 10px 24px rgba(22, 125, 141, 0.15);
+}
+
+
+footer {
+    background-color: #183642;
+    color: #c9d7da;
+}
+
+footer span {
+    color: #7fc9d2;
+}
+
+
+@keyframes fadeUp  { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes pulse   { 0% { transform: scale(0.6); opacity: 0.9; } 100% { transform: scale(1.25); opacity: 0; } }
+@keyframes floaty  { 0%, 100% { transform: translateY(0) rotate(-6deg); } 50% { transform: translateY(-8px) rotate(6deg); } }
+
+.fade-in {
+    animation: fadeUp 0.6s ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
+/* ---------- Planner form ---------- */
+.planner-card {
+    background: white;
+    border: 1px solid #e7edef;
+    border-radius: 16px;
+    padding: 28px;
+}
+
+.tab-switch {
+    display: inline-flex;
+    gap: 4px;
+    background: #eef5f6;
+    border-radius: 12px;
+    padding: 5px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+
+.tab-btn {
+    border: none;
+    background: transparent;
+    color: #52676e;
+    font-weight: 600;
+    font-size: 0.95rem;
+    padding: 10px 18px;
+    border-radius: 9px;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.tab-btn:hover {
+    color: #167d8d;
+}
+
+.tab-btn.active {
+    background: white;
+    color: #167d8d;
+    box-shadow: 0 2px 8px rgba(24, 54, 66, 0.1);
+}
+
+.planner-card .form-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.planner-card .optional {
+    color: #8a9ca2;
+    font-weight: 400;
+}
+
+.planner-card .form-control,
+.planner-card .form-select {
+    border: 1px solid #dbe5e8;
+    border-radius: 8px;
+    padding: 12px 14px;
+    color: #183642;
+}
+
+.planner-card .form-control:focus,
+.planner-card .form-select:focus {
+    border-color: #167d8d;
+    box-shadow: 0 0 0 0.2rem rgba(22, 125, 141, 0.15);
+}
+
+.saved-children {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.chip {
+    border: 1px solid #cfe5e8;
+    background: #f1f9fa;
+    color: #167d8d;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 8px 14px;
+    border-radius: 999px;
+    transition: background-color 0.2s ease;
+}
+
+.chip:hover {
+    background: #e0f1f3;
+}
+
+/* ---------- Results ---------- */
+.summary-card {
+    background: linear-gradient(135deg, #167d8d, #1f9aad);
+    color: white;
+    border-radius: 16px;
+    padding: 24px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.summary-card h2 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin: 0 0 4px;
+}
+
+.summary-card p {
+    margin: 0;
+    opacity: 0.9;
+}
+
+.summary-counts {
+    display: flex;
+    gap: 22px;
+}
+
+.summary-counts div {
+    text-align: center;
+}
+
+.summary-counts strong {
+    display: block;
+    font-size: 1.8rem;
+    line-height: 1.1;
+}
+
+.summary-counts span {
+    font-size: 0.8rem;
+    opacity: 0.9;
+}
+
+.print-btn {
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    background: transparent;
+    color: white;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 0.9rem;
+}
+
+.print-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.group-title {
+    font-size: 0.8rem;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #167d8d;
+    margin: 32px 0 14px;
+}
+
+.note-banner {
+    background: #fff8e6;
+    border: 1px solid #f3dfa2;
+    color: #7a5b00;
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-top: 16px;
+    font-size: 0.95rem;
+}
+
+.vax-card {
+    background: white;
+    border: 1px solid #e7edef;
+    border-left: 5px solid #167d8d;
+    border-radius: 14px;
+    padding: 18px 22px;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 18px;
+    flex-wrap: wrap;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.vax-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 26px rgba(24, 54, 66, 0.08);
+}
+
+.vax-card.required {
+    border-left-color: #d9534f;
+}
+
+.vax-card.recommended {
+    border-left-color: #167d8d;
+}
+
+.vax-main {
+    flex: 1 1 320px;
+}
+
+.vax-name {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0 8px 0 0;
+    display: inline;
+}
+
+.badge-req,
+.badge-rec {
+    font-size: 0.7rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 999px;
+    vertical-align: middle;
+}
+
+.badge-req {
+    background: #fdecea;
+    color: #b3302c;
+}
+
+.badge-rec {
+    background: #e8f5f6;
+    color: #167d8d;
+}
+
+.vax-why {
+    color: #667980;
+    margin: 6px 0 0;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.vax-when {
+    margin-top: 8px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #52676e;
+}
+
+.vax-when.urgent {
+    color: #b3302c;
+}
+
+.vax-when.soon {
+    color: #a86b00;
+}
+
+.milestone-title {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin: 30px 0 12px;
+    flex-wrap: wrap;
+}
+
+.milestone-title h3 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.milestone-title span {
+    font-size: 0.85rem;
+    color: #667980;
+}
+
+.empty-state {
+    text-align: center;
+    background: white;
+    border: 1px dashed #cfe0e3;
+    border-radius: 16px;
+    padding: 50px 20px;
+}
+
+.empty-icon {
+    font-size: 2.4rem;
+    margin-bottom: 8px;
+}
+
+.empty-state h2 {
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+.empty-state p {
+    color: #667980;
+    margin: 0;
+}
+
+.disclaimer {
+    color: #667980;
+    text-align: center;
+}
+
+@media (max-width: 575px) {
+    .page-header h1 {
+        font-size: 2rem;
+    }
+
+    .planner-card {
+        padding: 20px;
+    }
+
+    .tab-switch {
+        display: flex;
+    }
+
+    .tab-btn {
+        flex: 1 1 100%;
+    }
+
+    .vax-card .appointment-btn {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+@media print {
+    .navbar, footer, .planner-card, .print-btn, .vax-card .appointment-btn, .disclaimer {
+        display: none !important;
+    }
+
+    .vax-card {
+        break-inside: avoid;
+    }
+}
+
+.vax-card.done {
+    border-left-color: #2e9e5b;
+    background: #f6fbf8;
+}
+
+.badge-done {
+    font-size: 0.7rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 999px;
+    vertical-align: middle;
+    background: #e6f6ec;
+    color: #1b7a43;
+}
+
+.vax-when.ok {
+    color: #1b7a43;
+}
