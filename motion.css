@@ -1,3 +1,4 @@
+/* Shared motion and scroll-reveal styles; doctor pages trigger reveals from their own JS files. */
 html {
     scroll-behavior: smooth;
 }
@@ -154,3 +155,4 @@ textarea {
         transform: none !important;
     }
 }
+/* Shared motion and scroll-reveal styling; doctor pages add their reveal classes from doctor JS. */

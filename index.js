@@ -5,6 +5,13 @@ const childField = document.getElementById("childField");
 const destination = document.getElementById("destination");
 const childDob = document.getElementById("childDob");
 
+// The home page is the patient landing page. Send authenticated doctors to their portal.
+VaxAuth.fetchUser().then(function (user) {
+    if (user && user.role === "doctor") {
+        window.location.replace(VaxAuth.getDashboardForRole(user.role));
+    }
+});
+
 childDob.max = new Date().toISOString().split("T")[0];
 
 tabs.forEach(function (tab) {

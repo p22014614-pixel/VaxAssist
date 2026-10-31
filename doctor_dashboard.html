@@ -1,0 +1,119 @@
+<!-- Doctor landing page: dashboard analytics and login-time patient updates. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Dashboard - VaxAssist</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="nav.css">
+    <link rel="stylesheet" href="motion.css">
+    <link rel="stylesheet" href="doctor.css?v=4">
+    <link rel="stylesheet" href="login.css">
+    <link rel="stylesheet" href="styles.css?v=2">
+    <script src="auth.js?v=9" defer></script>
+    <script src="doctor_nav.js?v=1" defer></script>
+    <script src="doctor_dashboard.js?v=4" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body class="doctor-portal" data-require-role="doctor">
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg doctor-navbar">
+        <div class="container py-2">
+            <a class="navbar-brand fw-bold" href="doctor_dashboard.html">VaxAssist</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#doctorNav" aria-controls="doctorNav" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+            <div class="collapse navbar-collapse" id="doctorNav"><ul class="navbar-nav ms-auto align-items-lg-center">
+                <li class="nav-item"><a class="nav-link active" aria-current="page" href="doctor_dashboard.html">Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="doctor_appointments.html">Appointments</a></li>
+                <li class="nav-item"><a class="nav-link" href="doctor_vaccinations.html">Vaccinations</a></li>
+                <li class="nav-item"><a class="nav-link" href="doctor_patientRecord.html">Patient Record</a></li>
+                <li class="nav-item"><a class="nav-link" href="doctor_communications.html">Communications</a></li>
+                <li class="nav-item doctor-nav-avatar-item"><a class="doctor-nav-avatar" href="doctor_profile.html" aria-label="Open doctor profile"><span data-doctor-initials>DR</span><img data-doctor-photo alt="Doctor profile photo" hidden></a></li>
+            </ul></div>
+        </div>
+    </nav>
+
+    <div class="page-header-banner">
+        <div>
+            <h1>Doctor Overview Dashboard</h1>
+            <p>Summary of clinic operations, appointments, and quick navigation.</p>
+        </div>
+        <div class="export-btns">
+            <button class="btn-export btn-excel" type="button" data-export="excel">📊 Export Excel</button>
+            <button class="btn-export btn-pdf" type="button" data-export="pdf">📄 Export PDF</button>
+            <button class="btn-export btn-word" type="button" data-export="word">📝 Export Word</button>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+        <div id="dashboardError" class="doctor-alert" role="alert" hidden>We couldn’t load your dashboard data. Refresh the page to try again.</div>
+        <section id="printable-dashboard" class="dashboard-report" aria-labelledby="report-heading">
+        <h2 id="report-heading">Clinic workload &amp; care outcomes</h2>
+        <div class="stats-row">
+            <div class="stat-card"><h4>Today's appointments</h4><div class="value" id="stat-today">—</div><p>Scheduled for today</p></div>
+            <div class="stat-card"><h4>Next 7 days</h4><div class="value" id="stat-upcoming">—</div><p>Upcoming bookings after today</p></div>
+            <div class="stat-card"><h4>Completed this month</h4><div class="value" id="stat-completed">—</div><p>Completed appointments</p></div>
+            <div class="stat-card"><h4>Patients in your panel</h4><div class="value" id="stat-patients">—</div><p>Distinct patients with appointments</p></div>
+            <div class="stat-card notification-stat-card"><h4>Patient updates</h4><div class="value" id="stat-notifications">—</div><p>Notifications and activity relevant to your patients</p><button class="btn secondary-btn" id="openPatientUpdates" type="button" data-bs-toggle="modal" data-bs-target="#patientUpdatesModal">View updates</button></div>
+        </div>
+
+        <section class="analytics-card" aria-labelledby="trend-heading">
+            <div class="analytics-heading"><div><h2 id="trend-heading">Appointment activity</h2><p>Monthly scheduled and completed appointments in your database</p></div><div class="trend-legend" aria-label="Chart legend"><span><i class="legend-scheduled"></i>Scheduled</span><span><i class="legend-completed"></i>Completed</span></div></div>
+            <div id="appointmentTrend" class="trend-chart" role="img" aria-label="Six month appointment outcome chart"><p class="trend-empty">Loading clinic trend…</p></div>
+        </section>
+        </section>
+
+        <h2>Quick module access</h2>
+        <div class="nav-cards-grid">
+            <a href="doctor_appointments.html" class="nav-card-link">
+                <div class="nav-card">
+                    <h3>📅 Appointments</h3>
+                    <p>View daily time slots, weekly schedules, and color-coded monthly booking counts.</p>
+                </div>
+            </a>
+            <a href="doctor_vaccinations.html" class="nav-card-link">
+                <div class="nav-card">
+                    <h3>💉 Vaccinations</h3>
+                    <p>Review pre-check responses and record administered vaccine doses.</p>
+                </div>
+            </a>
+            <a href="doctor_patientRecord.html" class="nav-card-link">
+                <div class="nav-card">
+                    <h3>🩺 Patient Medical Records</h3>
+                    <p>Access patient diagnosis history, enter SOAP notes, and record treatment plans.</p>
+                </div>
+            </a>
+            <a href="doctor_communications.html" class="nav-card-link">
+                <div class="nav-card">
+                    <h3>💬 Communications</h3>
+                    <p>Chat directly with patients regarding follow-ups, test results, and inquiries.</p>
+                </div>
+            </a>
+            <a href="doctor_profile.html" class="nav-card-link">
+                <div class="nav-card">
+                    <h3>👤 Doctor Profile & Leave</h3>
+                    <p>Update personal credentials, manage working hours, and request leave approval.</p>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <div class="modal fade" id="patientUpdatesModal" tabindex="-1" aria-labelledby="patientUpdatesTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+            <div class="modal-content patient-updates-modal">
+                <div class="modal-header"><div><h2 class="modal-title" id="patientUpdatesTitle">Patient updates</h2><p class="mb-0">Updates relevant to your patient panel.</p></div><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+                <div class="modal-body"><div id="patientUpdatesList" class="patient-updates-list"><p class="text-muted">Loading patient updates…</p></div></div>
+                <div class="modal-footer"><a class="btn secondary-btn" href="doctor_communications.html">Open communications</a><a class="btn secondary-btn" href="doctor_vaccinations.html">Review vaccinations</a><button type="button" class="btn primary-btn" data-bs-dismiss="modal">Done</button></div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 VaxAssist. All Rights Reserved.</p>
+    </footer>
+
+</body>
+</html>
