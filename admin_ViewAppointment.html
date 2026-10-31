@@ -46,7 +46,7 @@
             <section class="schedule-summary" aria-label="Schedule summary">
                 <article class="summary-card">
                     <span>Appointments today</span>
-                    <strong id="todayCount">4</strong>
+                    <strong id="todayCount">-</strong>
                 </article>
                 <article class="summary-card">
                     <span>Doctors on schedule</span>
@@ -54,7 +54,7 @@
                 </article>
                 <article class="summary-card">
                     <span>Awaiting confirmation</span>
-                    <strong id="pendingCount">1</strong>
+                    <strong id="scheduleCount">-</strong>
                 </article>
             </section>
 
@@ -64,6 +64,10 @@
                         <p class="section-kicker">BOOKINGS &amp; AVAILABILITY</p>
                         <h2 id="scheduleTitle">Clinic appointments</h2>
                     </div>
+
+                    <button class="primary-action" id="openAdd" type="button">
+                        Add appointment
+                    </button>
                 </div>
 
                 <div class="schedule-tools">
@@ -145,7 +149,7 @@
                 <label class="field">Status
                     <select name="status" required>
                         <option>Scheduled</option>
-                        <option>Pending</option>
+                        <option>Missed</option>
                         <option>Completed</option>
                         <option>Cancelled</option>
                     </select>
@@ -183,7 +187,7 @@
                 <label class="field">Appointment date<input name="appointment_date" type="date" required></label>
                 <label class="field">Time<input name="time_slot" type="text" maxlength="100" placeholder="e.g. 08:00 AM - 09:00 AM" required></label>
                 <label class="field">Doctor<select name="doctor_id" required></select></label>
-                <label class="field">Status<select name="status" required><option>Scheduled</option><option>Pending</option><option>Confirmed</option><option>Completed</option><option>Cancelled</option></select></label>
+                <label class="field">Status<select name="status" required><option>Scheduled</option><option>Missed</option><option>Confirmed</option><option>Completed</option><option>Cancelled</option></select></label>
                 <label class="field edit-notes">Appointment notes<textarea name="symptoms_notes" rows="3" maxlength="2000"></textarea></label>
                 <p class="schedule-note edit-notice" id="addMessage" aria-live="polite"></p>
                 <div class="form-actions">
@@ -226,8 +230,12 @@
         function populateDoctorOptions(selectedAppointmentDoctor = null) {
             const doctorFilter = document.getElementById('doctorFilter');
             const editDoctor = editForm.elements.doctor_id;
+            const addDoctor = addForm.elements.doctor_id;
+
             const selectedFilterDoctor = doctorFilter.value;
             const selectedEditDoctor = selectedAppointmentDoctor ?? editDoctor.value;
+            const selectedAddDoctor = addDoctor.value;
+
             const options = doctors
                 .filter(doctor => doctorIdOf(doctor) && doctorNameOf(doctor))
                 .map(doctor => `<option value="${safe(doctorIdOf(doctor))}">${safe(doctorNameOf(doctor))}</option>`)
@@ -238,12 +246,20 @@
                 ? selectedFilterDoctor
                 : '';
 
-            editDoctor.innerHTML = doctors.length
+            const doctorOptions = doctors.length
                 ? '<option value="">Select doctor</option>' + options
                 : '<option value="">No registered doctors found</option>';
-            editDoctor.value = doctors.some(doctor => doctorIdOf(doctor) === String(selectedEditDoctor))
-                ? String(selectedEditDoctor)
-                : '';
+
+            editDoctor.innerHTML = doctorOptions;
+            addDoctor.innerHTML = doctorOptions;
+
+            editDoctor.value = doctors.some(
+                doctor => doctorIdOf(doctor) === String(selectedEditDoctor)
+            ) ? String(selectedEditDoctor) : '';
+
+            addDoctor.value = doctors.some(
+                doctor => doctorIdOf(doctor) === String(selectedAddDoctor)
+            ) ? String(selectedAddDoctor) : '';
         }
 
 
@@ -322,8 +338,8 @@
             document.getElementById('doctorCount').textContent =
                 doctors.length;
 
-            document.getElementById('pendingCount').textContent =
-                appointments.filter(appointment => appointment.status === 'Pending').length;
+            document.getElementById('scheduleCount').textContent =
+                appointments.filter(appointment => appointment.status === 'Scheduled').length;
 
             populateDoctorOptions();
         }
@@ -367,6 +383,8 @@
 
         const editBackdrop = document.getElementById('editBackdrop');
         const editForm = document.getElementById('editForm');
+        const addBackdrop = document.getElementById('addBackdrop');
+        const addForm = document.getElementById('addForm');
 
         function closeEditor() {
             editBackdrop.classList.remove('open');
@@ -443,6 +461,48 @@
             await loadAppointments();
             return data;
         }
+
+        function closeAdder() {
+            addBackdrop.classList.remove('open');
+            document.getElementById('addMessage').textContent = '';
+        }
+
+        document.getElementById('openAdd').addEventListener('click', () => {
+            addForm.reset();
+            populateDoctorOptions();
+            addBackdrop.classList.add('open');
+            addForm.elements.patient_id.focus();
+        });
+
+        document.getElementById('closeAdd').addEventListener('click', closeAdder);
+        document.getElementById('cancelAdd').addEventListener('click', closeAdder);
+
+        addBackdrop.addEventListener('click', event => {
+            if (event.target === addBackdrop) closeAdder();
+        });
+
+        addForm.addEventListener('submit', async event => {
+            event.preventDefault();
+
+            const message = document.getElementById('addMessage');
+            const saveButton = addForm.querySelector('[type="submit"]');
+            saveButton.disabled = true;
+            message.textContent = 'Saving appointment…';
+
+            const payload = Object.fromEntries(new FormData(addForm).entries());
+            payload.patient_id = Number(payload.patient_id);
+            payload.doctor_id = Number(payload.doctor_id);
+
+            try {
+                await updateAppointment('POST', payload);
+                closeAdder();
+                setResultMessage('Appointment added.');
+            } catch (error) {
+                message.textContent = error.message;
+            } finally {
+                saveButton.disabled = false;
+            }
+        });
 
         editForm.addEventListener('submit', async event => {
             event.preventDefault();

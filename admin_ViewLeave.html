@@ -25,7 +25,7 @@
             <li><a class="nav-link" href="admin_ManageUsers.html">Manage Users</a></li>
             <li><a class="nav-link" href="admin_VaccineInventory.html">Vaccine Stock</a></li>
         </ul>
-        
+
         <a class="avatar-link" href="admin_Profile.html" aria-label="Admin profile" title="Admin profile">
             <svg class="avatar-image" viewBox="0 0 40 40" aria-hidden="true">
                 <circle cx="20" cy="20" r="20" fill="#e5eef2"/>
@@ -102,9 +102,9 @@
                             <span class="sr-only">Filter by request status</span>
                             <select id="statusFilter">
                                 <option value="all">All requests</option>
-                                <option value="Pending">Pending</option>
+                                <option value="Pending" selected>Pending</option>
                                 <option value="Approved">Approved</option>
-                                <option value="Declined">Declined</option>
+                                <option value="Rejected">Rejected</option>
                             </select>
                         </label>
                     </div>
@@ -128,6 +128,7 @@
 
     <script>
         const apiUrl = 'api_Leave.php';
+        let csrfToken = '';
         let requests = [];
         let selectedId = null;
 
@@ -203,6 +204,7 @@
                     throw new Error(data.error || 'Could not load leave requests.');
                 }
 
+                csrfToken = data.csrfToken || '';
                 requests = (data.requests || []).map(mapRequest);
 
                 if (!requests.some(request => request.id === selectedId)) {
@@ -211,6 +213,7 @@
 
                 message.textContent = '';
                 renderList();
+                
             } catch (error) {
                 list.innerHTML = '<div class="empty-state"><strong>Unable to load requests</strong><p></p></div>';
                 list.querySelector('.empty-state p').textContent = error.message;
@@ -357,7 +360,7 @@
 
                 ${actionable
                     ? `<div class="review-actions">
-                           <button class="decline-button" type="button" data-decision="Declined">Decline</button>
+                           <button class="decline-button" type="button" data-decision="Rejected">Decline</button>
                            <button class="approve-button" type="button" data-decision="Approved">&#10003; Approve leave</button>
                        </div>
                        <p class="action-hint">Decision saving must be enabled by the API.</p>`
@@ -367,8 +370,48 @@
             `;
 
             panel.querySelectorAll('[data-decision]').forEach(button => {
-                button.addEventListener('click', () => decideLocally(request, button.dataset.decision));
+                button.addEventListener('click', () => {
+                    saveDecision(request, button.dataset.decision);
+                });
             });
+
+            async function saveDecision(request, decision) {
+                const toast = document.getElementById('toast');
+
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-Token': csrfToken,
+                            Accept: 'application/json'
+                        },
+                        credentials: 'same-origin',
+                        cache: 'no-store',
+                        body: JSON.stringify({
+                            leave_id: Number(request.id),
+                            status: decision
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(data.error || 'Could not save the decision.');
+                    }
+
+                    // Return to the review queue. The updated request is no longer Pending.
+                    document.getElementById('statusFilter').value = 'Pending';
+                    await loadLeaveRequests();
+
+                    toast.textContent = `Request ${decision.toLowerCase()}.`;
+                } catch (error) {
+                    toast.textContent = error.message;
+                }
+
+                toast.classList.add('show');
+                window.setTimeout(() => toast.classList.remove('show'), 2800);
+            }
         }
 
         function decideLocally(request, decision) {

@@ -27,7 +27,11 @@ function validateVaccine(array $input): array
     $code = strtoupper(trim((string) ($input['code'] ?? '')));
     $category = trim((string) ($input['category'] ?? ''));
     $price = filter_var($input['price'] ?? null, FILTER_VALIDATE_FLOAT);
-    $quantity = filter_var($input['quantity'] ?? null, FILTER_VALIDATE_INT);
+    $totalDoses = filter_var($input['total_doses'] ?? null, FILTER_VALIDATE_INT);
+    $leadDaysInput = $input['lead_days'] ?? null;
+    $leadDays = ($leadDaysInput === '' || $leadDaysInput === null)
+        ? null
+        : filter_var($leadDaysInput, FILTER_VALIDATE_INT);
 
     if ($name === '' || mb_strlen($name) > 150) {
         respond(422, ['error' => 'Enter a vaccine name of 150 characters or fewer.']);
@@ -45,8 +49,13 @@ function validateVaccine(array $input): array
         respond(422, ['error' => 'Enter a valid price of zero or more.']);
     }
 
-    if ($quantity === false || $quantity < 0) {
-        respond(422, ['error' => 'Enter a whole quantity of zero or more.']);
+    if ($totalDoses === false || $totalDoses < 1 || $totalDoses > 255) {
+        respond(422, ['error' => 'Enter a total dose count from 1 to 255.']);
+    }
+
+    if ($leadDaysInput !== '' && $leadDaysInput !== null &&
+        ($leadDays === false || $leadDays < 0 || $leadDays > 32767)) {
+        respond(422, ['error' => 'Lead days must be blank or a whole number from 0 to 32767.']);
     }
 
     return [
@@ -54,7 +63,8 @@ function validateVaccine(array $input): array
         'code' => $code,
         'price' => number_format((float) $price, 2, '.', ''),
         'category' => $category,
-        'quantity' => $quantity,
+        'total_doses' => $totalDoses,
+        'lead_days' => $leadDays,
     ];
 }
 
@@ -68,7 +78,7 @@ if ($method === 'GET') {
     }
 
     $statement = $pdo->query(
-        'SELECT id, name, code, price, category, quantity
+        'SELECT vaccine_id AS id, name, code, price, category, total_doses, lead_days
          FROM vaccines
          ORDER BY name, id'
     );
@@ -80,7 +90,8 @@ if ($method === 'GET') {
             'code' => $row['code'],
             'price' => (float) $row['price'],
             'category' => $row['category'],
-            'quantity' => (int) $row['quantity'],
+            'total_doses' => (int) $row['total_doses'],
+            'lead_days' => $row['lead_days'] === null ? null : (int) $row['lead_days'],
         ];
     }, $statement->fetchAll());
 
@@ -113,8 +124,8 @@ try {
         $vaccine = validateVaccine($input);
 
         $statement = $pdo->prepare(
-            'INSERT INTO vaccines (name, code, price, category, quantity)
-             VALUES (:name, :code, :price, :category, :quantity)'
+            'INSERT INTO vaccines (name, code, price, category, total_doses, lead_days)
+             VALUES (:name, :code, :price, :category, :total_doses, :lead_days)'
         );
 
         $statement->execute($vaccine);
@@ -144,14 +155,15 @@ try {
                  code = :code,
                  price = :price,
                  category = :category,
-                 quantity = :quantity
-             WHERE id = :id'
+                 total_doses = :total_doses,
+                 lead_days = :lead_days
+             WHERE vaccine_id = :id'
         );
 
         $statement->execute($vaccine + ['id' => $id]);
 
         if ($statement->rowCount() === 0) {
-            $check = $pdo->prepare('SELECT id FROM vaccines WHERE id = ?');
+            $check = $pdo->prepare('SELECT vaccine_id FROM vaccines WHERE vaccine_id = ?');
             $check->execute([$id]);
 
             if (!$check->fetch()) {
@@ -162,7 +174,7 @@ try {
         respond(200, ['message' => 'Vaccine updated.']);
     }
 
-    $statement = $pdo->prepare('DELETE FROM vaccines WHERE id = ?');
+    $statement = $pdo->prepare('DELETE FROM vaccines WHERE vaccine_id = ?');
     $statement->execute([$id]);
 
     if ($statement->rowCount() === 0) {
