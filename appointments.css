@@ -1,0 +1,361 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8fbfc;
+    color: #183642;
+}
+
+.navbar {
+    background-color: #ffffff !important;
+    border-bottom: 1px solid #e8eef0;
+}
+
+.navbar-brand {
+    color: #167d8d !important;
+    font-size: 1.35rem;
+    letter-spacing: -0.5px;
+}
+
+.nav-link {
+    color: #52676e !important;
+    margin: 0 8px;
+    font-size: 0.95rem;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    color: #167d8d !important;
+}
+
+.appointment-btn {
+    background-color: #167d8d;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+}
+
+.appointment-btn:hover {
+    background-color: #126a78;
+    color: white;
+}
+
+.section-label {
+    color: #167d8d;
+    font-size: 0.8rem;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.page-header {
+    padding: 60px 0 30px;
+}
+
+.page-header h1 {
+    font-size: 2.6rem;
+    font-weight: 700;
+    letter-spacing: -1.5px;
+}
+
+.page-header p {
+    color: #667980;
+    font-size: 1.05rem;
+    line-height: 1.8;
+    max-width: 620px;
+}
+
+/* Tabs */
+.tab-switch {
+    display: inline-grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    background: #e8f5f6;
+    border-radius: 12px;
+    padding: 6px;
+}
+
+.tab-btn {
+    border: none;
+    background: transparent;
+    color: #52676e;
+    font-weight: 600;
+    padding: 10px 22px;
+    border-radius: 8px;
+}
+
+.tab-btn.active {
+    background: white;
+    color: #167d8d;
+    box-shadow: 0 2px 8px rgba(24, 54, 66, 0.08);
+}
+
+.tab-count {
+    display: inline-block;
+    min-width: 22px;
+    font-size: 0.75rem;
+    background: #167d8d;
+    color: white;
+    border-radius: 20px;
+    padding: 1px 7px;
+    margin-left: 6px;
+}
+
+.tab-btn:not(.active) .tab-count {
+    background: #c4dfe3;
+    color: #126a78;
+}
+
+/* Appointment cards */
+.appt-card {
+    background: white;
+    border: 1px solid #e7edef;
+    border-radius: 16px;
+    padding: 22px 24px;
+    margin-bottom: 14px;
+    display: grid;
+    grid-template-columns: 92px 1fr auto;
+    gap: 20px;
+    align-items: center;
+}
+
+.date-block {
+    background: #e8f5f6;
+    border-radius: 14px;
+    text-align: center;
+    padding: 12px 6px;
+}
+
+.date-block .day {
+    font-size: 1.7rem;
+    font-weight: 700;
+    line-height: 1;
+    color: #167d8d;
+}
+
+.date-block .month {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #126a78;
+}
+
+.date-block .weekday {
+    font-size: 0.75rem;
+    color: #52676e;
+}
+
+.appt-card h5 {
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.appt-meta {
+    color: #708087;
+    font-size: 0.9rem;
+    line-height: 1.7;
+}
+
+.badge-soft {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    border-radius: 20px;
+    padding: 4px 10px;
+}
+
+.status-booked    { background: #167d8d; color: white; }
+.status-completed { background: #e8f5f6; color: #126a78; }
+.status-cancelled { background: #eef2f3; color: #52676e; }
+.status-missed    { background: #fff1e0; color: #8a5a12; }
+
+.soon {
+    color: #167d8d;
+    font-weight: 700;
+    font-size: 0.85rem;
+}
+
+.appt-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 130px;
+}
+
+.btn-outline-secondary {
+    border-radius: 8px;
+}
+
+.btn-cancel {
+    color: #9b2c2c;
+    border: 1px solid #f0caca;
+    border-radius: 8px;
+    background: white;
+}
+
+.btn-cancel:hover {
+    background: #fdeeee;
+    color: #9b2c2c;
+    border-color: #e9b3b3;
+}
+
+.empty-state {
+    background: white;
+    border: 1px solid #e7edef;
+    border-radius: 16px;
+    padding: 48px 20px;
+    text-align: center;
+    color: #708087;
+}
+
+.empty-state .icon {
+    font-size: 2.2rem;
+    margin-bottom: 10px;
+}
+
+.alert-soft {
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 0.92rem;
+}
+
+.alert-soft.success {
+    background: #e8f5f6;
+    color: #126a78;
+    border: 1px solid #c4e4e8;
+}
+
+.alert-soft.error {
+    background: #fdeeee;
+    color: #9b2c2c;
+    border: 1px solid #f5cccc;
+}
+
+/* Modals */
+.modal-content {
+    border: none;
+    border-radius: 16px;
+}
+
+.form-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.form-control,
+.form-select {
+    border: 1px solid #dbe5e8;
+    border-radius: 8px;
+    padding: 12px 14px;
+    color: #183642;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #167d8d;
+    box-shadow: 0 0 0 0.2rem rgba(22, 125, 141, 0.15);
+}
+
+.slot-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+    gap: 8px;
+}
+
+.slot-label {
+    border: 1px solid #dbe5e8;
+    color: #183642;
+    border-radius: 8px;
+    padding: 10px 6px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    background: white;
+}
+
+.slot-label:hover {
+    border-color: #167d8d;
+    color: #167d8d;
+    background: white;
+}
+
+.btn-check:checked + .slot-label {
+    background: #167d8d;
+    border-color: #167d8d;
+    color: white;
+}
+
+.btn-check:disabled + .slot-label {
+    background: #f1f4f5;
+    color: #a5b2b6;
+    border-color: #e7edef;
+    text-decoration: line-through;
+}
+
+.slot-hint {
+    color: #708087;
+    font-size: 0.9rem;
+}
+
+.current-box {
+    background: #f8fbfc;
+    border: 1px dashed #b9d4d9;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 0.9rem;
+}
+
+.appointment-btn:disabled {
+    background-color: #8fc3cb;
+    color: white;
+}
+
+.btn-danger-soft {
+    background: #b83a3a;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+}
+
+.btn-danger-soft:hover {
+    background: #9b2c2c;
+    color: white;
+}
+
+footer {
+    background-color: #183642;
+    color: #c9d7da;
+}
+
+footer span {
+    color: #7fc9d2;
+}
+
+@media (max-width: 767px) {
+    .appt-card {
+        grid-template-columns: 76px 1fr;
+    }
+
+    .appt-actions {
+        grid-column: 1 / -1;
+        flex-direction: row;
+        min-width: 0;
+    }
+
+    .appt-actions .btn {
+        flex: 1;
+    }
+}
+
+@media (max-width: 575px) {
+    .page-header h1 {
+        font-size: 2.1rem;
+    }
+
+    .appt-card {
+        padding: 18px;
+        gap: 14px;
+    }
+}

@@ -1,0 +1,129 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8fbfc;
+    color: #183642;
+}
+
+.navbar {
+    background-color: #ffffff !important;
+    border-bottom: 1px solid #e8eef0;
+}
+
+.navbar-brand {
+    color: #167d8d !important;
+    font-size: 1.35rem;
+    letter-spacing: -0.5px;
+}
+
+.nav-link {
+    color: #52676e !important;
+    margin: 0 8px;
+    font-size: 0.95rem;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    color: #167d8d !important;
+}
+
+.appointment-btn {
+    background-color: #167d8d;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+}
+
+.appointment-btn:hover {
+    background-color: #126a78;
+    color: white;
+}
+
+.page-header {
+    padding: 80px 0 60px;
+}
+
+.section-label {
+    color: #167d8d;
+    font-size: 0.8rem;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.page-header h1 {
+    font-size: 3.5rem;
+    font-weight: 700;
+    letter-spacing: -1.5px;
+}
+
+.page-header p {
+    color: #718087;
+    max-width: 600px;
+    margin: 20px auto 0;
+    line-height: 1.8;
+}
+
+.service-card {
+    background: white;
+    border: 1px solid #e4edef;
+    border-radius: 18px;
+    padding: 32px;
+    height: 100%;
+    transition: 0.25s ease;
+}
+
+.service-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(24, 54, 66, 0.08);
+}
+
+.service-number {
+    color: #9ab7bd;
+    font-size: 0.85rem;
+    font-weight: bold;
+    margin-bottom: 25px;
+}
+
+.service-icon {
+    font-size: 2rem;
+    margin-bottom: 20px;
+}
+
+.service-card h5 {
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.service-card p {
+    color: #718087;
+    line-height: 1.7;
+    margin-bottom: 25px;
+}
+
+.learn-btn {
+    color: #167d8d;
+    border-color: #167d8d;
+    border-radius: 7px;
+}
+
+.learn-btn:hover {
+    background-color: #167d8d;
+    border-color: #167d8d;
+    color: white;
+}
+
+@media (max-width: 575px) {
+    .page-header h1 {
+        font-size: 2.3rem;
+    }
+}
+
+footer {
+    background-color: #183642;
+    color: #c9d7da;
+}
+
+footer span {
+    color: #7fc9d2;
+}
