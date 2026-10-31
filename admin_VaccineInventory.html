@@ -41,7 +41,7 @@
                 <p class="eyebrow">VAXASSIST · CLINIC ADMINISTRATION</p>
                 <h1>Vaccine Inventory</h1>
                 <p>
-                    Manage vaccine details, prices, categories, and available quantities.
+                    Manage vaccine details, prices, categories, dose counts, and travel lead times.
                 </p>
             </div>
 
@@ -81,13 +81,14 @@
                                 <th>Code</th>
                                 <th>Price</th>
                                 <th>Category</th>
-                                <th>Qty</th>
+                                <th>Total doses</th>
+                                <th>Lead days</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody id="vaccineRows">
                             <tr>
-                                <td class="loading-state" colspan="6">
+                                <td class="loading-state" colspan="7">
                                     Loading vaccines…
                                 </td>
                             </tr>
@@ -178,14 +179,29 @@
                 </div>
 
                 <div class="form-field">
-                    <label for="vaccineQuantity">Qty</label>
+                    <label for="vaccineTotalDoses">Total doses</label>
                     <input
-                        id="vaccineQuantity"
-                        name="quantity"
+                        id="vaccineTotalDoses"
+                        name="total_doses"
+                        type="number"
+                        min="1"
+                        max="255"
+                        step="1"
+                        value="1"
+                        required
+                    >
+                </div>
+
+                <div class="form-field">
+                    <label for="vaccineLeadDays">Lead days</label>
+                    <input
+                        id="vaccineLeadDays"
+                        name="lead_days"
                         type="number"
                         min="0"
+                        max="32767"
                         step="1"
-                        required
+                        placeholder="Not applicable"
                     >
                 </div>
             </div>
@@ -254,7 +270,7 @@
                 } catch {
                     throw new Error(
                         'The inventory API returned a web page instead of JSON. ' +
-                        'Check that vaccine_api.php is in the same folder and ' +
+                        'Check that api_VaccineInventory.php is in the same folder and ' +
                         'serve this page through PHP.'
                     );
                 }
@@ -269,7 +285,7 @@
             } catch (error) {
                 rows.innerHTML = `
                     <tr>
-                        <td class="empty-state" colspan="6">
+                        <td class="empty-state" colspan="7">
                             ${escapeHtml(error.message)}
                         </td>
                     </tr>
@@ -330,7 +346,7 @@
 
                 rows.innerHTML = `
                     <tr>
-                        <td class="empty-state" colspan="6">
+                        <td class="empty-state" colspan="7">
                             ${message}
                         </td>
                     </tr>
@@ -352,11 +368,8 @@
                     </td>
                     <td>RM ${Number(vaccine.price).toFixed(2)}</td>
                     <td>${escapeHtml(vaccine.category)}</td>
-                    <td>
-                        <span class="quantity-pill${Number(vaccine.quantity) < 10 ? ' low' : ''}">
-                            ${Number(vaccine.quantity)}
-                        </span>
-                    </td>
+                    <td>${Number(vaccine.total_doses)}</td>
+                    <td>${vaccine.lead_days === null ? '?' : `${Number(vaccine.lead_days)} days`}</td>
                     <td>
                         <div class="row-actions">
                             <button type="button" data-edit="${vaccine.id}">
@@ -391,8 +404,10 @@
                 document.getElementById('vaccinePrice').value = vaccine.price;
                 document.getElementById('vaccineCategory').value =
                     vaccine.category;
-                document.getElementById('vaccineQuantity').value =
-                    vaccine.quantity;
+                document.getElementById('vaccineTotalDoses').value =
+                    vaccine.total_doses;
+                document.getElementById('vaccineLeadDays').value =
+                    vaccine.lead_days ?? '';
             }
 
             dialog.showModal();
@@ -484,7 +499,8 @@
                 code: form.elements.code.value,
                 price: form.elements.price.value,
                 category: form.elements.category.value,
-                quantity: form.elements.quantity.value
+                total_doses: form.elements.total_doses.value,
+                lead_days: form.elements.lead_days.value || null
             };
 
             const saveButton =

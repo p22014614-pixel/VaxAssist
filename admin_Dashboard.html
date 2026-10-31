@@ -41,9 +41,9 @@
         <header class="dashboard-banner">
             <div class="banner-copy">
                 <p class="eyebrow">VAXASSIST · CLINIC ADMINISTRATION</p>
-                <h1>Clinic overview</h1>
+                <h1>Admin Dashboard Overview</h1>
                 <p>
-                    Monitor appointments, patients, staff, and vaccine stock in one place.
+                    Monitor appointments, staff, and vaccine stock in one place.
                 </p>
             </div>
 
@@ -104,9 +104,9 @@
                             <thead>
                                 <tr>
                                     <th>Patient</th>
-                                    <th>Service</th>
+                                    <th>Appointment</th>
                                     <th>Time</th>
-                                    <th>Staff</th>
+                                    <th>Doctor</th>
                                     <th>Status</th>
                                 </tr>
                             </thead>
@@ -237,10 +237,8 @@
                     ? data.appointments
                     : [];
 
-                // The total card counts all appointments.
                 if (count) count.textContent = appointments.length;
 
-                // The table shows today's appointments.
                 const now = new Date();
                 const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
                 const todaysAppointments = appointments.filter(appointment =>
@@ -277,45 +275,44 @@
                 const data = await response.json();
 
                 if (!response.ok) {
-                    throw new Error(
-                        data.error || 'Could not load vaccine inventory.'
-                    );
+                    throw new Error(data.error || 'Could not load vaccine inventory.');
                 }
 
                 const vaccines = Array.isArray(data.vaccines)
                     ? data.vaccines
                     : [];
 
-                const lowStockCount = vaccines.filter(
-                    vaccine => Number(vaccine.quantity) < 10
-                ).length;
+                const totalCourseDoses = vaccines.reduce(
+                    (total, vaccine) =>
+                        total + (Number(vaccine.total_doses) || 0),
+                    0
+                );
+
+                const escapeHtml = value =>
+                    String(value ?? '').replace(/[&<>"']/g, character => ({
+                        '&': '&amp;',
+                        '<': '&lt;',
+                        '>': '&gt;',
+                        '"': '&quot;',
+                        "'": '&#39;'
+                    }[character]));
 
                 const preview = vaccines.slice(0, 3);
 
                 list.innerHTML = preview.length
                     ? preview.map(vaccine => {
-                        const quantity = Number(vaccine.quantity) || 0;
-                        const stockClass =
-                            quantity < 10 ? 'stock-low' : 'stock-good';
-                        const status =
-                            quantity < 10 ? 'Low stock' : 'In stock';
-
-                        const name = String(vaccine.name).replace(
-                            /[&<>"']/g,
-                            character => ({
-                                '&': '&amp;',
-                                '<': '&lt;',
-                                '>': '&gt;',
-                                '"': '&quot;',
-                                "'": '&#39;'
-                            }[character])
-                        );
+                        const doses = Number(vaccine.total_doses) || 0;
+                        const leadDays =
+                            vaccine.lead_days === null || vaccine.lead_days === ''
+                                ? 'No lead time'
+                                : `${Number(vaccine.lead_days)}-day lead`;
 
                         return `
                             <li>
-                                <span>${name}</span>
-                                <span class="${stockClass}">
-                                    ${quantity} doses · ${status}
+                                <span>${escapeHtml(vaccine.name)}</span>
+                                <span>
+                                    ${doses} dose${doses === 1 ? '' : 's'} per course
+                                    · ${leadDays}
                                 </span>
                             </li>
                         `;
@@ -327,9 +324,9 @@
                         </li>
                     `;
 
-                note.textContent = lowStockCount
-                    ? `${lowStockCount} vaccine${lowStockCount === 1 ? '' : 's'} low on stock (below 10 doses).`
-                    : 'Stock levels are up to date.';
+                note.textContent = vaccines.length
+                    ? `${vaccines.length} vaccine type${vaccines.length === 1 ? '' : 's'} ; Total number of ${totalCourseDoses} doses.`
+                    : 'Add vaccines to see their dose counts and lead times.';
             } catch (error) {
                 list.innerHTML = `
                     <li>
@@ -337,6 +334,7 @@
                         <span></span>
                     </li>
                 `;
+
                 note.textContent = error.message;
             }
         }
