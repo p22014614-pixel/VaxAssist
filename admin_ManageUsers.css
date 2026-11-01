@@ -229,52 +229,12 @@ body.staff-page {
     padding: 8px 6% 60px;
 }
 
-/* User account editor. */
-.account-panel {
-    display: grid;
-    grid-template-columns: minmax(200px, .8fr) minmax(0, 1.7fr);
-    align-items: start;
-    gap: 28px;
-    margin-bottom: 22px;
-    padding: 24px;
-    border: 1px solid var(--staff-line);
-    border-radius: 11px;
-    background: var(--staff-panel);
-    box-shadow: var(--staff-shadow);
-}
-
 .section-kicker {
     margin: 0 0 8px;
     color: var(--staff-teal);
     font-size: 11px;
     font-weight: 700;
     letter-spacing: 1.7px;
-}
-
-.account-copy h2 {
-    margin: 0 0 8px;
-    color: var(--staff-ink);
-    font-size: 21px;
-}
-
-.account-copy > p:last-child {
-    margin: 0;
-    color: var(--staff-muted);
-    font-size: 13px;
-    line-height: 1.6;
-}
-
-.account-form {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
-    align-items: end;
-    gap: 12px;
-}
-
-.account-save {
-    min-height: 44px;
-    padding: 10px 14px;
-    font-size: 13px;
 }
 
 /* Staff summary cards and directory panel. */
@@ -695,20 +655,6 @@ body.staff-page {
     .summary {
         grid-template-columns: 1fr;
         gap: 10px;
-    }
-
-    .account-panel {
-        grid-template-columns: 1fr;
-        gap: 18px;
-        padding: 18px;
-    }
-
-    .account-form {
-        grid-template-columns: 1fr;
-    }
-
-    .account-save {
-        width: 100%;
     }
 
     .summary-card {
