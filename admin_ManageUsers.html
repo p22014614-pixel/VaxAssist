@@ -10,7 +10,7 @@
     <link href="motion.css" rel="stylesheet">
     <script src="auth.js"></script>
     <script src="motion.js" defer></script>
-    <link rel="stylesheet" href="admin_ManageUsers.css">
+    <link rel="stylesheet" href="admin_ManageUsers.css?v=4">
     <link rel="stylesheet" href="admin_ProfileAvatar.css">
 
 </head>
@@ -39,40 +39,12 @@
         <div>
             <p class="staff-eyebrow">VAXASSIST · CLINIC ADMINISTRATION</p>
             <h1>Manage Staff &amp; Users</h1>
-            <p>Manage your clinic team and keep your account information up to date.</p>
+            <p>Manage your clinic team and user access.</p>
         </div>
         <button class="action-btn" id="addStaffBtn" type="button">+ Add staff member</button>
     </header>
 
     <main class="staff-main">
-        <section class="account-panel" aria-labelledby="accountTitle">
-            <div class="account-copy">
-                <p class="section-kicker">YOUR ACCOUNT</p>
-                <h2 id="accountTitle">User details</h2>
-                <p>Update the name, role, and email shown for your account on this device.</p>
-            </div>
-
-            <form id="accountForm" class="account-form">
-                <div class="field">
-                    <label for="accountName">Full name</label>
-                    <input id="accountName" name="name" maxlength="100" autocomplete="name" required>
-                </div>
-                <div class="field">
-                    <label for="accountRole">Role</label>
-                    <select id="accountRole" name="role" required>
-                        <option value="">Choose a role</option>
-                        <option>Administrator</option>
-                        <option>Doctor</option>
-                    </select>
-                </div>
-                <div class="field">
-                    <label for="accountEmail">Email</label>
-                    <input id="accountEmail" name="email" type="email" maxlength="150" autocomplete="email" required>
-                </div>
-                <button class="action-btn account-save" type="submit">Save account details</button>
-            </form>
-        </section>
-
         <section class="summary" aria-label="Staff summary">
             <article class="summary-card">
                 <span>Total staff</span>
@@ -170,7 +142,6 @@
 
     <script>
         const API_URL = 'api_Staff.php';
-        const ACCOUNT_STORAGE_KEY = 'vaxassist.adminManageUsers.account';
         const rows = document.getElementById('staffRows');
         const modal = document.getElementById('staffModal');
         const form = document.getElementById('staffForm');
@@ -179,43 +150,6 @@
         let csrfToken = '';
         let toastTimer;
 
-        function loadAccount() {
-            let account = {
-                name: 'Alex Morgan',
-                role: 'Administrator',
-                email: 'alex.morgan@vaxassist.my'
-            };
-
-            try {
-                const saved = JSON.parse(localStorage.getItem(ACCOUNT_STORAGE_KEY) || 'null');
-                if (saved && typeof saved === 'object') {
-                    account = { ...account, ...saved };
-                }
-            } catch (_) {
-                // Use the default account details when storage is unavailable.
-            }
-
-            document.getElementById('accountName').value = account.name || '';
-            document.getElementById('accountRole').value = account.role || '';
-            document.getElementById('accountEmail').value = account.email || '';
-        }
-
-        document.getElementById('accountForm').addEventListener('submit', event => {
-            event.preventDefault();
-
-            const account = {
-                name: document.getElementById('accountName').value.trim(),
-                role: document.getElementById('accountRole').value,
-                email: document.getElementById('accountEmail').value.trim()
-            };
-
-            try {
-                localStorage.setItem(ACCOUNT_STORAGE_KEY, JSON.stringify(account));
-                showToast('Account details saved on this device.');
-            } catch (_) {
-                showToast('Unable to save account details in this browser.');
-            }
-        });
 
         function showToast(message) {
             toast.textContent = message;
@@ -422,7 +356,6 @@
             }
         });
 
-        loadAccount();
         loadStaff();
     </script>
 </body>
