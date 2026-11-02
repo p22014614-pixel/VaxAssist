@@ -1,8 +1,14 @@
 // Loads the signed-in doctor's initials or saved photo into each page's navigation bar.
 (() => {
-    const initials = document.querySelectorAll('[data-doctor-initials]');
-    const photos = document.querySelectorAll('[data-doctor-photo]');
+    let initials = [];
+    let photos = [];
     let hasPhoto = false;
+
+    // Refreshes navbar image targets after the shared navigation HTML is inserted.
+    function collectTargets() {
+        initials = document.querySelectorAll('[data-doctor-initials]');
+        photos = document.querySelectorAll('[data-doctor-photo]');
+    }
 
     // Creates a short name fallback for navigation when no image is available.
     function setInitials(name) {
@@ -25,6 +31,7 @@
     }
 
     document.addEventListener('DOMContentLoaded', async () => {
+        collectTargets();
         const cachedUser = window.VaxAuth?.getUser?.();
         setInitials(cachedUser ? `Dr. ${cachedUser.first_name || ''} ${cachedUser.last_name || ''}` : 'Doctor');
         try {
@@ -37,6 +44,13 @@
         } catch (error) {
             console.warn('Could not load the doctor navigation photo.', error);
         }
+    });
+
+    document.addEventListener('vaxassist:doctor-nav-ready', () => {
+        collectTargets();
+        const cachedUser = window.VaxAuth?.getUser?.();
+        setInitials(cachedUser ? `Dr. ${cachedUser.first_name || ''} ${cachedUser.last_name || ''}` : 'Doctor');
+        refreshPhoto();
     });
 
     document.addEventListener('vaxassist:doctor-photo-updated', (event) => {

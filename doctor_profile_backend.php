@@ -24,7 +24,7 @@ if ($action === 'profile_photo' && $_SERVER['REQUEST_METHOD'] === 'GET') {
 
 if ($action === 'get_profile' && $_SERVER['REQUEST_METHOD'] === 'GET') {
     // Returns editable profile fields and whether a stored photo exists.
-    $stmt = $conn->prepare('SELECT first_name, last_name, email, specialization, consultation_room, profile_photo IS NOT NULL AS has_photo FROM doctors WHERE doctor_id = ?');
+    $stmt = $conn->prepare('SELECT first_name, last_name, email, phone, dob, specialization, consultation_room, bio, years_experience, languages, keywords, profile_photo IS NOT NULL AS has_photo FROM doctors WHERE doctor_id = ?');
     $stmt->bind_param('i', $doctor_id);
     $stmt->execute();
     $row = $stmt->get_result()->fetch_assoc();
@@ -37,8 +37,14 @@ if ($action === 'get_profile' && $_SERVER['REQUEST_METHOD'] === 'GET') {
         'status' => 'success',
         'fullName' => 'Dr. ' . $row['first_name'] . ' ' . $row['last_name'],
         'email' => $row['email'],
+        'phone' => $row['phone'],
+        'dateOfBirth' => $row['dob'],
         'specialization' => $row['specialization'],
         'consultationRoom' => $row['consultation_room'],
+        'bio' => $row['bio'],
+        'yearsExperience' => $row['years_experience'] === null ? null : (int) $row['years_experience'],
+        'languages' => $row['languages'],
+        'keywords' => $row['keywords'],
         'hasPhoto' => (bool) $row['has_photo'],
     ], JSON_UNESCAPED_UNICODE);
     exit;
@@ -105,16 +111,28 @@ if ($action === 'delete_photo' && $_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 if ($action === 'update_profile' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Saves the doctor's specialization and consultation room after validation.
+    // Saves editable doctor details after validating their database limits.
+    $phone = trim((string) ($input['phone'] ?? ''));
+    $dateOfBirth = (string) ($input['dateOfBirth'] ?? '');
     $specialization = trim($input['specialization'] ?? '');
     $room = trim($input['room'] ?? '');
-    if ($specialization === '' || mb_strlen($specialization) > 150 || $room === '' || mb_strlen($room) > 20) {
+    $yearsInput = trim((string) ($input['yearsExperience'] ?? ''));
+    $bio = trim((string) ($input['bio'] ?? ''));
+    $languages = trim((string) ($input['languages'] ?? ''));
+    $keywords = trim((string) ($input['keywords'] ?? ''));
+    $dob = DateTime::createFromFormat('!Y-m-d', $dateOfBirth);
+    $yearsExperience = $yearsInput === '' ? null : filter_var($yearsInput, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 255]]);
+    if ($phone === '' || mb_strlen($phone) > 20 || !preg_match('/^[0-9+().\-\s]{7,20}$/', $phone)
+        || !$dob || $dob->format('Y-m-d') !== $dateOfBirth || $dateOfBirth > date('Y-m-d')
+        || $specialization === '' || mb_strlen($specialization) > 150 || $room === '' || mb_strlen($room) > 20
+        || ($yearsInput !== '' && $yearsExperience === false)
+        || mb_strlen($bio) > 5000 || mb_strlen($languages) > 150 || mb_strlen($keywords) > 5000) {
         http_response_code(422);
-        echo json_encode(['status' => 'error', 'message' => 'Enter a specialization (up to 150 characters) and room (up to 20 characters).']);
+        echo json_encode(['status' => 'error', 'message' => 'Check your phone, date of birth, specialization, room, experience, languages, bio, and search keywords.']);
         exit;
     }
-    $stmt = $conn->prepare('UPDATE doctors SET specialization = ?, consultation_room = ? WHERE doctor_id = ?');
-    $stmt->bind_param('ssi', $specialization, $room, $doctor_id);
+    $stmt = $conn->prepare('UPDATE doctors SET phone = ?, dob = ?, specialization = ?, consultation_room = ?, bio = ?, years_experience = ?, languages = ?, keywords = ? WHERE doctor_id = ?');
+    $stmt->bind_param('sssssissi', $phone, $dateOfBirth, $specialization, $room, $bio, $yearsExperience, $languages, $keywords, $doctor_id);
     echo json_encode($stmt->execute() ? ['status' => 'success', 'message' => 'Profile updated.'] : ['status' => 'error', 'message' => 'Could not update profile.']);
     exit;
 }

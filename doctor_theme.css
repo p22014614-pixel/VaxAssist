@@ -1,0 +1,128 @@
+/* Doctor portal palette and shared Bootstrap component overrides moved from styles.css. */
+/* Doctor portal: keep the login page palette and Bootstrap navigation. */
+.doctor-portal {
+    --primary-color: #167d8d;
+    --primary-dark: #126a78;
+    --bg-light: #f8fbfc;
+    --hero-bg: #e8f5f6;
+    --text-dark: #183642;
+    --text-muted: #667980;
+    --white: #fff;
+    --shadow-sm: 0 2px 10px rgba(24, 54, 66, .06);
+    --shadow-md: 0 10px 30px rgba(24, 54, 66, .08);
+    background: var(--bg-light);
+    color: var(--text-dark);
+    font-family: Arial, sans-serif;
+}
+
+.doctor-portal nav.doctor-navbar {
+    position: sticky;
+    z-index: 20;
+    top: 0;
+    display: block;
+    height: auto;
+    min-height: 0;
+    padding: 0;
+    background: #fff !important;
+    border-bottom: 1px solid #e8eef0;
+    box-shadow: 0 3px 16px rgba(24, 54, 66, .05);
+}
+
+.doctor-portal .doctor-navbar .container {
+    display: flex;
+    justify-content: space-between;
+    gap: 0;
+    padding-top: .5rem;
+    padding-bottom: .5rem;
+}
+
+.doctor-portal .doctor-navbar .navbar-brand {
+    color: #167d8d !important;
+    font-size: 1.35rem;
+    letter-spacing: -.5px;
+}
+
+.doctor-portal .doctor-navbar .navbar-nav {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.doctor-portal .doctor-navbar .nav-link {
+    margin: 0 6px;
+    padding: .5rem .45rem;
+    color: #52676e !important;
+    font-size: .95rem;
+    text-decoration: none;
+}
+
+.doctor-portal .doctor-navbar .nav-link:hover,
+.doctor-portal .doctor-navbar .nav-link.active { color: #167d8d !important; }
+.doctor-portal .doctor-navbar .nav-link[data-logout] { color: #a34c4c !important; }
+
+.doctor-portal .page-header-banner {
+    background: #e8f5f6;
+    border-bottom: 1px solid #d8ebed;
+}
+
+.doctor-portal .stat-card,
+.doctor-portal .nav-card,
+.doctor-portal .form-card,
+.doctor-portal .filter-bar,
+.doctor-portal .week-calendar-container,
+.doctor-portal .chat-layout {
+    border: 1px solid #e7edef;
+    border-radius: 16px;
+    box-shadow: 0 2px 10px rgba(24, 54, 66, .06);
+}
+
+.doctor-portal .primary-btn,
+.doctor-portal .btn-export,
+.doctor-portal .appointment-btn {
+    border-radius: 8px;
+    background: #167d8d;
+    color: #fff;
+    transition: background-color .2s ease, transform .2s ease, box-shadow .2s ease;
+}
+
+.doctor-portal .primary-btn:hover,
+.doctor-portal .btn-export:hover,
+.doctor-portal .appointment-btn:hover {
+    background: #126a78;
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(22, 125, 141, .18);
+}
+
+.doctor-portal footer {
+    margin-top: auto;
+    background: #183642;
+    color: #fff;
+}
+
+.doctor-portal .doctor-animate {
+    opacity: 0;
+    transform: translateY(14px);
+    transition: opacity .5s ease, transform .5s ease;
+    transition-delay: var(--doctor-delay, 0ms);
+}
+
+.doctor-portal .doctor-animate.doctor-animate-in {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+@media (max-width: 991.98px) {
+    .doctor-portal .doctor-navbar .navbar-nav { align-items: stretch; padding: .5rem 0; }
+    .doctor-portal .doctor-navbar .nav-link { margin: 0; padding: .6rem .25rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .doctor-portal .doctor-animate { opacity: 1; transform: none; transition: none; }
+    .doctor-portal .primary-btn,
+    .doctor-portal .btn-export,
+    .doctor-portal .appointment-btn { transition: none; }
+}
