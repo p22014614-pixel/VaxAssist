@@ -1,0 +1,385 @@
+/* Shared finishing layer. Loaded last on every page so it refines each page's own styles. */
+
+:root {
+    --vx-teal: #167d8d;
+    --vx-teal-dark: #126a78;
+    --vx-teal-soft: #e8f5f6;
+    --vx-ink: #183642;
+    --vx-ease: cubic-bezier(0.22, 0.7, 0.2, 1);
+    --vx-shadow-sm: 0 1px 2px rgba(24, 54, 66, 0.04), 0 6px 18px -10px rgba(24, 54, 66, 0.12);
+    --vx-shadow-md: 0 2px 4px rgba(24, 54, 66, 0.04), 0 16px 36px -16px rgba(24, 54, 66, 0.2);
+}
+
+/* ---------- Base ---------- */
+html {
+    scrollbar-color: #b9d4d9 transparent;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    background-image: radial-gradient(900px 460px at 88% -120px, rgba(22, 125, 141, 0.07), transparent 70%);
+    background-repeat: no-repeat;
+}
+
+h1, h2, h3, h4, h5 {
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+}
+
+p {
+    text-wrap: pretty;
+}
+
+::selection {
+    background: rgba(22, 125, 141, 0.22);
+}
+
+a {
+    transition: color 0.2s ease;
+}
+
+:focus-visible {
+    outline: 2px solid rgba(22, 125, 141, 0.6);
+    outline-offset: 2px;
+    border-radius: 6px;
+}
+
+.form-control:focus-visible,
+.form-select:focus-visible {
+    outline: none;
+}
+
+/* ---------- Navigation ---------- */
+.navbar {
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+    background-color: rgba(255, 255, 255, 0.82) !important;
+    -webkit-backdrop-filter: saturate(180%) blur(14px);
+    backdrop-filter: saturate(180%) blur(14px);
+    border-bottom: 1px solid rgba(228, 237, 239, 0.9);
+    transition: box-shadow 0.3s ease, background-color 0.3s ease;
+}
+
+.navbar.scrolled {
+    background-color: rgba(255, 255, 255, 0.94) !important;
+    box-shadow: 0 8px 28px -14px rgba(24, 54, 66, 0.22);
+}
+
+.navbar-brand {
+    letter-spacing: -0.02em;
+    transition: opacity 0.2s ease;
+}
+
+.navbar-brand:hover {
+    opacity: 0.8;
+}
+
+.navbar .dropdown-menu {
+    box-shadow: var(--vx-shadow-md);
+    border-color: rgba(228, 237, 239, 0.9);
+}
+
+.navbar .dropdown-item {
+    transition: background-color 0.18s ease, color 0.18s ease, padding-left 0.18s ease;
+}
+
+.navbar .dropdown-item:hover {
+    padding-left: 18px;
+}
+
+/* ---------- Buttons ---------- */
+.appointment-btn,
+.submit-btn {
+    background-image: linear-gradient(135deg, #1c91a3 0%, #167d8d 55%, #126a78 100%);
+    border-radius: 10px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    box-shadow: 0 1px 2px rgba(18, 106, 120, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.16);
+}
+
+.appointment-btn:hover,
+.submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px -10px rgba(22, 125, 141, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.16);
+}
+
+.appointment-btn:active,
+.submit-btn:active {
+    transform: translateY(0) scale(0.98);
+    box-shadow: 0 2px 6px -2px rgba(22, 125, 141, 0.5);
+}
+
+.appointment-btn:disabled,
+.submit-btn:disabled {
+    transform: none;
+    box-shadow: none;
+    opacity: 0.65;
+}
+
+.btn-outline-secondary {
+    border-color: #cfdde1;
+    color: #40555d;
+    border-radius: 10px;
+    font-weight: 500;
+    background-color: transparent;
+}
+
+.btn-outline-secondary:hover,
+.btn-outline-secondary:focus-visible,
+.btn-outline-secondary:active {
+    background-color: var(--vx-teal-soft);
+    border-color: var(--vx-teal);
+    color: var(--vx-teal-dark);
+}
+
+/* ---------- Cards ---------- */
+.form-card,
+.side-card,
+.summary-card,
+.stat-card,
+.doctor-card,
+.appt-card,
+.pay-card,
+.review-card,
+.vax-card,
+.service-card,
+.about-box,
+.panel-card,
+.planner-card,
+.rec-card,
+.result-card,
+.child-card,
+.head-card,
+.login-card,
+.register-card {
+    border-radius: 18px;
+    border-color: #e4edef;
+    box-shadow: var(--vx-shadow-sm);
+}
+
+.summary-card,
+.contact-info,
+.filter-card {
+    box-shadow: none;
+}
+
+.vax-card,
+.rec-card,
+.result-card,
+.child-card,
+.stat-card {
+    transition: transform 0.25s var(--vx-ease), box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.vax-card:hover,
+.rec-card:hover,
+.result-card:hover,
+.child-card:hover,
+.stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--vx-shadow-md);
+}
+
+.service-card:hover,
+.about-box:hover,
+.doctor-card:hover,
+.appt-card:hover,
+.pay-card:hover,
+.review-card:hover {
+    border-color: #cfe4e8;
+    box-shadow: var(--vx-shadow-md);
+}
+
+/* ---------- Page headers ---------- */
+.page-header,
+.hero {
+    position: relative;
+    isolation: isolate;
+}
+
+.page-header::before,
+.hero::before {
+    content: "";
+    position: absolute;
+    inset: -60px 0 0 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+        radial-gradient(520px 260px at 10% 20%, rgba(22, 125, 141, 0.1), transparent 70%),
+        radial-gradient(480px 260px at 92% 0%, rgba(127, 201, 210, 0.24), transparent 70%);
+    animation: glowDrift 16s ease-in-out infinite alternate;
+}
+
+@keyframes glowDrift {
+    from { transform: translate3d(0, 0, 0); }
+    to   { transform: translate3d(24px, 10px, 0); }
+}
+
+.page-header .container:not(.text-center) .section-label::before {
+    content: "";
+    display: inline-block;
+    width: 18px;
+    height: 2px;
+    margin-right: 10px;
+    border-radius: 2px;
+    background: currentColor;
+    opacity: 0.55;
+    vertical-align: middle;
+}
+
+/* ---------- Forms ---------- */
+.form-control,
+.form-select {
+    border-color: #d6e3e6;
+    border-radius: 10px;
+}
+
+.form-control:hover,
+.form-select:hover {
+    border-color: #b9d4d9;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--vx-teal);
+    background-color: #fff;
+    box-shadow: 0 0 0 4px rgba(22, 125, 141, 0.12);
+}
+
+.form-check-input {
+    cursor: pointer;
+}
+
+.form-check-input:focus {
+    box-shadow: 0 0 0 4px rgba(22, 125, 141, 0.14);
+    border-color: var(--vx-teal);
+}
+
+.tab-btn,
+.chip {
+    transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+/* ---------- Modals ---------- */
+.modal {
+    --bs-backdrop-opacity: 0.38;
+}
+
+.modal-backdrop.show {
+    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: blur(3px);
+}
+
+.modal-content {
+    border: 0;
+    border-radius: 20px;
+    box-shadow: 0 30px 80px -24px rgba(24, 54, 66, 0.45);
+}
+
+.modal.fade .modal-dialog {
+    transform: translateY(14px) scale(0.98);
+    transition: transform 0.3s var(--vx-ease);
+}
+
+.modal.show .modal-dialog {
+    transform: none;
+}
+
+/* ---------- Success and message states ---------- */
+.success-icon {
+    animation: popIn 0.55s var(--vx-ease) both;
+}
+
+@keyframes popIn {
+    0%   { transform: scale(0.4); opacity: 0; }
+    60%  { transform: scale(1.12); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* ---------- Scroll reveal: softer, a little longer ---------- */
+.js-motion .reveal {
+    transform: translateY(22px) scale(0.985);
+    transition: opacity 0.7s var(--vx-ease), transform 0.7s var(--vx-ease);
+    transition-delay: var(--d, 0ms);
+}
+
+.js-motion .reveal.in {
+    transform: none;
+}
+
+/* ---------- Page leave ---------- */
+body.leaving {
+    opacity: 0;
+    transition: opacity 0.16s ease;
+}
+
+/* ---------- Footer ---------- */
+footer {
+    background-image: linear-gradient(180deg, #1b3e4b 0%, #142f3a 100%);
+    padding-top: 28px !important;
+    padding-bottom: 24px !important;
+}
+
+footer .footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px 22px;
+    margin-bottom: 14px;
+}
+
+footer .footer-links a {
+    color: #c9d7da;
+    font-size: 0.9rem;
+    text-decoration: none;
+    position: relative;
+    transition: color 0.2s ease;
+}
+
+footer .footer-links a::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -3px;
+    height: 1px;
+    background: #7fc9d2;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.25s ease;
+}
+
+footer .footer-links a:hover {
+    color: #fff;
+}
+
+footer .footer-links a:hover::after {
+    transform: scaleX(1);
+}
+
+footer p {
+    font-size: 0.85rem;
+    color: #9fb4ba;
+}
+
+footer p span {
+    color: #7fc9d2;
+    font-weight: 600;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .page-header::before,
+    .hero::before,
+    .success-icon {
+        animation: none !important;
+    }
+
+    body.leaving {
+        opacity: 1;
+        transition: none;
+    }
+}

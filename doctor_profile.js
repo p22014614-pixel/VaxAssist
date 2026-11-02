@@ -24,6 +24,14 @@
 
     document.addEventListener('DOMContentLoaded', async () => {
         const today = localDate();
+        const cachedUser = window.VaxAuth?.getUser?.();
+        if (cachedUser?.role === 'doctor') {
+            const cachedName = `Dr. ${cachedUser.first_name || ''} ${cachedUser.last_name || ''}`.trim();
+            document.getElementById('fullName').value = cachedName || 'Doctor';
+            document.getElementById('email').value = cachedUser.email || '';
+            document.getElementById('profileInitials').textContent = initials(cachedName);
+        }
+        document.getElementById('dateOfBirth').max = today;
         const start = document.getElementById('leaveStartDate');
         const end = document.getElementById('leaveEndDate');
         start.min = today;
@@ -40,14 +48,23 @@
             if (data.status !== 'success') throw new Error(data.message || 'Your profile is unavailable.');
             document.getElementById('fullName').value = data.fullName;
             document.getElementById('email').value = data.email;
+            document.getElementById('phone').value = data.phone || '';
+            document.getElementById('dateOfBirth').value = data.dateOfBirth || '';
             document.getElementById('specialization').value = data.specialization || '';
             document.getElementById('consultationRoom').value = data.consultationRoom || '';
-            document.getElementById('welcome-message').textContent = `Welcome back, ${data.fullName}. Manage your personal details and leave requests.`;
+            document.getElementById('yearsExperience').value = data.yearsExperience ?? '';
+            document.getElementById('languages').value = data.languages || '';
+            document.getElementById('bio').value = data.bio || '';
+            document.getElementById('keywords').value = data.keywords || '';
             document.getElementById('profileInitials').textContent = initials(data.fullName);
             document.getElementById('deleteProfilePhoto').disabled = !data.hasPhoto;
             if (data.hasPhoto) loadStoredPhoto();
         } catch (error) {
-            document.getElementById('welcome-message').textContent = error.message || 'Could not load your profile. Please refresh to try again.';
+            if (document.getElementById('fullName').value === 'Loading...') document.getElementById('fullName').value = 'Profile unavailable';
+            if (document.getElementById('email').value === 'Loading...') document.getElementById('email').value = 'Profile unavailable';
+            const status = document.getElementById('profileLoadStatus');
+            status.textContent = error.message || 'Could not load your profile. Please refresh to try again.';
+            status.hidden = false;
         }
     });
 
@@ -126,10 +143,18 @@
     }
     // Saves editable doctor profile fields through the profile backend.
     async function updateDoctorProfile() {
+        const form = document.getElementById('doctorProfileForm');
+        if (!form.reportValidity()) return;
         const payload = {
             action: 'update_profile',
+            phone: document.getElementById('phone').value.trim(),
+            dateOfBirth: document.getElementById('dateOfBirth').value,
             specialization: document.getElementById('specialization').value,
-            room: document.getElementById('consultationRoom').value
+            room: document.getElementById('consultationRoom').value,
+            yearsExperience: document.getElementById('yearsExperience').value,
+            languages: document.getElementById('languages').value,
+            bio: document.getElementById('bio').value,
+            keywords: document.getElementById('keywords').value
         };
         try {
             const data = await VaxApi.post('doctor_profile_backend.php', payload);

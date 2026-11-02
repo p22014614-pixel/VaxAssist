@@ -216,8 +216,8 @@
         safeNext: function (next, fallback, role) {
             if (!/^[a-z0-9_-]+\.html(\?[A-Za-z0-9%&=._-]*)?$/i.test(next || '')) return fallback;
             const page = next.split('?')[0].toLowerCase();
-            if (role === 'doctor' && !page.startsWith('doctor_')) return fallback;
-            if (role === 'patient' && (page.startsWith('doctor_') || page.startsWith('admin_'))) return fallback;
+            if (role === 'doctor' && !(page.startsWith('doctor_') || page === 'about.html')) return fallback;
+            if (role === 'patient' && (page.startsWith('doctor_') || page.startsWith('admin_') || page === 'about.html')) return fallback;
             if (role === 'patient' && !['patient_dashboard.html', 'booking.html', 'appointments.html', 'vaccinations.html', 'precheck.html', 'receipts.html', 'reviews.html', 'messages.html', 'notifications.html', 'profile.html', 'planner.html'].includes(page)) return fallback;
             if (role === 'admin' && !page.startsWith('admin_')) return fallback;
             return next;
