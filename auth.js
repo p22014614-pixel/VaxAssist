@@ -143,7 +143,7 @@
         logout: async function () {
             try { await Api.delete('api/session'); } catch (e) {}
             applyUser(null);
-            window.location.href = 'index.html';
+            window.location.href = 'patient_dashboard.html';
         },
 
         setUnread: showUnread,

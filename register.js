@@ -1,4 +1,4 @@
-if (VaxAuth.getUser()) window.location.href = "index.html";
+if (VaxAuth.getUser()) window.location.href = "patient_dashboard.html";
 
 const form = document.getElementById("registerForm");
 const password = document.getElementById("password");

@@ -1,4 +1,4 @@
-if (VaxAuth.getUser()) window.location.href = "index.html";
+if (VaxAuth.getUser()) window.location.href = "patient_dashboard.html";
 
 const form = document.getElementById("loginForm");
 const email = document.getElementById("email");
@@ -27,7 +27,7 @@ form.addEventListener("submit", async function (e) {
     try {
         await VaxAuth.login(email.value.trim(), password.value);
         const next = new URLSearchParams(window.location.search).get("next");
-        window.location.href = VaxAuth.safeNext(next, "index.html");
+        window.location.href = VaxAuth.safeNext(next, "patient_dashboard.html");
     } catch (err) {
         loginError.textContent = err.message;
         loginError.classList.remove("d-none");
