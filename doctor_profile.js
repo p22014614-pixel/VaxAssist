@@ -38,7 +38,7 @@
         end.min = today;
         start.addEventListener('change', () => { end.min = start.value || today; });
         document.getElementById('updateDoctorProfile').addEventListener('click', updateDoctorProfile);
-        document.getElementById('submitDoctorLeave').addEventListener('click', submitDoctorLeave);
+        document.getElementById('leaveForm').addEventListener('submit', submitDoctorLeave);
         document.getElementById('uploadProfilePhoto').addEventListener('click', uploadPhoto);
         document.getElementById('deleteProfilePhoto').addEventListener('click', deletePhoto);
         photoFile.addEventListener('change', previewPhoto);
@@ -92,12 +92,15 @@
         document.getElementById('profileInitials').hidden = true;
     }
     // Validates and uploads a doctor's profile photo to the database.
-    async function uploadPhoto() {
+    async function uploadPhoto(showMissingSelection = true) {
         const file = photoFile.files[0];
-        if (!file) { photoStatus.textContent = 'Choose a profile photo first.'; return; }
+        if (!file) {
+            if (showMissingSelection) photoStatus.textContent = 'Choose a profile photo first.';
+            return !showMissingSelection;
+        }
         if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 2 * 1024 * 1024) {
             photoStatus.textContent = 'Choose a JPEG, PNG, or WebP image up to 2 MB.';
-            return;
+            return false;
         }
         const button = document.getElementById('uploadProfilePhoto');
         button.disabled = true;
@@ -114,8 +117,10 @@
             if (previewUrl) { URL.revokeObjectURL(previewUrl); previewUrl = null; }
             loadStoredPhoto();
             photoFile.value = '';
+            return true;
         } catch (error) {
             photoStatus.textContent = error.message || 'The profile photo could not be saved.';
+            return false;
         } finally {
             button.disabled = false;
         }
@@ -156,15 +161,29 @@
             bio: document.getElementById('bio').value,
             keywords: document.getElementById('keywords').value
         };
+        const button = document.getElementById('updateDoctorProfile');
+        button.disabled = true;
         try {
             const data = await VaxApi.post('doctor_profile_backend.php', payload);
-            alert(data.message || 'Profile updated.');
+            if (data.status !== 'success') throw new Error(data.message || 'Could not update your profile.');
+            if (photoFile.files[0]) {
+                const photoSaved = await uploadPhoto(false);
+                alert(photoSaved
+                    ? 'Profile and profile picture updated.'
+                    : 'Profile details were saved, but the profile picture could not be updated. Check the photo message and try again.');
+            } else {
+                alert(data.message || 'Profile updated.');
+            }
         } catch (error) { alert(error.message || 'Could not update your profile.'); }
+        finally { button.disabled = false; }
     }
     // Submits the doctor's requested leave dates and reason.
-    async function submitDoctorLeave() {
+    async function submitDoctorLeave(event) {
+        event.preventDefault();
         const form = document.getElementById('leaveForm');
         if (!form.reportValidity()) return;
+        const button = document.getElementById('submitDoctorLeave');
+        button.disabled = true;
         const payload = {
             action: 'submit_leave',
             start_date: document.getElementById('leaveStartDate').value,
@@ -174,7 +193,14 @@
         try {
             const data = await VaxApi.post('doctor_profile_backend.php', payload);
             alert(data.message || 'Leave request sent.');
-            if (data.status === 'success') form.reset();
+            if (data.status === 'success') {
+                form.reset();
+                window.bootstrap?.Modal.getOrCreateInstance(document.getElementById('leaveRequestModal')).hide();
+                const today = localDate();
+                document.getElementById('leaveStartDate').min = today;
+                document.getElementById('leaveEndDate').min = today;
+            }
         } catch (error) { alert(error.message || 'Could not submit your leave request.'); }
+        finally { button.disabled = false; }
     }
 })();

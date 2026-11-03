@@ -29,11 +29,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             ORDER BY pf2.submitted_at DESC, pf2.form_id DESC
             LIMIT 1
         )
-        WHERE a.doctor_id = ? AND a.status = 'Scheduled'
-        ORDER BY a.appointment_date, a.appointment_time, a.appointment_id");
+        WHERE a.doctor_id = ? AND a.status IN ('Scheduled', 'Completed')
+        ORDER BY CASE WHEN a.status = 'Scheduled' THEN 0 ELSE 1 END,
+            CASE WHEN a.status = 'Scheduled' THEN a.appointment_date END ASC,
+            CASE WHEN a.status = 'Completed' THEN a.appointment_date END DESC,
+            a.appointment_time, a.appointment_id");
     $stmt->bind_param('i', $doctor_id);
     $stmt->execute();
     $patients = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+    // Adds each patient's dose history and whether the next due date is already booked.
+    $historyQuery = $conn->prepare("SELECT vr.record_id, vr.dose_number, vr.date_given, vr.next_dose_date, vr.notes,
+            v.name AS vaccine_name, CONCAT_WS(' ', d.first_name, d.last_name) AS doctor_name,
+            (SELECT a2.appointment_date FROM appointments a2
+                WHERE a2.patient_id = vr.patient_id AND a2.child_id <=> vr.child_id
+                  AND a2.vaccine_id = vr.vaccine_id AND a2.status = 'Scheduled'
+                  AND vr.next_dose_date IS NOT NULL AND a2.appointment_date >= CURRENT_DATE()
+                ORDER BY a2.appointment_date, a2.appointment_time LIMIT 1) AS next_appointment_date,
+            (SELECT COALESCE(TIME_FORMAT(a2.appointment_time, '%H:%i'), a2.time_slot) FROM appointments a2
+                WHERE a2.patient_id = vr.patient_id AND a2.child_id <=> vr.child_id
+                  AND a2.vaccine_id = vr.vaccine_id AND a2.status = 'Scheduled'
+                  AND vr.next_dose_date IS NOT NULL AND a2.appointment_date >= CURRENT_DATE()
+                ORDER BY a2.appointment_date, a2.appointment_time LIMIT 1) AS next_appointment_time
+        FROM vaccination_records vr
+        JOIN vaccines v ON v.vaccine_id = vr.vaccine_id
+        LEFT JOIN doctors d ON d.doctor_id = vr.doctor_id
+        WHERE vr.patient_id = ? AND vr.child_id <=> ?
+        ORDER BY vr.date_given DESC, vr.record_id DESC");
+    foreach ($patients as &$patient) {
+        $childId = $patient['child_id'] === null ? null : (int) $patient['child_id'];
+        $patientId = (int) $patient['patient_id'];
+        $historyQuery->bind_param('ii', $patientId, $childId);
+        $historyQuery->execute();
+        $patient['vaccination_history'] = $historyQuery->get_result()->fetch_all(MYSQLI_ASSOC);
+    }
+    unset($patient);
 
     $vaccines = $conn->query('SELECT vaccine_id, name, total_doses FROM vaccines ORDER BY name')->fetch_all(MYSQLI_ASSOC);
     $batches = $conn->query("SELECT batch_id, vaccine_id, batch_number, expiry_date, quantity_in_stock
