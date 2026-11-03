@@ -67,6 +67,7 @@ CREATE TABLE `consultation_records` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+
 -- --------------------------------------------------------
 
 --
@@ -150,6 +151,15 @@ CREATE TABLE `patients` (
   `blood_type` varchar(5) DEFAULT 'O+',
   `allergies` text DEFAULT 'Penicillin',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Links a clinic-created walk-in patient to the doctor who registered them.
+CREATE TABLE IF NOT EXISTS `doctor_patient_links` (
+  `doctor_id` int(11) NOT NULL,
+  `patient_id` int(11) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`doctor_id`, `patient_id`),
+  KEY `idx_doctor_patient_links_patient` (`patient_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 --
 -- Dumping data for table `patients`
