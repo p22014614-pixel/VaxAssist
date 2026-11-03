@@ -799,7 +799,7 @@ CREATE TABLE `doctor_notification_cursors` (
 -- =====================================================================
 -- VaxAssist DEMO DATA for the patient side (local testing only)
 --
--- Run AFTER vaxassist_db.sql and patients_extension.sql, once.
+-- This section is part of vaxassist_db.sql and is imported together with everything above it.
 -- It adds demo doctors, demo patients with children, vaccination records,
 -- appointments, payments, reviews and notifications so every patient page has
 -- something to show. Nothing the team already has is deleted or renamed.
@@ -809,20 +809,22 @@ CREATE TABLE `doctor_notification_cursors` (
 --     michael@example.com  /  Michael123    (the team's sample patient Michael Wong)
 --     sarah@example.com    /  Sarah1234     (the team's sample patient Sarah Jenkins)
 --     ahmad@example.com    /  Ahmad1234     (the team's sample patient Ahmad Razak)
--- The 8 demo doctors cannot log in (their password hash is deliberately invalid).
+-- Doctors (local testing only): all 9 doctors log in with the password Try12345.
+--     try1@gmail.com (Alex Taylor) and the 8 demo doctors at @vaxassist.demo (e.g. aisha.rahman@vaxassist.demo).
+-- Remove or change these demo passwords before the site is deployed.
 -- =====================================================================
 
 USE `vaxassist_db`;
 
 INSERT IGNORE INTO `doctors` (`first_name`, `last_name`, `email`, `phone`, `dob`, `password_hash`, `specialization`, `consultation_room`, `bio`, `years_experience`, `languages`, `keywords`) VALUES
-('Aisha', 'Rahman', 'aisha.rahman@vaxassist.demo', '+60 3-0000 1000', '1985-01-01', '!', 'Travel Medicine', 'Room 101', 'Advises travellers on vaccines, malaria prevention and health planning for overseas trips.', 12, 'English, Malay', 'travel, yellow fever, typhoid, hepatitis a, rabies, malaria'),
-('Daniel', 'Lim', 'daniel.lim@vaxassist.demo', '+60 3-0000 1001', '1985-01-01', '!', 'Paediatrics', 'Room 102', 'Looks after babies and children, including growth checks and the childhood vaccination schedule.', 9, 'English, Mandarin', 'child, baby, fever, mmr, booster, rotavirus, bcg'),
-('Priya', 'Nair', 'priya.nair@vaxassist.demo', '+60 3-0000 1002', '1985-01-01', '!', 'General Practice', 'Room 103', 'Family doctor for everyday health concerns, check-ups and vaccine advice for all ages.', 15, 'English, Tamil, Malay', 'cough, cold, fever, flu, influenza, check-up, vaccine, tetanus'),
-('Ahmad', 'Farid', 'ahmad.farid@vaxassist.demo', '+60 3-0000 1003', '1985-01-01', '!', 'Internal Medicine', 'Room 104', 'Manages long-term conditions such as diabetes, blood pressure and liver health.', 18, 'English, Malay', 'diabetes, blood pressure, hepatitis b, liver, fatigue'),
-('Mei', 'Ling Tan', 'mei.ling.tan@vaxassist.demo', '+60 3-0000 1004', '1985-01-01', '!', 'Infectious Diseases', 'Room 105', 'Treats infections and advises on vaccine-preventable diseases, outbreaks and post-exposure care.', 8, 'English, Mandarin', 'infection, hepatitis b, rabies, post-exposure, measles, dengue, allergy, vaccine reaction'),
-('Rajesh', 'Kumar', 'rajesh.kumar@vaxassist.demo', '+60 3-0000 1005', '1985-01-01', '!', 'Preventive Medicine', 'Room 106', 'Plans adult immunisation, health screening and workplace or community vaccination programmes.', 14, 'English, Hindi', 'adult vaccine, screening, influenza, tetanus, workplace, pneumococcal, booster'),
-('Siti', 'Aminah', 'siti.aminah@vaxassist.demo', '+60 3-0000 1006', '1985-01-01', '!', 'Paediatrics', 'Room 107', 'Child health and development, with a special interest in newborn care and immunisation.', 6, 'English, Malay', 'newborn, baby, child, hepatitis b, dtap, pneumococcal, vaccine'),
-('Jason', 'Wong', 'jason.wong@vaxassist.demo', '+60 3-0000 1007', '1985-01-01', '!', 'General Practice', 'Room 108', 'Walk-in friendly family doctor offering vaccinations, travel health letters and minor procedures.', 10, 'English, Mandarin, Cantonese', 'vaccine, travel, typhoid, hepatitis a, cough, fever, headache');
+('Aisha', 'Rahman', 'aisha.rahman@vaxassist.demo', '+60 3-0000 1000', '1985-01-01', '$2y$10$t/.s0bFo0JG0UrDJTeq0ZexfzsPzxDPWruYUeYx.QwvL6Z3c7H42G', 'Travel Medicine', 'Room 101', 'Advises travellers on vaccines, malaria prevention and health planning for overseas trips.', 12, 'English, Malay', 'travel, yellow fever, typhoid, hepatitis a, rabies, malaria'),
+('Daniel', 'Lim', 'daniel.lim@vaxassist.demo', '+60 3-0000 1001', '1985-01-01', '$2y$10$hjUMz9rSrMLj8f5caEALaeRdg3ZOyLDMlkRpr/bYMJd2b3GTbbuzy', 'Paediatrics', 'Room 102', 'Looks after babies and children, including growth checks and the childhood vaccination schedule.', 9, 'English, Mandarin', 'child, baby, fever, mmr, booster, rotavirus, bcg'),
+('Priya', 'Nair', 'priya.nair@vaxassist.demo', '+60 3-0000 1002', '1985-01-01', '$2y$10$sQR1sK4CIstfazX/0yzobuX3oEdMsXDMs.jhLpfEuUY2KPV0a.9IG', 'General Practice', 'Room 103', 'Family doctor for everyday health concerns, check-ups and vaccine advice for all ages.', 15, 'English, Tamil, Malay', 'cough, cold, fever, flu, influenza, check-up, vaccine, tetanus'),
+('Ahmad', 'Farid', 'ahmad.farid@vaxassist.demo', '+60 3-0000 1003', '1985-01-01', '$2y$10$IMYyEdfLn.kk0wr5KictBOXHTERIwdKBgGsN35BmDspRgWA0ZoJy2', 'Internal Medicine', 'Room 104', 'Manages long-term conditions such as diabetes, blood pressure and liver health.', 18, 'English, Malay', 'diabetes, blood pressure, hepatitis b, liver, fatigue'),
+('Mei', 'Ling Tan', 'mei.ling.tan@vaxassist.demo', '+60 3-0000 1004', '1985-01-01', '$2y$10$x3Hki7b7hX/3oGnN3XmqzeqFGqTwdCwNYhKzi/ZL1R6GB87FJeJaG', 'Infectious Diseases', 'Room 105', 'Treats infections and advises on vaccine-preventable diseases, outbreaks and post-exposure care.', 8, 'English, Mandarin', 'infection, hepatitis b, rabies, post-exposure, measles, dengue, allergy, vaccine reaction'),
+('Rajesh', 'Kumar', 'rajesh.kumar@vaxassist.demo', '+60 3-0000 1005', '1985-01-01', '$2y$10$phHF2/12zpdDfwQxOrXuQOp2HhcjscR8iVta9ksTmPuJ8m96k./XS', 'Preventive Medicine', 'Room 106', 'Plans adult immunisation, health screening and workplace or community vaccination programmes.', 14, 'English, Hindi', 'adult vaccine, screening, influenza, tetanus, workplace, pneumococcal, booster'),
+('Siti', 'Aminah', 'siti.aminah@vaxassist.demo', '+60 3-0000 1006', '1985-01-01', '$2y$10$dIGmjQ9fUboJfWk5c5mm3uSRnPdEe7ZUhPmcrEbjulPaC4TV3nV3u', 'Paediatrics', 'Room 107', 'Child health and development, with a special interest in newborn care and immunisation.', 6, 'English, Malay', 'newborn, baby, child, hepatitis b, dtap, pneumococcal, vaccine'),
+('Jason', 'Wong', 'jason.wong@vaxassist.demo', '+60 3-0000 1007', '1985-01-01', '$2y$10$cdBGWJl3DkAXRepUW4Djq.s47EI5LHykBoLOApQjlTXO7MJqt3N2e', 'General Practice', 'Room 108', 'Walk-in friendly family doctor offering vaccinations, travel health letters and minor procedures.', 10, 'English, Mandarin, Cantonese', 'vaccine, travel, typhoid, hepatitis a, cough, fever, headache');
 
 INSERT IGNORE INTO `doctor_availability` (`doctor_id`, `weekday`) VALUES
 ((SELECT doctor_id FROM doctors WHERE email = 'aisha.rahman@vaxassist.demo'), 1),
