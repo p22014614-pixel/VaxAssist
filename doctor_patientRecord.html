@@ -122,14 +122,21 @@
             const urlParams = new URLSearchParams(window.location.search);
             const searchVal = urlParams.get('search') || '';
             document.getElementById("patientSearchInput").value = searchVal;
-            if (searchVal) searchPatient();
+            if (searchVal) {
+                // Arriving from an appointment: load that exact patient, then show their full history.
+                Promise.resolve(searchPatient()).then(() => {
+                    if (urlParams.get('open') === 'history') document.getElementById('viewPatientHistory').click();
+                });
+            }
         });
 
         // Searches only for patients associated with the signed-in doctor's care.
         function searchPatient() {
             const q = document.getElementById("patientSearchInput").value.trim();
             if (!q) { alert("Enter a patient name or IC/passport number."); return; }
-            return VaxApi.get(`doctor_patientRecord_backend.php?query=${encodeURIComponent(q)}`)
+            const exactId = new URLSearchParams(window.location.search).get('patient_id');
+            const idPart = exactId && q === (new URLSearchParams(window.location.search).get('search') || '') ? `&patient_id=${encodeURIComponent(exactId)}` : '';
+            return VaxApi.get(`doctor_patientRecord_backend.php?query=${encodeURIComponent(q)}${idPart}`)
                 .then(data => {
                     if (data.status === "success") {
                         const p = data.patient;

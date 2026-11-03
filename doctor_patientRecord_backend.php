@@ -6,8 +6,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $q = trim($_GET['query'] ?? '');
     if ($q === '') { http_response_code(422); echo json_encode(['status'=>'error','message'=>'Enter a patient name or IC/passport number.']); exit; }
     $like = '%' . $q . '%';
-    $stmt = $conn->prepare("SELECT p.patient_id,p.full_name,p.dob,p.gender,p.blood_type,p.allergies FROM patients p WHERE (p.full_name LIKE ? OR p.ic_passport LIKE ?) AND (EXISTS (SELECT 1 FROM appointments a WHERE a.patient_id=p.patient_id AND a.doctor_id=?) OR EXISTS (SELECT 1 FROM messages m WHERE m.patient_id=p.patient_id AND m.doctor_id=?) OR EXISTS (SELECT 1 FROM doctor_patient_links l WHERE l.patient_id=p.patient_id AND l.doctor_id=?)) ORDER BY p.full_name LIMIT 20");
-    $stmt->bind_param('ssiii', $like, $like, $doctor_id, $doctor_id, $doctor_id); $stmt->execute(); $rows=$stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    $stmt = $conn->prepare("SELECT p.patient_id,p.full_name,p.dob,p.gender,p.blood_type,p.allergies FROM patients p WHERE (p.full_name LIKE ? OR p.ic_passport LIKE ?) AND (EXISTS (SELECT 1 FROM appointments a WHERE a.patient_id=p.patient_id AND a.doctor_id=?) OR EXISTS (SELECT 1 FROM messages m WHERE m.patient_id=p.patient_id AND m.doctor_id=?) OR EXISTS (SELECT 1 FROM doctor_patient_links l WHERE l.patient_id=p.patient_id AND l.doctor_id=?)) AND (? = 0 OR p.patient_id = ?) ORDER BY p.full_name LIMIT 20");
+    $exactId = (int) filter_var($_GET['patient_id'] ?? 0, FILTER_VALIDATE_INT); $stmt->bind_param('ssiiiii', $like, $like, $doctor_id, $doctor_id, $doctor_id, $exactId, $exactId); $stmt->execute(); $rows=$stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     if (!$rows) { echo json_encode(['status'=>'error','message'=>'No patient found in your care matching that search.']); exit; }
     $results=[];
     foreach ($rows as $row) {
