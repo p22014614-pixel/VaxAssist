@@ -3,7 +3,7 @@
     const placeholder = document.querySelector('[data-doctor-nav]');
     if (!placeholder) return;
 
-    fetch('nav_bar.html', { credentials: 'same-origin' })
+    fetch('nav_bar.html?v=2', { credentials: 'same-origin' })
         .then((response) => {
             if (!response.ok) throw new Error('Could not load shared doctor navigation.');
             return response.text();
