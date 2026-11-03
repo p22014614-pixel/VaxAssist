@@ -109,12 +109,22 @@ function precheck_create(array $p, array $in): void
         $vaccineId = $v->fetchColumn() ?: null;
     }
 
+    // If this person already has an upcoming visit, attach the form to it so the doctor sees it.
+    $visit = $pdo->prepare(
+        "SELECT appointment_id FROM appointments
+          WHERE patient_id = ? AND child_id <=> ? AND status = 'Scheduled' AND appointment_date >= CURDATE()
+            AND (? IS NULL OR vaccine_id = ?)
+          ORDER BY appointment_date, appointment_time LIMIT 1"
+    );
+    $visit->execute([$pid, $childId ?: null, $vaccineId, $vaccineId]);
+    $appointmentId = $visit->fetchColumn() ?: null;
+
     $yn = function ($k) use ($answers) { return ($answers[$k] ?? '') === 'yes' ? 1 : 0; };
     $pdo->prepare(
-        'INSERT INTO precheck_forms (patient_id, child_id, vaccine_id, has_fever, severe_reaction, weak_immune_system,
+        'INSERT INTO precheck_forms (patient_id, appointment_id, child_id, vaccine_id, has_fever, severe_reaction, weak_immune_system,
                 pregnant_or_breastfeeding, recent_vaccine, bleeding_disorder, allergies, medications, notes)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
-    )->execute([$pid, $childId ?: null, $vaccineId, $yn('fever'), $yn('reaction'), $yn('immune'),
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+    )->execute([$pid, $appointmentId, $childId ?: null, $vaccineId, $yn('fever'), $yn('reaction'), $yn('immune'),
         $childId === null ? $yn('pregnant') : null, $yn('recent'), $yn('bleeding'),
         text_in($in['allergies'] ?? '', 300) ?: null, text_in($in['medications'] ?? '', 300) ?: null, text_in($in['notes'] ?? '', 500) ?: null]);
     $formId = (int) $pdo->lastInsertId();

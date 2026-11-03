@@ -94,6 +94,19 @@ function appointments_create(array $p, array $in): void
     )->execute([$doctorId, $patientId, $childId, $vaccineId, $date, $time . ':00', time_window($time), $notes ?: null]);
     $appointmentId = (int) $pdo->lastInsertId();
 
+    // Attach the latest pre-consultation form filled in before booking, so the doctor sees it for this visit.
+    $form = $pdo->prepare(
+        'SELECT form_id FROM precheck_forms
+          WHERE patient_id = ? AND child_id <=> ? AND appointment_id IS NULL AND (vaccine_id IS NULL OR vaccine_id = ?)
+            AND submitted_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+          ORDER BY submitted_at DESC, form_id DESC LIMIT 1'
+    );
+    $form->execute([$patientId, $childId, $vaccineId]);
+    $formId = $form->fetchColumn();
+    if ($formId) {
+        $pdo->prepare('UPDATE precheck_forms SET appointment_id = ? WHERE form_id = ?')->execute([$appointmentId, $formId]);
+    }
+
     // A pending payment for this visit (vaccine + consultation fee).
     $consult = (float) $pdo->query("SELECT price FROM vaccines WHERE name = 'Vaccine consultation'")->fetchColumn();
     $pdo->prepare("INSERT INTO payments (patient_id, appointment_id, receipt_no, status) VALUES (?, ?, ?, 'Pending')")
