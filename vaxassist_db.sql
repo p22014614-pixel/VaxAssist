@@ -67,7 +67,6 @@ CREATE TABLE `consultation_records` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-
 -- --------------------------------------------------------
 
 --
@@ -151,15 +150,6 @@ CREATE TABLE `patients` (
   `blood_type` varchar(5) DEFAULT 'O+',
   `allergies` text DEFAULT 'Penicillin',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- Links a clinic-created walk-in patient to the doctor who registered them.
-CREATE TABLE IF NOT EXISTS `doctor_patient_links` (
-  `doctor_id` int(11) NOT NULL,
-  `patient_id` int(11) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`doctor_id`, `patient_id`),
-  KEY `idx_doctor_patient_links_patient` (`patient_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 --
 -- Dumping data for table `patients`
@@ -377,6 +367,20 @@ CREATE TABLE IF NOT EXISTS `password_resets` (
   CONSTRAINT `fk_reset_patient` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`patient_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- Doctors reset their password through their own table, because password_resets points at patients.
+-- (The reset code used to create this table the first time a doctor asked for a reset, which broke patient resets before that.)
+CREATE TABLE IF NOT EXISTS `doctor_password_resets` (
+  `reset_id` int(11) NOT NULL AUTO_INCREMENT,
+  `doctor_id` int(11) NOT NULL,
+  `token_hash` char(64) NOT NULL,
+  `expires_at` datetime NOT NULL,
+  `used` tinyint(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`reset_id`),
+  UNIQUE KEY `token_hash` (`token_hash`),
+  KEY `idx_doctor_reset` (`doctor_id`,`used`),
+  CONSTRAINT `fk_doctor_reset_doctor` FOREIGN KEY (`doctor_id`) REFERENCES `doctors` (`doctor_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 CREATE TABLE IF NOT EXISTS `vaccines` (
   `vaccine_id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
@@ -569,6 +573,21 @@ CREATE TABLE IF NOT EXISTS `precheck_forms` (
   CONSTRAINT `fk_precheck_patient` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`patient_id`) ON DELETE CASCADE,
   CONSTRAINT `fk_precheck_child` FOREIGN KEY (`child_id`) REFERENCES `children` (`child_id`) ON DELETE SET NULL,
   CONSTRAINT `fk_precheck_vaccine` FOREIGN KEY (`vaccine_id`) REFERENCES `vaccines` (`vaccine_id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `contact_messages` (
+  `message_id` int(11) NOT NULL AUTO_INCREMENT,
+  `patient_id` int(11) DEFAULT NULL COMMENT 'set when the sender was logged in',
+  `name` varchar(100) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `subject` varchar(100) NOT NULL,
+  `message` varchar(1000) NOT NULL,
+  `ip_address` varchar(45) NOT NULL,
+  `status` enum('New','Read','Replied') NOT NULL DEFAULT 'New',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`message_id`),
+  KEY `idx_contact_ip_time` (`ip_address`,`created_at`),
+  CONSTRAINT `fk_contact_patient` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`patient_id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- ---------------------------------------------------------------------
@@ -777,10 +796,21 @@ CREATE TABLE `doctor_notification_cursors` (
   CONSTRAINT `fk_doctor_cursor_doctor` FOREIGN KEY (`doctor_id`) REFERENCES `doctors` (`doctor_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- Links a clinic-created walk-in patient to the doctor who registered them (doctor side).
+CREATE TABLE `doctor_patient_links` (
+  `doctor_id` int(11) NOT NULL,
+  `patient_id` int(11) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`doctor_id`, `patient_id`),
+  KEY `idx_doctor_patient_links_patient` (`patient_id`),
+  CONSTRAINT `fk_dpl_doctor` FOREIGN KEY (`doctor_id`) REFERENCES `doctors` (`doctor_id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_dpl_patient` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`patient_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 -- =====================================================================
 -- VaxAssist DEMO DATA for the patient side (local testing only)
 --
--- Run AFTER vaxassist_db.sql and patients_extension.sql, once.
+-- This section is part of vaxassist_db.sql and is imported together with everything above it.
 -- It adds demo doctors, demo patients with children, vaccination records,
 -- appointments, payments, reviews and notifications so every patient page has
 -- something to show. Nothing the team already has is deleted or renamed.
@@ -790,20 +820,22 @@ CREATE TABLE `doctor_notification_cursors` (
 --     michael@example.com  /  Michael123    (the team's sample patient Michael Wong)
 --     sarah@example.com    /  Sarah1234     (the team's sample patient Sarah Jenkins)
 --     ahmad@example.com    /  Ahmad1234     (the team's sample patient Ahmad Razak)
--- The 8 demo doctors cannot log in (their password hash is deliberately invalid).
+-- Doctors (local testing only): all 9 doctors log in with the password Try12345.
+--     try1@gmail.com (Alex Taylor) and the 8 demo doctors at @vaxassist.demo (e.g. aisha.rahman@vaxassist.demo).
+-- Remove or change these demo passwords before the site is deployed.
 -- =====================================================================
 
 USE `vaxassist_db`;
 
 INSERT IGNORE INTO `doctors` (`first_name`, `last_name`, `email`, `phone`, `dob`, `password_hash`, `specialization`, `consultation_room`, `bio`, `years_experience`, `languages`, `keywords`) VALUES
-('Aisha', 'Rahman', 'aisha.rahman@vaxassist.demo', '+60 3-0000 1000', '1985-01-01', '!', 'Travel Medicine', 'Room 101', 'Advises travellers on vaccines, malaria prevention and health planning for overseas trips.', 12, 'English, Malay', 'travel, yellow fever, typhoid, hepatitis a, rabies, malaria'),
-('Daniel', 'Lim', 'daniel.lim@vaxassist.demo', '+60 3-0000 1001', '1985-01-01', '!', 'Paediatrics', 'Room 102', 'Looks after babies and children, including growth checks and the childhood vaccination schedule.', 9, 'English, Mandarin', 'child, baby, fever, mmr, booster, rotavirus, bcg'),
-('Priya', 'Nair', 'priya.nair@vaxassist.demo', '+60 3-0000 1002', '1985-01-01', '!', 'General Practice', 'Room 103', 'Family doctor for everyday health concerns, check-ups and vaccine advice for all ages.', 15, 'English, Tamil, Malay', 'cough, cold, fever, flu, influenza, check-up, vaccine, tetanus'),
-('Ahmad', 'Farid', 'ahmad.farid@vaxassist.demo', '+60 3-0000 1003', '1985-01-01', '!', 'Internal Medicine', 'Room 104', 'Manages long-term conditions such as diabetes, blood pressure and liver health.', 18, 'English, Malay', 'diabetes, blood pressure, hepatitis b, liver, fatigue'),
-('Mei', 'Ling Tan', 'mei.ling.tan@vaxassist.demo', '+60 3-0000 1004', '1985-01-01', '!', 'Infectious Diseases', 'Room 105', 'Treats infections and advises on vaccine-preventable diseases, outbreaks and post-exposure care.', 8, 'English, Mandarin', 'infection, hepatitis b, rabies, post-exposure, measles, dengue, allergy, vaccine reaction'),
-('Rajesh', 'Kumar', 'rajesh.kumar@vaxassist.demo', '+60 3-0000 1005', '1985-01-01', '!', 'Preventive Medicine', 'Room 106', 'Plans adult immunisation, health screening and workplace or community vaccination programmes.', 14, 'English, Hindi', 'adult vaccine, screening, influenza, tetanus, workplace, pneumococcal, booster'),
-('Siti', 'Aminah', 'siti.aminah@vaxassist.demo', '+60 3-0000 1006', '1985-01-01', '!', 'Paediatrics', 'Room 107', 'Child health and development, with a special interest in newborn care and immunisation.', 6, 'English, Malay', 'newborn, baby, child, hepatitis b, dtap, pneumococcal, vaccine'),
-('Jason', 'Wong', 'jason.wong@vaxassist.demo', '+60 3-0000 1007', '1985-01-01', '!', 'General Practice', 'Room 108', 'Walk-in friendly family doctor offering vaccinations, travel health letters and minor procedures.', 10, 'English, Mandarin, Cantonese', 'vaccine, travel, typhoid, hepatitis a, cough, fever, headache');
+('Aisha', 'Rahman', 'aisha.rahman@vaxassist.demo', '+60 3-0000 1000', '1985-01-01', '$2y$10$t/.s0bFo0JG0UrDJTeq0ZexfzsPzxDPWruYUeYx.QwvL6Z3c7H42G', 'Travel Medicine', 'Room 101', 'Advises travellers on vaccines, malaria prevention and health planning for overseas trips.', 12, 'English, Malay', 'travel, yellow fever, typhoid, hepatitis a, rabies, malaria'),
+('Daniel', 'Lim', 'daniel.lim@vaxassist.demo', '+60 3-0000 1001', '1985-01-01', '$2y$10$hjUMz9rSrMLj8f5caEALaeRdg3ZOyLDMlkRpr/bYMJd2b3GTbbuzy', 'Paediatrics', 'Room 102', 'Looks after babies and children, including growth checks and the childhood vaccination schedule.', 9, 'English, Mandarin', 'child, baby, fever, mmr, booster, rotavirus, bcg'),
+('Priya', 'Nair', 'priya.nair@vaxassist.demo', '+60 3-0000 1002', '1985-01-01', '$2y$10$sQR1sK4CIstfazX/0yzobuX3oEdMsXDMs.jhLpfEuUY2KPV0a.9IG', 'General Practice', 'Room 103', 'Family doctor for everyday health concerns, check-ups and vaccine advice for all ages.', 15, 'English, Tamil, Malay', 'cough, cold, fever, flu, influenza, check-up, vaccine, tetanus'),
+('Ahmad', 'Farid', 'ahmad.farid@vaxassist.demo', '+60 3-0000 1003', '1985-01-01', '$2y$10$IMYyEdfLn.kk0wr5KictBOXHTERIwdKBgGsN35BmDspRgWA0ZoJy2', 'Internal Medicine', 'Room 104', 'Manages long-term conditions such as diabetes, blood pressure and liver health.', 18, 'English, Malay', 'diabetes, blood pressure, hepatitis b, liver, fatigue'),
+('Mei', 'Ling Tan', 'mei.ling.tan@vaxassist.demo', '+60 3-0000 1004', '1985-01-01', '$2y$10$x3Hki7b7hX/3oGnN3XmqzeqFGqTwdCwNYhKzi/ZL1R6GB87FJeJaG', 'Infectious Diseases', 'Room 105', 'Treats infections and advises on vaccine-preventable diseases, outbreaks and post-exposure care.', 8, 'English, Mandarin', 'infection, hepatitis b, rabies, post-exposure, measles, dengue, allergy, vaccine reaction'),
+('Rajesh', 'Kumar', 'rajesh.kumar@vaxassist.demo', '+60 3-0000 1005', '1985-01-01', '$2y$10$phHF2/12zpdDfwQxOrXuQOp2HhcjscR8iVta9ksTmPuJ8m96k./XS', 'Preventive Medicine', 'Room 106', 'Plans adult immunisation, health screening and workplace or community vaccination programmes.', 14, 'English, Hindi', 'adult vaccine, screening, influenza, tetanus, workplace, pneumococcal, booster'),
+('Siti', 'Aminah', 'siti.aminah@vaxassist.demo', '+60 3-0000 1006', '1985-01-01', '$2y$10$dIGmjQ9fUboJfWk5c5mm3uSRnPdEe7ZUhPmcrEbjulPaC4TV3nV3u', 'Paediatrics', 'Room 107', 'Child health and development, with a special interest in newborn care and immunisation.', 6, 'English, Malay', 'newborn, baby, child, hepatitis b, dtap, pneumococcal, vaccine'),
+('Jason', 'Wong', 'jason.wong@vaxassist.demo', '+60 3-0000 1007', '1985-01-01', '$2y$10$cdBGWJl3DkAXRepUW4Djq.s47EI5LHykBoLOApQjlTXO7MJqt3N2e', 'General Practice', 'Room 108', 'Walk-in friendly family doctor offering vaccinations, travel health letters and minor procedures.', 10, 'English, Mandarin, Cantonese', 'vaccine, travel, typhoid, hepatitis a, cough, fever, headache');
 
 INSERT IGNORE INTO `doctor_availability` (`doctor_id`, `weekday`) VALUES
 ((SELECT doctor_id FROM doctors WHERE email = 'aisha.rahman@vaxassist.demo'), 1),
@@ -1010,3 +1042,10 @@ INSERT INTO `messages` (`doctor_id`, `patient_id`, `sender_type`, `message_text`
 ((SELECT doctor_id FROM doctors WHERE email = 'daniel.lim@vaxassist.demo'), (SELECT patient_id FROM patients WHERE email = 'demo@example.com'), 'doctor', 'Hi, this is a reminder that Aiden''s MMR appointment is coming up. Please let us know if he has a fever on the day.', 0, NOW() - INTERVAL 35 MINUTE),
 ((SELECT doctor_id FROM doctors WHERE email = 'priya.nair@vaxassist.demo'), (SELECT patient_id FROM patients WHERE email = 'michael@example.com'), 'patient', 'Is it fine to have my flu shot if I have a mild cold?', 1, NOW() - INTERVAL 600 MINUTE),
 ((SELECT doctor_id FROM doctors WHERE email = 'priya.nair@vaxassist.demo'), (SELECT patient_id FROM patients WHERE email = 'michael@example.com'), 'doctor', 'A mild cold is usually fine, but if you have a fever we should move it. Please complete the pre-consultation form so I can check.', 0, NOW() - INTERVAL 420 MINUTE);
+
+-- Working days for Alex Taylor, the doctor-portal test account. Without them the patient site never lists him,
+-- so patients cannot book a doctor who can log in. Change the weekdays (1 = Monday ... 5 = Friday) to suit.
+INSERT IGNORE INTO `doctor_availability` (`doctor_id`, `weekday`)
+SELECT `doctor_id`, `d`.`weekday` FROM `doctors`
+JOIN (SELECT 1 AS weekday UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5) d
+WHERE `email` = 'try1@gmail.com';
