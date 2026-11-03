@@ -113,6 +113,68 @@ body {
     color: white;
 }
 
+.catalogue-title {
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+.catalogue-group {
+    margin-top: 32px;
+}
+
+.catalogue-group h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #183642;
+    margin-bottom: 14px;
+}
+
+.catalogue-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 14px;
+}
+
+.catalogue-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    background: white;
+    border: 1px solid #e4edef;
+    border-radius: 14px;
+    padding: 16px 18px;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.catalogue-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 28px rgba(24, 54, 66, 0.08);
+}
+
+.catalogue-name {
+    font-weight: 600;
+    color: #183642;
+}
+
+.catalogue-note {
+    font-size: 0.8rem;
+    color: #708087;
+}
+
+.catalogue-side {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.catalogue-price {
+    font-weight: 700;
+    color: #167d8d;
+    white-space: nowrap;
+}
+
 @media (max-width: 575px) {
     .page-header h1 {
         font-size: 2.3rem;

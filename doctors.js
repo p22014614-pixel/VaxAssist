@@ -43,14 +43,17 @@ function card(d) {
         return '<span class="day-pill' + (d.days.indexOf(n) !== -1 ? ' on' : '') + '">' + DAY_NAMES[n] + '</span>';
     }).join('');
 
+    const experience = d.years_experience ? esc(d.years_experience) + ' years experience' : '';
+    const rating = d.rating === null ? 'No reviews yet' : '&#9733; ' + esc(d.rating) + ' (' + esc(d.review_count) + ')';
+
     return '<div class="col-md-6 col-lg-4"><div class="doctor-card">' +
         '<div class="d-flex align-items-center gap-3 mb-3">' +
             '<div class="avatar">' + esc(initials(d.name)) + '</div>' +
             '<div><h5>' + esc(d.name) + '</h5><div class="specialty">' + esc(d.specialty) + '</div></div>' +
         '</div>' +
-        '<p class="bio">' + esc(d.bio) + '</p>' +
-        '<div class="meta mb-2">' + esc(d.years_experience) + ' years experience &middot; ' + (d.rating === null ? 'No reviews yet' : '&#9733; ' + esc(d.rating) + ' (' + esc(d.review_count) + ')') + '</div>' +
-        '<div class="meta mb-3">Languages: ' + esc(d.languages) + '</div>' +
+        (d.bio ? '<p class="bio">' + esc(d.bio) + '</p>' : '') +
+        '<div class="meta mb-2">' + [experience, rating].filter(Boolean).join(' &middot; ') + '</div>' +
+        (d.languages ? '<div class="meta mb-3">Languages: ' + esc(d.languages) + '</div>' : '') +
         '<div class="mb-3">' + pills + '</div>' +
         '<div class="mt-auto d-flex justify-content-between align-items-center gap-2">' +
             '<span class="meta">Next: <strong>' + esc(nextText(d.days)) + '</strong></span>' +
