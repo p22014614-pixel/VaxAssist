@@ -326,6 +326,20 @@
 
     </section>
 
+    <!-- Vaccines and prices, loaded from the database -->
+    <section class="pb-5" id="catalogueSection">
+        <div class="container">
+            <div class="text-center mb-4">
+                <div class="section-label mb-2">Prices</div>
+                <h2 class="catalogue-title">Vaccines and prices</h2>
+                <p class="text-secondary mb-0">Prices are for the vaccine itself. A consultation fee is added when you book.</p>
+            </div>
+            <div id="catalogue" aria-live="polite">
+                <p class="text-center text-secondary">Loading vaccines...</p>
+            </div>
+        </div>
+    </section>
+
 
     <!-- Footer -->
     <footer class="text-center p-4 mt-5">
@@ -338,6 +352,7 @@
 
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="services.js"></script>
 
 </body>
 </html>
