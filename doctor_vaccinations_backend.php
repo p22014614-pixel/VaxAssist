@@ -124,7 +124,8 @@ try {
     $patientId = (int) $visit['patient_id'];
     $childId = $visit['child_id'] === null ? null : (int) $visit['child_id'];
     $record = $conn->prepare('INSERT INTO vaccination_records (patient_id, child_id, vaccine_id, batch_id, doctor_id, appointment_id, dose_number, date_given, next_dose_date, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
-    $record->bind_param('iiiiiiisss', $patientId, $childId, $vaccineId, $batchId, $doctor_id, $appointmentId, $doseNumber, $dateGiven, $nextDoseDate, $notes);
+    $nextDoseValue = $nextDoseDate === '' ? null : $nextDoseDate;
+    $record->bind_param('iiiiiiisss', $patientId, $childId, $vaccineId, $batchId, $doctor_id, $appointmentId, $doseNumber, $dateGiven, $nextDoseValue, $notes);
     $record->execute();
 
     $finish = $conn->prepare("UPDATE appointments SET status = 'Completed' WHERE appointment_id = ? AND doctor_id = ? AND status = 'Scheduled'");
