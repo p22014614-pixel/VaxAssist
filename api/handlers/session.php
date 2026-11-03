@@ -154,15 +154,7 @@ function reset_request(array $p, array $in): void
         $doctor->execute([$email]);
         $doctorId = $doctor->fetchColumn();
         if ($doctorId) {
-            // Doctor accounts use their own reset table because patient_id is a required patient foreign key.
-            db()->exec("CREATE TABLE IF NOT EXISTS doctor_password_resets (
-                reset_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-                doctor_id INT NOT NULL,
-                token_hash CHAR(64) NOT NULL UNIQUE,
-                expires_at DATETIME NOT NULL,
-                used TINYINT(1) NOT NULL DEFAULT 0,
-                KEY idx_doctor_reset (doctor_id, used)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+            // Doctor accounts use their own reset table (doctor_password_resets) because patient_id is a required patient foreign key.
             $token = bin2hex(random_bytes(32));
             db()->prepare('UPDATE doctor_password_resets SET used = 1 WHERE doctor_id = ? AND used = 0')->execute([$doctorId]);
             db()->prepare('INSERT INTO doctor_password_resets (doctor_id, token_hash, expires_at) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 1 HOUR))')
