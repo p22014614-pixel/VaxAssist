@@ -4,10 +4,12 @@
     const details = document.getElementById('vaccinationPatientDetails');
     const precheck = document.getElementById('precheckDetails');
     const form = document.getElementById('vaccinationRecordForm');
+    const history = document.getElementById('vaccinationHistory');
+    const historyButton = document.getElementById('toggleVaccinationHistory');
+    const historyModalElement = document.getElementById('vaccinationHistoryModal');
     const vaccineSelect = document.getElementById('recordVaccine');
     const batchSelect = document.getElementById('recordBatch');
     const status = document.getElementById('vaccinationLoadStatus');
-    const downloadButton = document.getElementById('downloadPrecheck');
     let roster = [];
     let vaccines = [];
     let batches = [];
@@ -74,7 +76,10 @@
             const form = document.createElement('small');
             form.className = patient.form_id ? 'precheck-available' : 'precheck-missing';
             form.textContent = patient.form_id ? 'Pre-check available' : 'No pre-check form';
-            button.append(name, vaccine, date, form);
+            const appointmentStatus = document.createElement('small');
+            appointmentStatus.className = patient.status === 'Completed' ? 'vaccination-status-completed' : 'vaccination-status-scheduled';
+            appointmentStatus.textContent = patient.status === 'Completed' ? 'Completed' : 'Scheduled';
+            button.append(name, vaccine, date, form, appointmentStatus);
             button.addEventListener('click', () => selectPatient(patient));
             list.append(button);
         });
@@ -88,7 +93,6 @@
             empty.className = 'precheck-empty';
             empty.textContent = 'No pre-check form has been submitted for this appointment. Confirm relevant screening information with the patient before vaccination.';
             precheck.append(empty);
-            downloadButton.disabled = true;
             return;
         }
         const title = document.createElement('h3');
@@ -119,7 +123,45 @@
             table.append(row);
         });
         precheck.append(title, submitted, table);
-        downloadButton.disabled = false;
+    }
+
+    // Shows recorded doses, due dates, and whether a follow-up appointment exists.
+    function renderHistory(patient) {
+        history.replaceChildren();
+        const records = patient.vaccination_history || [];
+        if (!records.length) {
+            const empty = document.createElement('p');
+            empty.className = 'text-muted';
+            empty.textContent = 'No vaccination doses have been recorded for this patient yet.';
+            history.append(empty);
+            return;
+        }
+        const items = document.createElement('div');
+        items.className = 'vaccination-history-list';
+        records.forEach((record) => {
+            const item = document.createElement('article');
+            item.className = 'vaccination-history-item';
+            const heading = document.createElement('strong');
+            heading.textContent = `${record.vaccine_name} · Dose ${record.dose_number}`;
+            const given = document.createElement('p');
+            given.textContent = `Given ${formatDate(record.date_given)}${record.doctor_name ? ` by Dr. ${record.doctor_name}` : ''}`;
+            item.append(heading, given);
+            const due = document.createElement('p');
+            due.className = 'vaccination-next-dose';
+            due.textContent = record.next_dose_date
+                ? `Next dose due ${formatDate(record.next_dose_date)} · ${record.next_appointment_date ? `appointment ${formatDate(record.next_appointment_date)}${record.next_appointment_time ? ` at ${record.next_appointment_time}` : ''}` : 'no appointment booked yet'}`
+                : 'No next-dose date recorded.';
+            if (!record.next_dose_date) due.classList.add('is-unscheduled');
+            item.append(due);
+            if (record.notes) {
+                const notes = document.createElement('p');
+                notes.className = 'vaccination-history-notes';
+                notes.textContent = record.notes;
+                item.append(notes);
+            }
+            items.append(item);
+        });
+        history.append(items);
     }
 
     // Fills the vaccine selector and locks it when the appointment specifies a vaccine.
@@ -174,8 +216,15 @@
         appointment.textContent = `Appointment: ${formatDate(patient.appointment_date)}${patient.appointment_time ? ` at ${patient.appointment_time}` : ''} · ${patient.vaccine_name || 'Vaccine not assigned'}`;
         details.append(heading, identity, appointment);
         renderPrecheck(patient);
-        document.getElementById('vaccinationDetailHint').textContent = 'Review the screening responses and record the dose after administration.';
-        form.hidden = false;
+        historyButton.disabled = false;
+        document.getElementById('vaccinationDetailHint').textContent = patient.status === 'Completed'
+            ? 'This appointment is completed. Review the patient details and recorded vaccination history.'
+            : 'Review the screening responses and record the dose after administration.';
+        form.hidden = patient.status === 'Completed';
+        if (patient.status === 'Completed') {
+            historyButton.textContent = 'View vaccination history';
+            return;
+        }
         document.getElementById('recordAppointmentId').value = patient.appointment_id;
         document.getElementById('recordDose').value = Math.max(1, Number(patient.previous_doses || 0) + 1);
         const now = new Date();
@@ -205,7 +254,7 @@
                 details.innerHTML = '<p class="text-muted">Select a scheduled patient to review their details.</p>';
                 precheck.innerHTML = '<p class="text-muted">Pre-check form details will appear here.</p>';
                 form.hidden = true;
-                downloadButton.disabled = true;
+                historyButton.disabled = true;
             }
         } catch (error) {
             setStatus(error.message || 'Could not load vaccination patients.', true);
@@ -213,39 +262,12 @@
         }
     }
 
-    // Downloads the selected appointment's pre-check responses as a CSV file.
-    function downloadPrecheckCsv() {
-        if (!selected?.form_id) return;
-        const rows = [
-            ['Patient', selected.child_name ? `${selected.child_name} (${selected.full_name})` : selected.full_name],
-            ['Appointment date', selected.appointment_date],
-            ['Vaccine', selected.vaccine_name || 'Not assigned'],
-            ['Submitted at', selected.submitted_at],
-            ['Fever', yesNo(selected.has_fever)],
-            ['Previous severe reaction', yesNo(selected.severe_reaction)],
-            ['Weak immune system', yesNo(selected.weak_immune_system)],
-            ['Pregnant or breastfeeding', yesNo(selected.pregnant_or_breastfeeding)],
-            ['Recent vaccine', yesNo(selected.recent_vaccine)],
-            ['Bleeding disorder', yesNo(selected.bleeding_disorder)],
-            ['Allergies', selected.precheck_allergies || 'None stated'],
-            ['Medications', selected.medications || 'None stated'],
-            ['Notes', selected.precheck_notes || 'None stated'],
-        ];
-        const csv = rows.map((row) => row.map((cell) => {
-            let value = String(cell ?? '');
-            if (/^[=+\-@\t\r]/.test(value)) value = `'${value}`;
-            return `"${value.replace(/"/g, '""')}"`;
-        }).join(',')).join('\r\n');
-        const url = URL.createObjectURL(new Blob(['\ufeff', csv], { type: 'text/csv;charset=utf-8' }));
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `VaxAssist_Precheck_${selected.patient_id}_${selected.appointment_id}.csv`;
-        link.click();
-        URL.revokeObjectURL(url);
-    }
-
     document.getElementById('refreshVaccinationList').addEventListener('click', loadRoster);
-    downloadButton.addEventListener('click', downloadPrecheckCsv);
+    historyButton.addEventListener('click', () => {
+        if (!selected) return;
+        renderHistory(selected);
+        window.bootstrap?.Modal.getOrCreateInstance(historyModalElement).show();
+    });
     form.addEventListener('submit', async (event) => {
         event.preventDefault();
         if (!selected) return;
@@ -268,7 +290,6 @@
             form.hidden = true;
             details.innerHTML = '<p class="text-muted">Select another scheduled patient to continue.</p>';
             precheck.innerHTML = '<p class="text-muted">Pre-check form details will appear here.</p>';
-            downloadButton.disabled = true;
             await loadRoster();
             setStatus(successMessage);
         } catch (error) {
