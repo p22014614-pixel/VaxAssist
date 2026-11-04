@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f7fafb">
+    <title>Doctor Schedule | VaxAssist</title>
+
+    <link href="nav.css" rel="stylesheet">
+    <link href="motion.css" rel="stylesheet">
+    <script src="auth.js"></script>
+    <script src="motion.js" defer></script>
+
+    <link rel="stylesheet" href="admin_DoctorSchedule.css?v=5">
+    <link rel="stylesheet" href="admin_ProfileAvatar.css">
+
+</head>
+<body class="doctor-schedule-page">
+    <nav class="admin-topbar admin-nav" aria-label="Admin navigation">
+        <a class="logo" href="admin_Dashboard.html">VaxAssist</a>
+        <ul>
+            <li><a class="nav-link" href="admin_Dashboard.html">Dashboard</a></li>
+            <li><a class="nav-link" href="about.html">About Us</a></li>
+            <li><a class="nav-link" href="admin_ViewAppointment.html">View Appointment</a></li>
+            <li><a class="nav-link active" aria-current="page" href="admin_DoctorSchedule.html">Doctor Schedule</a></li>
+            <li><a class="nav-link" href="admin_ViewLeave.html">Leave Review</a></li>
+            <li><a class="nav-link" href="admin_ManageUsers.html">Manage Users</a></li>
+            <li><a class="nav-link" href="admin_VaccineInventory.html">Vaccine Stock</a></li>
+        </ul>
+
+        <a class="admin-account profile-link" href="admin_Profile.html" aria-label="Admin profile" title="Admin profile">
+            <svg class="avatar-image" viewBox="0 0 40 40" aria-hidden="true">
+                <circle cx="20" cy="20" r="20" fill="#e5eef2"/>
+                <circle cx="20" cy="14" r="6" fill="#203c47"/>
+                <path d="M8.5 33c1.2-6.4 5.3-9.7 11.5-9.7s10.3 3.3 11.5 9.7A16 16 0 0 1 20 36a16 16 0 0 1-11.5-3Z" fill="#203c47"/>
+            </svg>
+        </a>
+    </nav>
+
+    <div class="page-content">
+        <header class="schedule-banner">
+            <div>
+                <p class="eyebrow">VAXASSIST / CLINIC ADMINISTRATION</p>
+                <h1>Doctor working days</h1>
+                <p>Set the weekdays each doctor is available at the clinic.</p>
+            </div>
+            <div class="date-card"><span aria-hidden="true">▦</span><div><small>Today</small><strong id="todayLabel"></strong></div></div>
+        </header>
+
+        <main class="schedule-main">
+            <section class="summary-grid" aria-label="Schedule summary">
+                <article class="summary-card">
+                    <span class="summary-icon" aria-hidden="true">&#129489;&#8205;&#9877;&#65039;</span>
+                    <div>
+                        <p>Doctors</p>
+                        <strong id="doctorCount">—</strong>
+                    </div>
+                </article>
+
+                <article class="summary-card">
+                    <span class="summary-icon" aria-hidden="true">&#128337;</span>
+                    <div>
+                        <p>Doctors available today</p>
+                        <strong id="todayDoctorCount">—</strong>
+                    </div>
+                </article>
+
+                <article class="summary-card">
+                    <span class="summary-icon" aria-hidden="true">&#128197;</span>
+                    <div>
+                        <p>Weekdays covered</p>
+                        <strong id="coveredCount">—</strong>
+                    </div>
+                </article>
+            </section>
+
+            <section class="schedule-panel" aria-labelledby="scheduleTitle">
+                <div class="panel-heading">
+                    <div><p class="section-kicker">STAFF AVAILABILITY</p><h2 id="scheduleTitle">Weekly doctor schedule</h2></div>
+                    <button class="refresh-button" id="refreshButton" type="button">Refresh</button>
+                </div>
+                <p class="panel-description">Select a doctor to edit their working weekdays.</p>
+                <div class="toolbar">
+                    <label class="search-field">
+                        <span aria-hidden="true">⌕</span>
+                        <span class="sr-only">Search doctors</span>
+                        <input id="searchInput" type="search" placeholder="Search doctors">
+                    </label>
+
+                    <label class="filter-field">
+                        <span class="sr-only">Filter schedule</span>
+                        <select id="dayFilter">
+                            <option value="all">All doctors</option>
+                            <option value="assigned">On work</option>
+                            <option value="none">Off days</option>
+                        </select></label>
+                    </label>
+                </div>
+
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Doctor</th>
+                                <th>Specialization</th>
+                                <th>Working weekdays</th>
+                                <th>Availability</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="doctorRows"><tr><td colspan="5" class="empty-cell">Loading doctors…</td></tr></tbody>
+                    </table>
+                </div>
+                <p id="statusMessage" class="status-message" role="status" aria-live="polite"></p>
+            </section>
+        </main>
+        <footer><p>&copy; 2026 VaxAssist. All Rights Reserved.</p></footer>
+    </div>
+
+    <dialog id="editDialog" aria-labelledby="dialogTitle">
+        <form id="scheduleForm" method="dialog">
+            <div class="dialog-heading"><div><p class="section-kicker">WORKING DAYS</p><h2 id="dialogTitle">Edit doctor schedule</h2></div><button class="close-button" id="closeDialog" type="button" aria-label="Close">×</button></div>
+            <p id="doctorLabel" class="doctor-label"></p>
+            <fieldset class="weekday-options"><legend>Select available weekdays</legend>
+                <label><input type="checkbox" name="weekday" value="1"><span>Monday</span></label>
+                <label><input type="checkbox" name="weekday" value="2"><span>Tuesday</span></label>
+                <label><input type="checkbox" name="weekday" value="3"><span>Wednesday</span></label>
+                <label><input type="checkbox" name="weekday" value="4"><span>Thursday</span></label>
+                <label><input type="checkbox" name="weekday" value="5"><span>Friday</span></label>
+            </fieldset>
+            <p class="dialog-hint">Clear all selections to mark the doctor as not regularly available.</p>
+            <div class="dialog-actions"><button class="cancel-button" id="cancelDialog" type="button">Cancel</button><button class="save-button" id="saveButton" type="submit">Save working days</button></div>
+        </form>
+    </dialog>
+
+    <script>
+        const dayNames = { 1: 'Monday', 2: 'Tuesday', 3: 'Wednesday', 4: 'Thursday', 5: 'Friday' };
+        let doctors = [];
+        let csrfToken = '';
+        let activeDoctor = null;
+        const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character]));
+        const setMessage = (message, error = false) => { const el = document.getElementById('statusMessage'); el.textContent = message; el.classList.toggle('is-error', error); };
+
+        function renderDoctors() {
+            const query = document.getElementById('searchInput').value.trim().toLowerCase();
+            const filter = document.getElementById('dayFilter').value;
+            const shown = doctors.filter(doctor => {
+                const matches = `${doctor.name} ${doctor.specialization}`.toLowerCase().includes(query);
+                return matches && (filter === 'all' || (filter === 'assigned' ? doctor.weekdays.length > 0 : doctor.weekdays.length === 0));
+            });
+            const rows = document.getElementById('doctorRows');
+            rows.innerHTML = shown.length ? shown.map(doctor => {
+                const initials = doctor.name.split(/\s+/).map(part => part[0]).slice(0, 2).join('').toUpperCase();
+                const days = doctor.weekdays.map(day => dayNames[day]).join(', ');
+                return `<tr><td><span class="doctor-cell"><span class="doctor-avatar">${escapeHtml(initials)}</span><span><strong>${escapeHtml(doctor.name)}</strong><small>Doctor #${doctor.id}</small></span></span></td><td>${escapeHtml(doctor.specialization)}</td><td>${days ? escapeHtml(days) : '<span class="muted">Not set</span>'}</td><td><span class="availability-chip ${days ? 'available' : 'unset'}">${days ? `${doctor.weekdays.length} ${doctor.weekdays.length === 1 ? 'day' : 'days'} / week` : 'Not scheduled'}</span></td><td><button type="button" class="edit-button" data-doctor-id="${doctor.id}">Arrange</button></td></tr>`;
+            }).join('') : '<tr><td colspan="5" class="empty-cell">No doctors match this search.</td></tr>';
+            rows.querySelectorAll('.edit-button').forEach(button => button.addEventListener('click', () => openEditor(Number(button.dataset.doctorId))));
+            document.getElementById('doctorCount').textContent = doctors.length;
+
+            const todayWeekday = new Date().getDay();
+            const databaseWeekday = todayWeekday === 0 || todayWeekday === 6 ? 0 : todayWeekday;
+
+            document.getElementById('todayDoctorCount').textContent = databaseWeekday === 0
+                ? 0
+                : doctors.filter(doctor => doctor.weekdays.includes(databaseWeekday)).length;
+
+            document.getElementById('coveredCount').textContent = new Set(doctors.flatMap(doctor => doctor.weekdays)).size;
+        }
+
+        async function loadDoctors() {
+            setMessage('');
+            try {
+                const response = await fetch('api_DoctorAvailability.php', { headers: { Accept: 'application/json' }, cache: 'no-store' });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error || 'Could not load the doctor schedule.');
+                doctors = data.doctors;
+                csrfToken = data.csrfToken;
+                renderDoctors();
+            } catch (error) {
+                document.getElementById('doctorRows').innerHTML = `<tr><td colspan="5" class="empty-cell">${escapeHtml(error.message)}</td></tr>`;
+                setMessage(error.message, true);
+            }
+        }
+
+        function openEditor(id) {
+            activeDoctor = doctors.find(doctor => doctor.id === id);
+            if (!activeDoctor) return;
+            document.getElementById('doctorLabel').textContent = `${activeDoctor.name} · ${activeDoctor.specialization}`;
+            document.querySelectorAll('input[name="weekday"]').forEach(input => { input.checked = activeDoctor.weekdays.includes(Number(input.value)); });
+            document.getElementById('editDialog').showModal();
+        }
+
+        document.getElementById('scheduleForm').addEventListener('submit', async event => {
+            event.preventDefault();
+            if (!activeDoctor) return;
+            const button = document.getElementById('saveButton');
+            button.disabled = true;
+            button.textContent = 'Saving…';
+            const weekdays = [...document.querySelectorAll('input[name="weekday"]:checked')].map(input => Number(input.value));
+            try {
+                const response = await fetch('api_DoctorAvailability.php', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken, Accept: 'application/json' },
+                    body: JSON.stringify({ doctorId: activeDoctor.id, weekdays })
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error || 'Could not save working days.');
+                activeDoctor.weekdays = weekdays;
+                document.getElementById('editDialog').close();
+                renderDoctors();
+                setMessage(`${activeDoctor.name}'s working days were saved.`);
+            } catch (error) {
+                setMessage(error.message, true);
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Save working days';
+            }
+        });
+        document.getElementById('refreshButton').addEventListener('click', loadDoctors);
+        document.getElementById('searchInput').addEventListener('input', renderDoctors);
+        document.getElementById('dayFilter').addEventListener('change', renderDoctors);
+        document.getElementById('cancelDialog').addEventListener('click', () => document.getElementById('editDialog').close());
+        document.getElementById('closeDialog').addEventListener('click', () => document.getElementById('editDialog').close());
+        document.getElementById('todayLabel').textContent = new Intl.DateTimeFormat('en-MY', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date());
+        loadDoctors();
+    </script>
+</body>
+</html>
