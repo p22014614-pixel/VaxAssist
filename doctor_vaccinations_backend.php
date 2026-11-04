@@ -39,8 +39,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $patients = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
     // Adds each patient's dose history and whether the next due date is already booked.
-    $historyQuery = $conn->prepare("SELECT vr.record_id, vr.dose_number, vr.date_given, vr.next_dose_date, vr.notes,
-            v.name AS vaccine_name, CONCAT_WS(' ', d.first_name, d.last_name) AS doctor_name,
+    $historyQuery = $conn->prepare("SELECT vr.record_id, vr.vaccine_id, vr.dose_number, vr.date_given, vr.next_dose_date, vr.notes,
+            v.name AS vaccine_name, v.total_doses, CONCAT_WS(' ', d.first_name, d.last_name) AS doctor_name,
             (SELECT a2.appointment_date FROM appointments a2
                 WHERE a2.patient_id = vr.patient_id AND a2.child_id <=> vr.child_id
                   AND a2.vaccine_id = vr.vaccine_id AND a2.status = 'Scheduled'
