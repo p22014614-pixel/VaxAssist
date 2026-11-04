@@ -1,0 +1,77 @@
+<!-- Doctor vaccination workspace: review assigned pre-checks and record administered doses. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vaccination Records - VaxAssist</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="doctor_layout.css?v=7">
+    <link rel="stylesheet" href="login.css">
+    <link rel="stylesheet" href="styles.css?v=4">
+    <link rel="stylesheet" href="doctor_theme.css?v=1">
+    <link rel="stylesheet" href="doctor_effects.css?v=1">
+    <script src="auth.js?v=9" defer></script>
+    <script src="nav_bar.js?v=2" defer></script>
+    <script src="doctor_nav.js?v=2" defer></script>
+    <script src="motion.js?v=3" defer></script>
+    <script src="doctor_vaccinations.js?v=4" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+<body class="doctor-portal" data-require-role="doctor">
+    <div data-doctor-nav></div>
+
+    <header class="page-header doctor-page-heading">
+        <div class="container text-center">
+            <div class="section-label mb-3">Vaccination care</div>
+            <h1>Every dose, carefully recorded.</h1>
+        </div>
+    </header>
+
+    <main class="doctor-vaccination-layout">
+        <section class="form-card vaccination-patient-panel" aria-labelledby="vaccination-patients-heading">
+            <div class="vaccination-panel-heading"><div><h2 id="vaccination-patients-heading">Scheduled patients</h2><p>Patients with a scheduled appointment assigned to you.</p></div><button class="btn secondary-btn doctor-icon-button" id="refreshVaccinationList" type="button" aria-label="Refresh scheduled patients" title="Refresh scheduled patients"><i class="bi bi-arrow-clockwise" aria-hidden="true"></i></button></div>
+            <div id="vaccinationLoadStatus" class="doctor-alert" role="status" aria-live="polite" hidden></div>
+            <div id="vaccinationPatientList" class="vaccination-patient-list"><p class="text-muted">Loading scheduled patients…</p></div>
+        </section>
+
+        <section class="form-card vaccination-detail-panel" id="vaccinationDetailPanel" aria-labelledby="vaccination-detail-heading">
+            <div class="vaccination-panel-heading"><div><h2 id="vaccination-detail-heading">Patient and pre-check form</h2><p id="vaccinationDetailHint">Select a scheduled patient to review their pre-check and vaccination.</p></div></div>
+            <div id="vaccinationPatientDetails" class="vaccination-patient-details"><p class="text-muted">No patient selected.</p></div>
+            <div id="precheckDetails" class="precheck-details"><p class="text-muted">Pre-check form details will appear here.</p></div>
+            <section class="vaccination-history" aria-label="Vaccination history">
+                <button class="btn secondary-btn" id="toggleVaccinationHistory" type="button" disabled>View vaccination history</button>
+            </section>
+            <form id="vaccinationRecordForm" class="vaccination-record-form" hidden>
+                <h3>Record vaccination</h3>
+                <input type="hidden" id="recordAppointmentId">
+                <div class="vaccination-form-grid">
+                    <div class="form-group"><label for="recordVaccine">Vaccine given</label><select class="form-control" id="recordVaccine" required></select></div>
+                    <div class="form-group"><label for="recordBatch">Batch (optional)</label><select class="form-control" id="recordBatch"><option value="">No batch selected</option></select></div>
+                    <div class="form-group"><label for="recordDose">Dose number</label><input class="form-control" id="recordDose" type="number" min="1" max="20" value="1" required></div>
+                    <div class="form-group"><label for="recordDate">Date given</label><input class="form-control" id="recordDate" type="date" required></div>
+                    <div class="form-group"><label for="recordNextDose">Next dose due (optional)</label><input class="form-control" id="recordNextDose" type="date"></div>
+                    <div class="form-group vaccination-notes"><label for="recordNotes">Clinical notes (optional)</label><textarea class="form-control" id="recordNotes" maxlength="2000" rows="3" placeholder="Administration notes or follow-up advice"></textarea></div>
+                </div>
+                <p class="vaccination-form-note">Saving records the dose, reduces selected batch stock by one, marks the appointment completed, and creates a patient notification.</p>
+                <button class="btn primary-btn" id="saveVaccinationRecord" type="submit">Save vaccination record</button>
+            </form>
+        </section>
+    </main>
+
+    <div class="modal fade patient-history-modal" id="vaccinationHistoryModal" tabindex="-1" aria-labelledby="vaccination-history-heading" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title fs-5" id="vaccination-history-heading">Vaccination history and next dose</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="vaccinationHistory"><p class="text-muted">Select a patient to view recorded doses.</p></div>
+            </div>
+        </div>
+    </div>
+
+    <footer><p>&copy; 2026 VaxAssist. All Rights Reserved.</p></footer>
+</body>
+</html>

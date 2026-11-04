@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>VaxAssist | Contact</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link href="nav.css" rel="stylesheet">
+    <link href="motion.css" rel="stylesheet">
+    <link href="contact.css" rel="stylesheet">
+    <link href="polish.css?v=1" rel="stylesheet">
+    <script src="auth.js?v=5"></script>
+    <script src="motion.js?v=2" defer></script>
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container py-2">
+
+            <a class="navbar-brand fw-bold" href="patient_dashboard.html">
+                VaxAssist
+            </a>
+
+            <button class="navbar-toggler" type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbarNav"
+                    aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+
+                <ul class="navbar-nav ms-auto align-items-lg-center">
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="patient_dashboard.html">Home</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="about.html">About</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="services.html">Services</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="doctors.html">Doctors</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="planner.html">Planner</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link active" href="contact.html">Contact</a>
+                    </li>
+
+                    <li class="nav-item dropdown" data-auth="in">
+                        <a class="nav-link dropdown-toggle" href="#" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">Hi, <span data-user-name>there</span><span class="msg-dot" data-unread-dot hidden></span></a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="booking.html">Book an Appointment</a></li>
+                            <li><a class="dropdown-item" href="appointments.html">My Appointments</a></li>
+                            <li><a class="dropdown-item" href="vaccinations.html">My Vaccinations</a></li>
+                            <li><a class="dropdown-item" href="precheck.html">Pre-consultation Form</a></li>
+                            <li><a class="dropdown-item" href="receipts.html">Payments &amp; Receipts</a></li>
+                            <li><a class="dropdown-item" href="reviews.html">Reviews &amp; Ratings</a></li>
+                            <li><a class="dropdown-item" href="messages.html">Messages <span class="msg-badge" data-unread-messages hidden></span></a></li>
+                            <li><a class="dropdown-item" href="notifications.html">Notifications</a></li>
+                            <li><a class="dropdown-item" href="profile.html">My Profile</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item logout-link" href="#" data-logout>Log out</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="nav-item" data-auth="out">
+                        <a class="nav-link" href="login.html">Log in</a>
+                    </li>
+
+                    <li class="nav-item ms-lg-3 mt-3 mt-lg-0" data-auth="out">
+                        <a class="btn appointment-btn" href="register.html">
+                            Create Account
+                        </a>
+                    </li>
+
+                </ul>
+
+            </div>
+        </div>
+    </nav>
+
+
+    <main class="flex-grow-1">
+        <!-- Header -->
+        <section class="page-header">
+            <div class="container text-center">
+                <div class="section-label mb-3">Contact</div>
+                <h1>Contact us</h1>
+                <p class="mt-3">
+                    Questions about vaccines, bookings or your account? Send us a message and we'll reply by email.
+                </p>
+            </div>
+        </section>
+
+        <section class="pb-5">
+            <div class="container">
+                <div class="row g-4">
+
+                    <!-- Message form -->
+                    <div class="col-lg-8">
+                        <div class="form-card" id="formCard">
+                            <h3 class="fw-bold mb-4">Send us a message</h3>
+                            <div id="formError" class="error-box mb-4 d-none" role="alert"></div>
+                            <form id="contactForm" novalidate>
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-6">
+                                        <label for="name" class="form-label">Your name</label>
+                                        <input type="text" class="form-control" id="name" name="name" maxlength="100" autocomplete="name" required>
+                                        <div class="invalid-feedback">Enter your name.</div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="email" class="form-label">Email</label>
+                                        <input type="email" class="form-control" id="email" name="email" maxlength="100" autocomplete="email" required>
+                                        <div class="invalid-feedback">Enter a valid email address.</div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="subject" class="form-label">Subject</label>
+                                    <select class="form-select" id="subject" name="subject" required>
+                                        <option value="">Choose a subject</option>
+                                        <option>General question</option>
+                                        <option>Booking help</option>
+                                        <option>Vaccines and services</option>
+                                        <option>Payments and receipts</option>
+                                        <option>Feedback</option>
+                                        <option>Something else</option>
+                                    </select>
+                                    <div class="invalid-feedback">Choose a subject.</div>
+                                </div>
+                                <div class="mb-4">
+                                    <label for="message" class="form-label">Message</label>
+                                    <textarea class="form-control" id="message" name="message" rows="6" maxlength="1000" required
+                                              placeholder="How can we help?"></textarea>
+                                    <div class="invalid-feedback">Please write at least 10 characters.</div>
+                                    <div class="text-end"><small class="form-text" id="counter">0 / 1000</small></div>
+                                </div>
+                                <button type="submit" class="btn submit-btn" id="sendBtn">Send message</button>
+                            </form>
+                        </div>
+
+                        <div class="form-card text-center d-none" id="successCard">
+                            <div class="success-icon">&#10003;</div>
+                            <h3 class="fw-bold mb-2">Message sent</h3>
+                            <p class="text-secondary mb-4">Thank you for getting in touch. We'll reply to the email address you gave us.</p>
+                            <button type="button" class="btn btn-outline-secondary" id="againBtn">Send another message</button>
+                        </div>
+                    </div>
+
+                    <!-- Contact information -->
+                    <div class="col-lg-4">
+                        <div class="contact-info">
+                            <div class="section-label mb-3">Find us</div>
+                            <h3>We're here to help.</h3>
+                            <p class="text-secondary mt-3">
+                                Prefer to call or visit? Our clinic team is happy to help.
+                            </p>
+
+                            <div class="contact-item">
+                                <strong>&#128205; Location</strong>
+                                <span>123 Healthcare Street<br>Kuala Lumpur, Malaysia</span>
+                            </div>
+                            <div class="contact-item">
+                                <strong>&#128222; Phone</strong>
+                                <span>+60 3-1234 5678</span>
+                            </div>
+                            <div class="contact-item">
+                                <strong>&#9993;&#65039; Email</strong>
+                                <span>hello@vaxassist.my</span>
+                            </div>
+                            <div class="contact-item">
+                                <strong>&#128336; Opening hours</strong>
+                                <span>Monday &ndash; Saturday<br>8:00 AM &ndash; 8:00 PM</span>
+                            </div>
+
+                            <a href="booking.html" class="btn appointment-btn book-link">Book an appointment</a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center p-4">
+        <nav class="footer-links" aria-label="Footer"><a href="patient_dashboard.html">Home</a><a href="about.html">About</a><a href="services.html">Services</a><a href="doctors.html">Doctors</a><a href="planner.html">Planner</a><a href="contact.html">Contact</a></nav>
+        <p class="mb-0">
+            &copy; 2026 <span>VaxAssist</span> |
+            All Rights Reserved
+        </p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="contact.js"></script>
+</body>
+</html>

@@ -1,0 +1,122 @@
+<!-- Doctor communications: read and send messages in the doctor's patient conversations. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Communications - VaxAssist</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="doctor_layout.css?v=4">
+    <link rel="stylesheet" href="login.css">
+    <link rel="stylesheet" href="styles.css?v=4">
+    <link rel="stylesheet" href="doctor_theme.css?v=1">
+    <link rel="stylesheet" href="doctor_effects.css?v=1">
+    <script src="auth.js?v=9" defer></script>
+    <script src="nav_bar.js?v=2" defer></script>
+    <script src="doctor_nav.js?v=2" defer></script>
+    <script src="motion.js?v=3" defer></script>
+    <script src="doctor_communications.js?v=2" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+<body class="doctor-portal" data-require-role="doctor">
+
+    <!-- Navigation -->
+    <div data-doctor-nav></div>
+
+    <header class="page-header doctor-page-heading">
+        <div class="container text-center">
+            <div class="section-label mb-3">Patient communications</div>
+            <h1>Clear conversations, support better care.</h1>
+        </div>
+    </header>
+
+    <main class="doctor-page-content">
+        <div class="chat-layout">
+            <!-- Sidebar: User Conversations -->
+            <div class="chat-sidebar">
+                <h3 style="color: var(--primary-dark); margin-bottom: 15px;">Conversations</h3>
+                <label for="conversationPatient">Patient</label>
+                <select id="conversationPatient" class="form-control" onchange="loadMessages()"><option value="">Loading conversations…</option></select>
+            </div>
+
+            <!-- Main Chat Panel -->
+            <div class="chat-main">
+                <h3 id="chatHeading" style="color: var(--primary-dark); margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">Choose a patient</h3>
+                
+                <div class="chat-messages" id="chatMessagesContainer">
+                    <!-- Dynamic chat bubbles loaded via JavaScript -->
+                </div>
+
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="chatInputText" class="form-control" placeholder="Type your response to the patient...">
+                    <button class="btn primary-btn" onclick="sendMessage()">Send</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 VaxAssist. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", loadMessages);
+
+        // Loads the selected doctor's conversation and refreshes the patient selector.
+        function loadMessages() {
+            const selected = document.getElementById("conversationPatient").value;
+            VaxApi.get("doctor_communications_backend.php" + (selected ? "?patient_id=" + encodeURIComponent(selected) : ""))
+                .then(data => {
+                    if (data.status === "success") {
+                        const container = document.getElementById("chatMessagesContainer");
+                        container.innerHTML = "";
+                        const patientSelect = document.getElementById("conversationPatient");
+                        if (data.patients) {
+                            patientSelect.innerHTML = '<option value="">Select a patient</option>';
+                            data.patients.forEach(person => { const option = document.createElement("option"); option.value = person.patient_id; option.textContent = person.full_name; patientSelect.appendChild(option); });
+                        }
+                        if (data.patient && patientSelect.value !== String(data.patient)) { patientSelect.value = data.patient; }
+                        const person = (data.patients || []).find(item => String(item.patient_id) === patientSelect.value);
+                        document.getElementById("chatHeading").textContent = person ? "Chatting with: " + person.full_name : "Choose a patient";
+                        if (!data.patient) { container.innerHTML = '<p style="color:#888;text-align:center">No patient conversations are available.</p>'; return; }
+                        
+                        if (data.data.length === 0) {
+                            container.innerHTML = '<p style="color: #888; text-align: center;">No message history found.</p>';
+                            return;
+                        }
+
+                        data.data.forEach(msg => {
+                            const bubble = document.createElement("div");
+                            bubble.className = `msg-bubble ${msg.type}`;
+                            bubble.innerText = msg.text;
+                            container.appendChild(bubble);
+                        });
+                        
+                        // Auto-scroll to the bottom of the chat
+                        container.scrollTop = container.scrollHeight;
+                    }
+                })
+                .catch(err => console.error("Error loading messages:", err));
+        }
+
+        // Sends the doctor's reply to the selected patient and reloads the conversation.
+        function sendMessage() {
+            const input = document.getElementById("chatInputText");
+            const text = input.value.trim();
+            if (!text) return;
+
+            const patient_id = document.getElementById("conversationPatient").value;
+            if (!patient_id) return;
+            VaxApi.post("doctor_communications_backend.php", { message_text: text, patient_id })
+            .then(data => {
+                if (data.status === "success") {
+                    input.value = "";
+                    loadMessages(); // Reload chat messages immediately
+                }
+            }).catch(err => alert(err.message || "Could not send the message."));
+        }
+    </script>
+
+</body>
+</html>

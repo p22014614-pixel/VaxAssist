@@ -1,0 +1,264 @@
+<!-- Doctor appointment calendar: view assigned visits and complete eligible appointments. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appointments &amp; Schedule - VaxAssist</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="doctor_layout.css?v=6">
+    <link rel="stylesheet" href="login.css">
+    <link rel="stylesheet" href="styles.css?v=4">
+    <link rel="stylesheet" href="doctor_theme.css?v=1">
+    <link rel="stylesheet" href="doctor_effects.css?v=1">
+    <script src="auth.js?v=9" defer></script>
+    <script src="nav_bar.js?v=2" defer></script>
+    <script src="doctor_nav.js?v=2" defer></script>
+    <script src="motion.js?v=3" defer></script>
+    <script src="doctor_appointments.js?v=3" defer></script>
+    <script src="doctor_monthly_schedule.js?v=1" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+<body class="doctor-portal" data-require-role="doctor">
+
+    <!-- Navigation -->
+    <div data-doctor-nav></div>
+
+    <header class="page-header doctor-page-heading">
+        <div class="container text-center">
+            <div class="section-label mb-3">Appointments and schedule</div>
+            <h1>Plan your clinic day.</h1>
+        </div>
+    </header>
+
+    <main class="doctor-page-content">
+        <div id="appointment-action-status" class="doctor-alert appointment-status" role="status" aria-live="polite" hidden></div>
+        <div class="appointment-view-switch" role="group" aria-label="Appointment calendar view">
+            <button class="btn primary-btn" id="showWeekView" type="button" aria-pressed="true">Week view</button>
+            <button class="btn secondary-btn" id="showMonthView" type="button" aria-pressed="false">Full month view</button>
+        </div>
+
+        <!-- VIEW 1: THIS WEEK CALENDAR -->
+        <div id="week-view-section">
+            <h3 id="week-range-title" style="color: var(--primary-dark); margin-bottom: 15px;">This Week View</h3>
+            
+            <div class="week-calendar-container">
+                <div class="week-days-header" id="week-days-header"></div>
+
+                <div class="time-slots-container">
+                    <h4 id="selected-day-title" style="margin-bottom: 20px; color: var(--primary-color);">Time Slots</h4>
+
+                    <!-- Time Slot 1 -->
+                    <div class="time-slot-card">
+                        <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                            <div class="slot-time" style="margin-bottom: 0;">08:00 AM - 10:00 AM</div>
+                            <div class="slot-details" id="slot-1-details" style="display: flex; align-items: center; gap: 10px;">Loading...</div>
+                        </div>
+                        <a id="slot-1-btn" class="btn secondary-btn">View Patient File</a>
+                    </div>
+
+                    <!-- Time Slot 2 -->
+                    <div class="time-slot-card">
+                        <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                            <div class="slot-time" style="margin-bottom: 0;">10:00 AM - 12:00 PM</div>
+                            <div class="slot-details" id="slot-2-details" style="display: flex; align-items: center; gap: 10px;">Loading...</div>
+                        </div>
+                        <a id="slot-2-btn" class="btn secondary-btn">View Patient File</a>
+                    </div>
+
+                    <!-- Time Slot 3 -->
+                    <div class="time-slot-card">
+                        <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                            <div class="slot-time" style="margin-bottom: 0;">01:00 PM - 03:00 PM</div>
+                            <div class="slot-details" id="slot-3-details" style="display: flex; align-items: center; gap: 10px;">Loading...</div>
+                        </div>
+                        <a id="slot-3-btn" class="btn secondary-btn">View Patient File</a>
+                    </div>
+
+                    <!-- Time Slot 4 -->
+                    <div class="time-slot-card">
+                        <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                            <div class="slot-time" style="margin-bottom: 0;">03:00 PM - 05:00 PM</div>
+                            <div class="slot-details" id="slot-4-details" style="display: flex; align-items: center; gap: 10px;">Loading...</div>
+                        </div>
+                        <a id="slot-4-btn" class="btn secondary-btn">View Patient File</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Full month combines availability, leave, appointments, and daily booking totals. -->
+        <div id="month-view-section" hidden>
+            <section class="form-card monthly-calendar-card" aria-labelledby="monthTitle">
+                <div class="monthly-calendar-toolbar">
+                    <button class="btn secondary-btn doctor-icon-button" type="button" id="previousMonth" aria-label="Previous month" title="Previous month"><i class="bi bi-chevron-left" aria-hidden="true"></i></button>
+                    <h2 id="monthTitle">Loading schedule…</h2>
+                    <button class="btn secondary-btn doctor-icon-button" type="button" id="nextMonth" aria-label="Next month" title="Next month"><i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+                    <button class="btn secondary-btn monthly-today-button" type="button" id="currentMonth">This month</button>
+                </div>
+                <p class="text-muted">Your configured working days, approved leave, daily booking totals, and patient appointments for the selected month.</p>
+                <div id="monthlyScheduleStatus" class="doctor-alert" role="status" aria-live="polite" hidden></div>
+                <div class="monthly-calendar-legend" aria-label="Schedule legend">
+                    <span><i class="legend-working"></i>Configured working day</span>
+                    <span><i class="legend-leave"></i>Approved leave</span>
+                    <span><i class="legend-booking"></i>Patient appointment</span>
+                </div>
+                <div class="monthly-calendar-weekdays" aria-hidden="true"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div>
+                <div id="monthlyScheduleGrid" class="monthly-calendar-grid" aria-live="polite"></div>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 VaxAssist. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        const slotKeys = ["08:00 AM - 10:00 AM", "10:00 AM - 12:00 PM", "01:00 PM - 03:00 PM", "03:00 PM - 05:00 PM"];
+
+        // Format Date object into YYYY-MM-DD local string to prevent timezone day rollback
+        // Formats a calendar date consistently for backend requests.
+        function formatLocalDateString(dateObj) {
+            const year = dateObj.getFullYear();
+            const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+            const day = String(dateObj.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        window.onload = function() {
+            buildCurrentLiveWeekCalendar();
+        };
+
+        // Builds the current week's day selector and loads today's appointment slots.
+        function buildCurrentLiveWeekCalendar() {
+            const headerContainer = document.getElementById("week-days-header");
+            headerContainer.innerHTML = "";
+
+            const now = new Date();
+            const sunDate = new Date(now);
+            sunDate.setDate(now.getDate() - now.getDay());
+
+            const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+            for (let i = 0; i < 7; i++) {
+                let dayDate = new Date(sunDate);
+                dayDate.setDate(sunDate.getDate() + i);
+                
+                const dateStr = formatLocalDateString(dayDate);
+
+                const dayCell = document.createElement("div");
+                dayCell.className = "day-header-cell";
+
+                if (dayDate.toDateString() === now.toDateString()) {
+                    dayCell.classList.add("today-highlight");
+                    loadDaySlots(dateStr, dayDate.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' }));
+                }
+
+                dayCell.innerHTML = `<div class="day-name">${daysOfWeek[i]}</div><div class="day-date">${dayDate.getDate()}</div>`;
+                dayCell.onclick = function() {
+                    document.querySelectorAll('.day-header-cell').forEach(cell => cell.classList.remove('today-highlight'));
+                    this.classList.add('today-highlight');
+                    loadDaySlots(dateStr, dayDate.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' }));
+                };
+                headerContainer.appendChild(dayCell);
+            }
+        }
+
+        let activeDate = formatLocalDateString(new Date());
+        // Fetches and displays this doctor's appointments for the selected day.
+        function loadDaySlots(dateStr, formattedDate) {
+            activeDate = dateStr;
+            document.getElementById("selected-day-title").innerText = `Time Slots for ${formattedDate}`;
+
+            return VaxApi.get(`doctor_appointments_backend.php?action=get_day&date=${dateStr}`)
+                .then(data => {
+                    const appointments = data.data || {};
+                    slotKeys.forEach((key, index) => {
+                        const slotNum = index + 1;
+                        const details = document.getElementById(`slot-${slotNum}-details`);
+                        const btn = document.getElementById(`slot-${slotNum}-btn`);
+                        
+                        if (appointments[key]) {
+                            const bookings = Array.isArray(appointments[key]) ? appointments[key] : [appointments[key]];
+                            details.replaceChildren(...bookings.map(booking => {
+                                const line = document.createElement("div");
+                                line.className = "appointment-booking-row";
+                                const patientName = document.createElement("strong");
+                                patientName.textContent = booking.name;
+                                const reason = document.createElement("span");
+                                reason.style.cssText = "color: var(--text-muted); font-size: 14px;";
+                                reason.textContent = ` — Reason: ${booking.reason || 'N/A'}`;
+                                const actions = document.createElement("span");
+                                actions.className = "appointment-actions";
+                                const recordLink = document.createElement("a");
+                                recordLink.className = "btn secondary-btn btn-sm";
+                                recordLink.textContent = "Patient file";
+                                recordLink.href = `doctor_patientRecord.html?search=${encodeURIComponent(booking.name)}&patient_id=${encodeURIComponent(booking.patient_id)}&open=history`;
+                                const complete = document.createElement("button");
+                                complete.type = "button";
+                                complete.className = "btn primary-btn btn-sm";
+                                complete.textContent = "Complete appointment";
+                                complete.dataset.completeAppointment = String(booking.appointment_id);
+                                actions.append(recordLink, complete);
+                                line.append(patientName, reason, actions);
+                                return line;
+                            }));
+                            btn.hidden = true;
+                        } else {
+                            details.innerHTML = `<strong style="color: #888;">No Booking</strong> <span style="color: #aaa; font-size: 13px;">— Available Slot</span>`;
+                            btn.className = "btn secondary-btn";
+                            btn.innerText = "Empty";
+                            btn.style.opacity = "0.5";
+                            btn.removeAttribute("href");
+                            btn.hidden = true;
+                        }
+                    });
+                });
+        }
+
+        document.addEventListener("click", async event => {
+            const button = event.target.closest("[data-complete-appointment]");
+            if (!button) return;
+            if (!window.confirm("Mark this appointment as completed?")) return;
+            button.disabled = true;
+            const status = document.getElementById("appointment-action-status");
+            status.hidden = true;
+            status.classList.remove("is-success");
+            try {
+                const result = await VaxApi.post("doctor_appointments_backend.php?action=complete", {
+                    appointment_id: Number(button.dataset.completeAppointment)
+                });
+                if (result.status !== "success") throw new Error(result.message || "Could not complete appointment.");
+                status.textContent = result.message;
+                status.classList.add("is-success");
+                status.hidden = false;
+                const selectedTitle = document.getElementById("selected-day-title").textContent.replace(/^Time Slots for /, "");
+                await loadDaySlots(activeDate, selectedTitle);
+            } catch (error) {
+                status.textContent = error.message || "Could not complete appointment. Please try again.";
+                status.hidden = false;
+                button.disabled = false;
+            }
+        });
+
+        // Switches between the weekly appointment slots and the combined full-month schedule.
+        function setAppointmentView(mode) {
+            const showMonth = mode === 'month';
+            document.getElementById('week-view-section').hidden = showMonth;
+            document.getElementById('month-view-section').hidden = !showMonth;
+            const weekButton = document.getElementById('showWeekView');
+            const monthButton = document.getElementById('showMonthView');
+            weekButton.classList.toggle('primary-btn', !showMonth);
+            weekButton.classList.toggle('secondary-btn', showMonth);
+            monthButton.classList.toggle('primary-btn', showMonth);
+            monthButton.classList.toggle('secondary-btn', !showMonth);
+            weekButton.setAttribute('aria-pressed', String(!showMonth));
+            monthButton.setAttribute('aria-pressed', String(showMonth));
+        }
+
+        document.getElementById('showWeekView').addEventListener('click', () => setAppointmentView('week'));
+        document.getElementById('showMonthView').addEventListener('click', () => setAppointmentView('month'));
+    </script>
+</body>
+</html>

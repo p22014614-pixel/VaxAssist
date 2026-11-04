@@ -1,0 +1,29 @@
+<!-- Shared doctor navbar; nav_bar.js marks the current page as active. -->
+<nav class="navbar navbar-expand-lg doctor-navbar" aria-label="Doctor navigation">
+    <div class="container py-2">
+        <a class="navbar-brand fw-bold" href="doctor_dashboard.html">VaxAssist</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#doctorNav" aria-controls="doctorNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="doctorNav">
+            <ul class="navbar-nav ms-auto align-items-lg-center">
+                <li class="nav-item"><a class="nav-link" href="doctor_dashboard.html">Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="doctor_appointments.html">Appointments</a></li>
+                <li class="nav-item"><a class="nav-link" href="doctor_vaccinations.html">Vaccinations</a></li>
+                <li class="nav-item"><a class="nav-link" href="doctor_patientRecord.html">Patient Record</a></li>
+                <li class="nav-item"><a class="nav-link" href="doctor_communications.html">Communications</a></li>
+                <li class="nav-item"><a class="nav-link" href="doctor_about.html">About</a></li>
+                <li class="nav-item doctor-nav-avatar-item">
+                    <a class="doctor-nav-avatar" href="doctor_profile.html" aria-label="Open doctor profile" title="Doctor profile">
+                        <span data-doctor-initials>DR</span><img data-doctor-photo alt="Doctor profile photo" hidden>
+                    </a>
+                </li>
+                <li class="nav-item doctor-nav-logout-item">
+                    <button class="doctor-icon-button doctor-nav-logout" type="button" data-logout aria-label="Log out" title="Log out">
+                        <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>

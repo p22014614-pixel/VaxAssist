@@ -10,47 +10,92 @@
     <link href="nav.css" rel="stylesheet">
     <link href="motion.css" rel="stylesheet">
     <link href="about.css" rel="stylesheet">
-    <script src="auth.js"></script>
-    <script src="motion.js" defer></script>
-
-    <link rel="stylesheet" href="admin_Dashboard.css?v=2">
-    <link rel="stylesheet" href="admin_ProfileAvatar.css">
-    
+    <link href="polish.css?v=1" rel="stylesheet">
+    <script src="auth.js?v=5"></script>
+    <script src="motion.js?v=2" defer></script>
 </head>
 
-<style>
-  .admin-dashboard .page-header {
-    padding-top: 150px !important;
-  }
+<body>
 
-  .admin-dashboard .page-header .section-label {
-    padding-top: 0 !important;
-  }
-</style>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container py-2">
 
-<body class="admin-dashboard">
-    <nav class="admin-topbar admin-nav" aria-label="Admin navigation">
-        <a class="logo" href="admin_Dashboard.html">VaxAssist</a>
+            <a class="navbar-brand fw-bold" href="patient_dashboard.html">
+                VaxAssist
+            </a>
 
-            <ul>
-                <li><a class="nav-link" href="admin_Dashboard.html">Dashboard</a></li>
-                <li><a class="nav-link active" aria-current="page" href="about.html">About Us</a></li>
-                <li><a class="nav-link" href="admin_ViewAppointment.html">View Appointment</a></li>
-                <li><a class="nav-link" href="admin_DoctorSchedule.html">Doctor Schedule</a></li>
-                <li><a class="nav-link" href="admin_ViewLeave.html">Leave Review</a></li>
-                <li><a class="nav-link" href="admin_ManageUsers.html">Manage Users</a></li>
-                <li><a class="nav-link" href="admin_VaccineInventory.html">Vaccine Stock</a></li>
-            </ul>
+            <button class="navbar-toggler" type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbarNav"
+                    aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-            <a class="avatar-link" href="admin_Profile.html" aria-label="Admin profile" title="Admin profile">
-            <svg class="avatar-image" viewBox="0 0 40 40" aria-hidden="true">
-                <circle cx="20" cy="20" r="20" fill="#e5eef2"/>
-                <circle cx="20" cy="14" r="6" fill="#203c47" />
-                <path d="M8.5 33c1.2-6.4 5.3-9.7 11.5-9.7s10.3 3.3 11.5 9.7A16 16 0 0 1 20 36a16 16 0 0 1-11.5-3Z" fill="#203c47" />
-            </svg>
-        </a>
+            <div class="collapse navbar-collapse" id="navbarNav">
+
+                <ul class="navbar-nav ms-auto align-items-lg-center">
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="patient_dashboard.html">Home</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link active" href="about.html">About</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="services.html">Services</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="doctors.html">Doctors</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="planner.html">Planner</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="contact.html">Contact</a>
+                    </li>
+
+                    <li class="nav-item dropdown" data-auth="in">
+                        <a class="nav-link dropdown-toggle" href="#" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">Hi, <span data-user-name>there</span><span class="msg-dot" data-unread-dot hidden></span></a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="booking.html">Book an Appointment</a></li>
+                            <li><a class="dropdown-item" href="appointments.html">My Appointments</a></li>
+                            <li><a class="dropdown-item" href="vaccinations.html">My Vaccinations</a></li>
+                            <li><a class="dropdown-item" href="precheck.html">Pre-consultation Form</a></li>
+                            <li><a class="dropdown-item" href="receipts.html">Payments &amp; Receipts</a></li>
+                            <li><a class="dropdown-item" href="reviews.html">Reviews &amp; Ratings</a></li>
+                            <li><a class="dropdown-item" href="messages.html">Messages <span class="msg-badge" data-unread-messages hidden></span></a></li>
+                            <li><a class="dropdown-item" href="notifications.html">Notifications</a></li>
+                            <li><a class="dropdown-item" href="profile.html">My Profile</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item logout-link" href="#" data-logout>Log out</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="nav-item" data-auth="out">
+                        <a class="nav-link" href="login.html">Log in</a>
+                    </li>
+
+                    <li class="nav-item ms-lg-3 mt-3 mt-lg-0" data-auth="out">
+                        <a class="btn appointment-btn" href="register.html">
+                            Create Account
+                        </a>
+                    </li>
+
+                </ul>
+
+            </div>
+        </div>
     </nav>
 
+
+    <!-- Page Header -->
     <section class="page-header">
 
         <div class="container text-center">
@@ -69,12 +114,14 @@
     </section>
 
 
+    <!-- About Content -->
     <section class="pb-5">
 
         <div class="container">
 
             <div class="row g-4 align-items-stretch">
 
+                <!-- Left -->
                 <div class="col-lg-7">
 
                     <div class="about-box h-100">
@@ -106,6 +153,7 @@
                 </div>
 
 
+                <!-- Right -->
                 <div class="col-lg-5">
 
                     <div class="about-box h-100">
@@ -154,8 +202,13 @@
     </section>
 
 
-    <footer class="admin-footer">
-            <p>&copy; 2026 VaxAssist. All Rights Reserved.</p>
+    <!-- Footer -->
+    <footer class="text-center p-4 mt-5">
+        <nav class="footer-links" aria-label="Footer"><a href="patient_dashboard.html">Home</a><a href="about.html">About</a><a href="services.html">Services</a><a href="doctors.html">Doctors</a><a href="planner.html">Planner</a><a href="contact.html">Contact</a></nav>
+        <p class="mb-0">
+            &copy; 2026 <span>VaxAssist</span> |
+            All Rights Reserved
+        </p>
     </footer>
 
 

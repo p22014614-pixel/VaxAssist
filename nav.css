@@ -1,3 +1,4 @@
+/* Shared navigation styling used by patient pages and the doctor portal. */
 /* Shared dropdown for the logged-in pages in the top navigation */
 .navbar .dropdown-menu {
     border: 1px solid #e8eef0;
@@ -37,3 +38,35 @@ html.logged-in [data-auth="out"] {
 .logout-link {
     cursor: pointer;
 }
+
+.msg-badge {
+    display: inline-block;
+    min-width: 20px;
+    height: 20px;
+    line-height: 20px;
+    margin-left: 6px;
+    padding: 0 6px;
+    border-radius: 10px;
+    background: #167d8d;
+    color: white;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.msg-badge[hidden],
+.msg-dot[hidden] {
+    display: none;
+}
+
+.msg-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    margin-left: 6px;
+    border-radius: 50%;
+    background: #d9534f;
+    vertical-align: middle;
+}
+/* Shared navigation styling used by patient pages and the doctor portal. */

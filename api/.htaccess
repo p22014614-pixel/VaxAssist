@@ -1,0 +1,2 @@
+# Only used when the site is served by Apache: stop the folder being listed.
+Options -Indexes
