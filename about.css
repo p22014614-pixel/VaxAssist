@@ -128,3 +128,20 @@ footer span {
     text-align: center;
     font-size: 12px;
 }
+
+.admin-dashboard .admin-topbar .logo {
+    font-size: 25px !important;
+    margin-right: 28px !important;
+}
+
+.admin-dashboard .admin-topbar ul {
+    gap: 12px !important;
+}
+
+.admin-dashboard .admin-topbar ul .nav-link {
+    margin: 0 3px;
+}
+
+.admin-dashboard .admin-nav-actions {
+    margin-left: auto;
+}

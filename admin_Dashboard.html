@@ -10,7 +10,7 @@
     <link href="motion.css" rel="stylesheet">
     <script src="auth.js"></script>
     <script src="motion.js" defer></script>
-    <link rel="stylesheet" href="admin_Dashboard.css?v=1">
+    <link rel="stylesheet" href="admin_Dashboard.css?v=2">
 
 </head>
 
@@ -22,6 +22,7 @@
             <li><a class="nav-link active" aria-current="page" href="admin_Dashboard.html">Dashboard</a></li>
             <li><a class="nav-link" href="about.html">About Us</a></li>
             <li><a class="nav-link" href="admin_ViewAppointment.html">View Appointment</a></li>
+            <li><a class="nav-link" href="admin_DoctorSchedule.html">Doctor Schedule</a></li>
             <li><a class="nav-link" href="admin_ViewLeave.html">Leave Review</a></li>
             <li><a class="nav-link" href="admin_ManageUsers.html">Manage Users</a></li>
             <li><a class="nav-link" href="admin_VaccineInventory.html">Vaccine Stock</a></li>
@@ -79,8 +80,16 @@
                         <p>Requests awaiting review · Review leave</p>
                     </a>
 
-                    <a class="stat-card">
+                    <a class="stat-card"
+                        aria-label="View doctors available to work today">
                         <span class="stat-mark" aria-hidden="true">03</span>
+                        <h3>Doctors available today</h3>
+                        <strong id="doctorsAvailableToday" aria-live="polite">â€”</strong>
+                        <p>Scheduled to work today</p>
+                    </a>
+
+                    <a class="stat-card">
+                        <span class="stat-mark" aria-hidden="true">04</span>
                         <h3>Active staff</h3>
                         <strong id="activeStaffCount" aria-live="polite">—</strong>
                         <p>Current clinic team</p>
@@ -146,6 +155,15 @@
                                 <span class="shortcut-arrow" aria-hidden="true">→</span>
                             </a>
 
+                            <a class="shortcut-link" href="admin_DoctorSchedule.html">
+                                <span class="shortcut-icon" aria-hidden="true">&#129489;&#8205;&#9877;&#65039;</span>
+                                <span>
+                                    <strong>Schedule a doctor</strong>
+                                    <small>Arrange doctor working days</small>
+                                </span>
+                                <span class="shortcut-arrow" aria-hidden="true">→</span>
+                            </a>
+
                             <a class="shortcut-link" href="admin_ViewLeave.html">
                                 <span class="shortcut-icon" aria-hidden="true">&#128221;</span>
                                 <span>
@@ -172,6 +190,7 @@
                                 </span>
                                 <span class="shortcut-arrow" aria-hidden="true">→</span>
                             </a>
+
                         </div>
                     </section>
 
@@ -364,6 +383,26 @@
             .catch(error => {
                 console.error(error);
                 document.getElementById('activeStaffCount').textContent = '—';
+            });
+
+        fetch('api_DoctorAvailability.php', {
+            headers: { Accept: 'application/json' },
+            cache: 'no-store'
+        })
+            .then(async response => {
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.error || 'Could not load doctor availability.');
+                }
+                const weekday = new Date().getDay();
+                const count = weekday === 0 || weekday === 6
+                    ? 0
+                    : data.doctors.filter(doctor => doctor.weekdays.includes(weekday)).length;
+                document.getElementById('doctorsAvailableToday').textContent = count;
+            })
+            .catch(error => {
+                console.error(error);
+                document.getElementById('doctorsAvailableToday').textContent = 'â€”';
             });
 
         fetch('api_LiveNumber.php?count=pending', {

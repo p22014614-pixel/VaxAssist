@@ -128,7 +128,7 @@ body {
 .admin-topbar .logo {
     margin-right: auto;
     color: var(--admin-teal);
-    font-size: 30px;
+    font-size: 25px;
     font-weight: 700;
     letter-spacing: -.7px;
     text-decoration: none;
@@ -139,7 +139,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: clamp(18px, 2vw, 36px);
+    gap: clamp(10px, 1.2vw, 20px);
     margin: 0;
     padding: 0;
     list-style: none;
