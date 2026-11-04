@@ -65,13 +65,14 @@
 
         // Loads the selected doctor's conversation and refreshes the patient selector.
         function loadMessages() {
-            const selected = document.getElementById("conversationPatient").value;
+            const patientSelect = document.getElementById("conversationPatient");
+            const requestedPatient = new URLSearchParams(window.location.search).get("patient_id");
+            const selected = patientSelect.value || requestedPatient || "";
             VaxApi.get("doctor_communications_backend.php" + (selected ? "?patient_id=" + encodeURIComponent(selected) : ""))
                 .then(data => {
                     if (data.status === "success") {
                         const container = document.getElementById("chatMessagesContainer");
                         container.innerHTML = "";
-                        const patientSelect = document.getElementById("conversationPatient");
                         if (data.patients) {
                             patientSelect.innerHTML = '<option value="">Select a patient</option>';
                             data.patients.forEach(person => { const option = document.createElement("option"); option.value = person.patient_id; option.textContent = person.full_name; patientSelect.appendChild(option); });
