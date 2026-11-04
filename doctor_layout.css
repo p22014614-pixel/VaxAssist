@@ -191,9 +191,9 @@ body {
 .patient-history-modal .modal-body { padding: clamp(18px, 3vw, 30px); }
 .patient-record-details-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
 .patient-record-details-heading h2 { margin-bottom: 0 !important; }
-.appointment-view-switch { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
-#week-view-section[hidden], #month-view-section[hidden] { display: none !important; }
-.monthly-day-booking-count { display: inline-block; align-self: start; margin: 4px 0; padding: 4px 8px; border-radius: 6px; color: #fff; font-size: .68rem; font-weight: 700; }
+.monthly-day-booking-count { display: inline-flex; align-items: center; justify-content: center; min-height: 32px; margin: 5px 0; padding: 6px 11px; border: 1px solid var(--primary-color); border-radius: 9px; background: var(--primary-color); color: #fff; font: inherit; font-size: .76rem; font-weight: 700; line-height: 1.2; cursor: pointer; box-shadow: 0 3px 8px rgba(22,125,141,.14); transition: transform .15s ease, background .15s ease, box-shadow .15s ease; }
+.monthly-day-booking-count:hover { border-color: var(--primary-dark); background: var(--primary-dark); box-shadow: 0 5px 12px rgba(18,106,120,.2); transform: translateY(-1px); }
+.monthly-day-booking-count:focus-visible { outline: 3px solid rgba(22,125,141,.35); outline-offset: 2px; }
 .patient-history-heading h2 { margin: 0; color: var(--primary-dark); font-size: 1.5rem; }
 .patient-history-id { color: var(--text-muted); font-size: .82rem; }
 .patient-history-section { margin-top: 22px; }
@@ -212,7 +212,11 @@ body {
 .monthly-calendar-card { padding: clamp(16px, 3vw, 28px); }
 .monthly-calendar-toolbar { display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 18px; }
 .monthly-calendar-toolbar h2 { min-width: min(260px, 48vw); margin: 0; color: var(--primary-dark); text-align: center; font-size: 1.25rem; }
-.monthly-today-button { margin-left: 8px; }
+.monthly-month-picker-trigger { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-width: min(260px, 48vw); min-height: 44px; padding: 9px 16px !important; border: 1px solid #b8dadd !important; border-radius: 10px !important; background: #fff !important; color: var(--primary-dark) !important; font-size: 1.08rem; font-weight: 700; text-align: center; box-shadow: var(--shadow-sm); transition: border-color .18s ease, background .18s ease, box-shadow .18s ease; }
+.monthly-month-picker-trigger:hover, .monthly-month-picker-trigger:focus-visible { border-color: var(--primary-color) !important; background: var(--hero-bg) !important; box-shadow: 0 5px 14px rgba(22,125,141,.12); }
+.monthly-month-picker-trigger i { color: var(--primary-color); font-size: .82rem; }
+.daily-schedule-subtitle { color: var(--text-muted); font-size: .85rem; }
+.daily-schedule-modal .appointment-hour-list { max-height: 62vh; overflow: auto; padding: 2px; }
 .monthly-calendar-legend { display: flex; flex-wrap: wrap; gap: 16px; margin: 0 0 14px; color: var(--text-muted); font-size: .82rem; }
 .monthly-calendar-legend span { display: inline-flex; align-items: center; gap: 7px; }
 .monthly-calendar-legend i { width: 10px; height: 10px; border-radius: 50%; background: #b8dadd; }
@@ -373,8 +377,7 @@ footer {
     .monthly-calendar-day { min-height: 112px; border-radius: 10px; }
     .monthly-calendar-day.is-empty { display: none; }
     .monthly-calendar-toolbar { gap: 7px; }
-    .monthly-calendar-toolbar h2 { min-width: 0; flex: 1; font-size: 1rem; }
-    .monthly-today-button { margin-left: 0; padding: 7px 9px; font-size: .8rem; }
+    .monthly-calendar-toolbar h2, .monthly-month-picker-trigger { min-width: 0; flex: 1; font-size: 1rem; }
 }
 
 @media (max-width: 800px) {
@@ -496,4 +499,63 @@ footer {
 
 .doctor-portal footer span {
     color: #7fc9d2;
+}
+
+/* Compact hourly appointment timeline. */
+.appointment-hour-list { display: grid; gap: 10px; }
+.appointment-hour-card { display: grid; grid-template-columns: 112px minmax(0, 1fr); align-items: start; gap: 14px; padding: 15px 17px; border: 1px solid #e4edef; border-radius: 14px; background: linear-gradient(110deg, #f8fbfc 0, #fff 36%); }
+.appointment-hour-label { display: inline-flex; align-items: center; min-height: 34px; color: var(--primary-dark); font-size: 1rem; font-weight: 750; letter-spacing: -.02em; white-space: nowrap; }
+.appointment-hour-card .slot-details { display: grid; gap: 9px; min-width: 0; }
+.appointment-booking-row { padding: 9px 11px; border: 1px solid #eaf0f1; border-radius: 10px; background: #fff; }
+.appointment-booking-time { flex: 0 0 auto; padding: 4px 7px; border-radius: 7px; background: #eaf5f6; color: var(--primary-dark); font-size: .78rem; font-weight: 700; }
+.appointment-booking-reason { color: var(--text-muted); font-size: .86rem; }
+.appointment-slot-empty { color: #84969b; font-size: .9rem; }
+.other-time-slots { display: grid; gap: 10px; margin-top: 18px; }
+.other-time-slots h5 { margin: 0; color: var(--text-muted); font-size: .9rem; font-weight: 700; }
+.other-time-slots[hidden] { display: none !important; }
+
+/* The roster stays within the viewport; each list scrolls independently. */
+.doctor-vaccination-layout { width: min(100% - 40px, 1480px); grid-template-columns: minmax(0, 1fr); margin-top: 22px; }
+.vaccination-patient-panel { padding: clamp(18px, 2.2vw, 28px); }
+.vaccination-roster-columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.vaccination-roster-section { min-width: 0; padding: 14px; border: 1px solid #e7edef; border-radius: 16px; background: #f9fcfc; }
+.vaccination-roster-section > h3 { display: flex; align-items: center; gap: 9px; margin: 0 0 12px; color: var(--primary-dark); font-size: 1rem; }
+.vaccination-count { display: inline-grid; min-width: 25px; height: 25px; padding: 0 6px; place-items: center; border-radius: 99px; background: #e5f2f3; color: var(--primary-dark); font-size: .75rem; }
+.completed-roster-section .vaccination-count { background: #e7f4ed; color: #286b50; }
+.vaccination-patient-list { max-height: min(48vh, 500px); min-height: 110px; overflow-y: auto; align-content: start; padding: 2px 5px 2px 2px; scrollbar-gutter: stable; }
+.vaccination-patient-card { padding: 0; overflow: hidden; border-color: #e2eaec; border-radius: 13px; background: #fff; }
+.vaccination-patient-card.is-selected { border-color: var(--primary-color); }
+.vaccination-card-select { width: 100%; display: grid; gap: 5px; padding: 14px 15px; border: 0; background: transparent; color: var(--text-dark); text-align: left; }
+.vaccination-card-select:hover { background: #f7fbfb; }
+.vaccination-card-select strong { color: var(--primary-dark); }
+.vaccination-card-select span { color: var(--text-dark); font-size: .9rem; }
+.vaccination-card-select small { color: var(--text-muted); }
+.vaccination-card-select .precheck-available { color: #24724f; font-weight: 600; }
+.vaccination-card-select .precheck-missing { color: #916428; }
+.vaccination-completed-card { padding-bottom: 12px; }
+.vaccination-dose-progress { margin: 0 14px 7px; color: var(--primary-dark); font-size: .86rem; font-weight: 700; }
+.vaccination-completed-next { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin: 0 14px; color: var(--text-muted); font-size: .83rem; }
+.vaccination-completed-next.has-next-dose { color: #24684e; font-weight: 650; }
+.vaccination-fully-completed { display: inline-flex; align-items: center; gap: 6px; color: #24724f; font-weight: 700; }
+.vaccination-notify-link { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px !important; font-size: .78rem; white-space: nowrap; }
+.vaccination-roster-empty { margin: 0; padding: 22px 12px; border: 1px dashed #d9e5e7; border-radius: 11px; color: var(--text-muted); font-size: .88rem; text-align: center; }
+.vaccination-modal-hint { margin-top: 4px; color: var(--text-muted); font-size: .86rem; }
+.vaccination-patient-modal .modal-body { padding: clamp(18px, 3vw, 28px); }
+.vaccination-patient-modal .vaccination-patient-details { margin-bottom: 18px; }
+.vaccination-modal-history { margin-top: 12px; }
+.vaccination-modal-history[hidden] { display: none !important; }
+
+@media (max-width: 900px) {
+    .vaccination-roster-columns { grid-template-columns: 1fr; }
+    .vaccination-patient-list { max-height: 32vh; }
+}
+
+@media (max-width: 560px) {
+    .doctor-vaccination-layout { width: min(100% - 24px, 1480px); }
+    .vaccination-patient-panel { padding: 16px; }
+    .vaccination-roster-columns { gap: 12px; }
+    .vaccination-roster-section { padding: 10px; }
+    .appointment-hour-card { grid-template-columns: 1fr; gap: 7px; padding: 12px; }
+    .appointment-booking-row { align-items: flex-start; }
+    .appointment-actions { width: 100%; margin-left: 0; }
 }
