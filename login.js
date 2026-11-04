@@ -46,6 +46,15 @@
         throw new Error('Your account has no supported portal. Please contact the clinic.');
     }
 
+    // Sends the user back to the page they were trying to open (?next=), if their role may open it.
+    const PATIENT_PAGES = ['booking.html', 'appointments.html', 'vaccinations.html', 'precheck.html', 'receipts.html', 'reviews.html', 'messages.html', 'notifications.html', 'profile.html', 'planner.html'];
+    function nextOrDefault(user) {
+        const next = new URLSearchParams(location.search).get('next') || '';
+        const page = next.split('?')[0].toLowerCase();
+        const allowed = user.role === 'patient' && /^[a-z0-9_-]+\.html(\?[A-Za-z0-9%&=._-]*)?$/i.test(next) && PATIENT_PAGES.includes(page);
+        return allowed ? next : destinationFor(user);
+    }
+
     // Adds headers needed by the configured API or local development preview.
     function requestHeaders(extra) {
         const headers = Object.assign({ Accept: 'application/json' }, extra || {});
@@ -156,7 +165,7 @@
                 result = await submitLogin();
             }
 
-            location.replace(destinationFor(result.user || {}));
+            location.replace(nextOrDefault(result.user || {}));
         } catch (error) {
             showStatus(error.message || 'We could not sign you in. Check your details and try again.');
             setBusy(false);
@@ -165,7 +174,7 @@
 
     loadSession().then((session) => {
         if (session.user) {
-            location.replace(destinationFor(session.user));
+            location.replace(nextOrDefault(session.user));
         }
     }).catch(() => {
         // Keep the form available; a submit will show a clear connection error.

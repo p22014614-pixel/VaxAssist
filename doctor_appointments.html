@@ -194,7 +194,7 @@
                                 const recordLink = document.createElement("a");
                                 recordLink.className = "btn secondary-btn btn-sm";
                                 recordLink.textContent = "Patient file";
-                                recordLink.href = `doctor_patientRecord.html?search=${encodeURIComponent(booking.name)}`;
+                                recordLink.href = `doctor_patientRecord.html?search=${encodeURIComponent(booking.name)}&patient_id=${encodeURIComponent(booking.patient_id)}&open=history`;
                                 const complete = document.createElement("button");
                                 complete.type = "button";
                                 complete.className = "btn primary-btn btn-sm";
