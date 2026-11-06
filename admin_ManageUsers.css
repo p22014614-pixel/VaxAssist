@@ -1,4 +1,4 @@
-:root {
+﻿:root {
     --staff-teal: #168091;
     --staff-teal-dark: #116d7b;
     --staff-ink: #193944;
@@ -32,135 +32,6 @@ body.staff-page {
     background: var(--staff-bg);
     color: var(--staff-ink);
     font-family: Arial, Helvetica, sans-serif;
-}
-
-/* Navigation matches the Vaccine Inventory page. */
-.staff-nav {
-    position: fixed;
-    z-index: 5;
-    inset: 0 0 auto;
-    height: 78px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 28px;
-    padding: 0 max(7.4%, 28px);
-    border-bottom: 1px solid #edf1f2;
-    background: #fff;
-}
-
-.staff-nav .logo {
-    margin-right: auto;
-    color: var(--staff-teal);
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 25px;
-    font-weight: 700;
-    letter-spacing: -.7px;
-    text-decoration: none;
-    white-space: nowrap;
-}
-
-.staff-nav ul {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: clamp(10px, 1.2vw, 20px);
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
-
-.staff-nav ul a {
-    position: relative;
-    display: inline-block;
-    padding: 10px 0;
-    text-decoration: none;
-    white-space: nowrap;
-    transition: color .2s ease;
-}
-
-.nav-link {
-    position: relative;
-    color: #52676e !important;
-    margin: 0 8px;
-    font-size: 1rem;
-    text-decoration: none;
-}
-.nav-link::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    bottom: -6px;
-    width: 100%;
-    height: 2px;
-    background: #167d8d;
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 0.25s ease;
-}
-
-.nav-link:hover::after,
-.nav-link.active::after {
-    transform: scaleX(1);
-}
-
-.staff-nav .nav-link:hover,
-.staff-nav .nav-link[aria-current="page"] {
-    color: #52676e !important;
-}
-
-.staff-nav .admin-account {
-    position: relative;
-}
-
-.notification-nav-icon {
-    display: inline-grid;
-    width: 34px;
-    height: 34px;
-    place-items: center;
-    color: #52676e;
-    text-decoration: none;
-}
-
-.notification-nav-icon:hover,
-.notification-nav-icon:focus-visible {
-    color: #168091;
-}
-
-.notification-nav-icon svg {
-    display: block;
-    width: 17px;
-    height: 17px;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.8;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-}
-
-.admin-topbar .notification-nav-icon svg {
-    display: block;
-    width: 14px !important;
-    height: 14px !important;
-    fill: none !important;
-    stroke: currentColor;
-    stroke-width: 1.8;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-}
-
-.admin-account {
-    padding: 10px 15px;
-    border: 1px solid #b9d9dd;
-    border-radius: 7px;
-    color: var(--staff-teal);
-    font-size: 14px;
-    text-decoration: none;
-    white-space: nowrap;
-}
-
-.admin-account:hover {
-    background: var(--staff-soft);
 }
 
 /* Banner and page content use the inventory page's spacing and colors. */
@@ -558,23 +429,6 @@ body.staff-page {
 }
 
 @media (max-width: 1050px) {
-    .staff-nav {
-        gap: 14px;
-        padding-right: 4%;
-        padding-left: 4%;
-    }
-
-    .staff-nav ul {
-        gap: 14px;
-    }
-
-    .staff-nav ul a {
-        font-size: 14px;
-    }
-
-    .staff-nav .nav-link {
-        font-size: 14px;
-    }
 
     .staff-banner,
     .staff-main {
@@ -584,20 +438,6 @@ body.staff-page {
 }
 
 @media (max-width: 780px) {
-    .staff-nav {
-        height: auto;
-        min-height: 78px;
-        flex-wrap: wrap;
-        padding-top: 12px;
-        padding-bottom: 12px;
-    }
-
-    .staff-nav ul {
-        order: 3;
-        width: 100%;
-        flex-wrap: wrap;
-        justify-content: flex-start;
-    }
 
     .staff-banner {
         min-height: 220px;
@@ -606,30 +446,6 @@ body.staff-page {
 }
 
 @media (max-width: 600px) {
-    .staff-nav {
-        padding: 10px 16px;
-    }
-
-    .staff-nav .logo {
-        font-size: 24px;
-    }
-
-    .staff-nav ul {
-        gap: 8px 15px;
-    }
-
-    .staff-nav ul a {
-        font-size: 12px;
-    }
-
-    .staff-nav .nav-link {
-        font-size: 12px;
-    }
-
-    .admin-account {
-        padding: 8px 10px;
-        font-size: 12px;
-    }
 
     .staff-banner {
         min-height: 0;

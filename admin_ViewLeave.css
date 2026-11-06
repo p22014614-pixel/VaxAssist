@@ -1,55 +1,4 @@
-.nav-link {
-    position: relative;
-    color: #52676e !important;
-    margin: 0 8px;
-    font-size: 0.95rem;
-    text-decoration: none;
-}
-
-.nav-link::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    bottom: -6px;
-    width: 100%;
-    height: 2px;
-    background: #167d8d;
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 0.25s ease;
-}
-
-.nav-link:hover::after,
-.nav-link.active::after {
-    transform: scaleX(1);
-}
-
-.notification-nav-icon {
-    display: inline-grid;
-    width: 38px;
-    height: 38px;
-    place-items: center;
-    border: 1px solid #dce6e8;
-    border-radius: 8px;
-    color: #52676e;
-    text-decoration: none;
-}
-
-.notification-nav-icon:hover,
-.notification-nav-icon:focus-visible {
-    color: #1976d2;
-    background: #eaf5ff;
-}
-
-.notification-nav-icon svg {
-    width: 19px;
-    height: 19px;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.8;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-}
+﻿
 
 .leave-review-page {
     --leave-teal: #168091;
@@ -74,72 +23,6 @@
 .leave-review-page input,
 .leave-review-page select {
     font-family: Arial, Helvetica, sans-serif;
-}
-
-.leave-review-page .admin-topbar {
-    position: fixed;
-    z-index: 5;
-    inset: 0 0 auto;
-    height: 78px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 28px;
-    padding: 0 max(7.4%, 28px);
-    background: #fff;
-    border-bottom: 1px solid #edf1f2;
-}
-
-.leave-review-page .admin-topbar .logo {
-    margin-right: auto;
-    color: #168091 !important;
-    font-size: 25px;
-    font-weight: 700;
-    letter-spacing: -.7px;
-    text-decoration: none;
-    white-space: nowrap;
-}
-
-.leave-review-page .admin-topbar ul {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: clamp(10px, 1.2vw, 20px);
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
-
-/* Keep Doctor Leave navigation identical to the dashboard navigation. */
-.leave-review-page .admin-topbar ul a.nav-link {
-    position: relative;
-    color: #52676e !important;
-    font-size: 16px;
-}
-
-.leave-review-page .admin-topbar ul a.nav-link::after {
-    bottom: -15px;
-    height: 2px;
-    background: #167d8d;
-}
-
-.leave-review-page .admin-topbar ul a.nav-link:hover::after,
-.leave-review-page .admin-topbar ul a.nav-link.active::after {
-    transform: scaleX(1);
-}
-
-.leave-review-page .admin-account {
-    padding: 10px 15px;
-    border: 1px solid #b9d9dd;
-    border-radius: 7px;
-    color: #52676e;
-    font-size: 16px;
-    text-decoration: none;
-    white-space: nowrap;
-}
-
-.leave-review-page .admin-account:hover {
-    background: #e8f4f5;
 }
 
 .leave-review-page .admin-main-content {
@@ -971,18 +854,6 @@
 }
 
 @media (max-width: 780px) {
-    .leave-review-page .admin-topbar {
-        height: auto;
-        min-height: 78px;
-        flex-wrap: wrap;
-    }
-
-    .leave-review-page .admin-topbar ul {
-        order: 3;
-        width: 100%;
-        flex-wrap: wrap;
-        justify-content: flex-start;
-    }
 
     .leave-review-page .admin-main-content {
         margin-top: 112px;
@@ -1039,29 +910,9 @@
 }
 
 @media (max-width: 520px) {
-    .leave-review-page .admin-topbar {
-        padding: 10px 16px;
-    }
-
-    .leave-review-page .admin-topbar .logo {
-        font-size: 24px;
-    }
-
-    .leave-review-page .admin-topbar ul {
-        gap: 8px 15px;
-    }
-
-    .leave-review-page .admin-topbar ul a{
-        font-size: 12px;
-    }
 
     .leave-review-page .admin-main-content {
         margin-top: 125px;
-    }
-
-    .leave-review-page .admin-account {
-        padding: 8px 10px;
-        font-size: 12px;
     }
 
     .leave-hero {
@@ -1182,27 +1033,16 @@
     color: #26383e;
 }
 
-.leave-review-page .admin-topbar {
-    border-bottom-color: #e6e9ea;
-    box-shadow: none;
-}
-
 .leave-review-page .eyebrow,
 .leave-review-page .section-kicker,
 .leave-review-page .count-pill {
     color: #48666d;
 }
-
-.leave-review-page .admin-topbar ul a::after {
-    background: #607c82;
-}
-
-.leave-review-page .admin-account,
-.leave-review-page .refresh-button,
-.leave-review-page .filter-label select,
-.leave-review-page .search-box,
-.leave-review-page .period-card,
-.leave-review-page .coverage-card {
+.leave-review-page .refresh-button, 
+.leave-review-page .filter-label select, 
+.leave-review-page .search-box, 
+.leave-review-page .period-card, 
+.leave-review-page .coverage-card{
     border-color: #dfe5e6;
     border-radius: 4px;
     box-shadow: none;

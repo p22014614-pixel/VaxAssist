@@ -106,7 +106,8 @@ try {
     $vaccine = $conn->prepare('SELECT name FROM vaccines WHERE vaccine_id = ?');
     $vaccine->bind_param('i', $vaccineId);
     $vaccine->execute();
-    $vaccineName = $vaccine->get_result()->fetch_column();
+    $vaccineRow = $vaccine->get_result()->fetch_row();
+    $vaccineName = $vaccineRow[0] ?? null;
     if (!$vaccineName) throw new RuntimeException('The selected vaccine could not be found.');
 
     if ($batchId !== null) {
@@ -136,7 +137,8 @@ try {
     $patient = $conn->prepare('SELECT full_name FROM patients WHERE patient_id = ?');
     $patient->bind_param('i', $visit['patient_id']);
     $patient->execute();
-    $patientName = $patient->get_result()->fetch_column() ?: 'Your patient';
+    $patientRow = $patient->get_result()->fetch_row();
+    $patientName = $patientRow[0] ?? 'Your patient';
     $notificationType = $nextDoseDate !== '' ? 'Booster' : 'Appointment';
     $title = $nextDoseDate !== '' ? 'Next vaccine dose recorded' : 'Vaccination recorded';
     $body = $nextDoseDate !== ''

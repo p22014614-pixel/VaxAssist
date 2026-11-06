@@ -1,93 +1,4 @@
-.admin-dashboard .admin-account.profile-link {
-    display: grid;
-    flex: 0 0 44px;
-    width: 44px;
-    height: 44px;
-    place-items: center;
-    margin: 0;
-    padding: 0;
-    transform: none;
-    border: 0;
-    border-radius: 50%;
-    background: transparent;
-    font-size: 0;
-}
-
-.admin-dashboard .admin-account.profile-link:hover,
-.admin-dashboard .admin-account.profile-link:focus-visible {
-    background: transparent;
-}
-
-.admin-dashboard .admin-account.profile-link::after {
-    display: none;
-}
-
-.admin-dashboard .admin-account.profile-link .nav-avatar {
-    display: block;
-    width: 36px;
-    height: 36px;
-}
-
-.nav-avatar {
-    display: block;
-    width: 36px;
-    height: 36px;
-}
-
-.nav-link {
-    position: relative;
-    color: #52676e !important;
-    margin: 0 8px;
-    font-size: 0.95rem;
-    text-decoration: none;
-}
-
-.nav-link::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    bottom: -6px;
-    width: 100%;
-    height: 2px;
-    background: #167d8d;
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 0.25s ease;
-}
-
-.nav-link:hover::after,
-.nav-link.active::after {
-    transform: scaleX(1);
-}
-
-.notification-nav-icon {
-    display: inline-grid;
-    flex: 0 0 34px;
-    width: 34px;
-    height: 34px;
-    place-items: center;
-    padding: 0;
-    border: 1px solid #dce6e8;
-    border-radius: 7px;
-    color: #52676e;
-    text-decoration: none;
-}
-
-.notification-nav-icon:hover,
-.notification-nav-icon:focus-visible {
-    color: #1976d2;
-    background: #eaf5ff;
-}
-
-.notification-nav-icon svg {
-    width: 19px;
-    height: 19px;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.8;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-}
+﻿
 
 .admin-dashboard {
     --admin-teal: #168091;
@@ -113,72 +24,8 @@
     box-sizing: border-box;
 }
 
-/* Top navigation */
-.admin-topbar {
-    position: fixed;
-    z-index: 5;
-    inset: 0 0 auto;
-    height: 78px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 28px;
-    padding: 0 max(7.4%, 28px);
-    background: #fff;
-    border-bottom: 1px solid #edf1f2;
-}
-
-.admin-dashboard .admin-topbar .logo {
-    margin-right: auto;
-    color: var(--admin-teal);
-    font-size: 25px;
-    font-weight: 700;
-    letter-spacing: -.7px;
-    text-decoration: none;
-    border: 0;
-    white-space: nowrap;
-}
-
-.admin-dashboard .admin-topbar ul {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: clamp(10px, 1.2vw, 20px);
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
-
-.admin-dashboard .admin-topbar ul a {
-    display: inline-block;
-    padding: 10px 0;
-    color: #435967;
-    font-size: 16px;
-    text-decoration: none;
-    white-space: nowrap;
-}
-
-.admin-dashboard .admin-topbar ul a:hover,
-.admin-dashboard .admin-topbar ul a[aria-current="page"] {
-    color: var(--admin-teal);
-}
-
 .admin-sidebar {
     display: none;
-}
-
-.admin-account {
-    color: var(--admin-teal);
-    border: 1px solid #b9d9dd;
-    border-radius: 7px;
-    padding: 10px 15px;
-    text-decoration: none;
-    white-space: nowrap;
-    font-size: 14px;
-}
-
-.admin-account:hover {
-    background: var(--admin-soft);
 }
 
 /* Main content */
@@ -557,18 +404,6 @@
 
 /* Responsive layout */
 @media (max-width: 1050px) {
-    .admin-topbar {
-        padding: 12px 4%;
-        gap: 14px;
-    }
-
-    .admin-dashboard .admin-topbar ul {
-        gap: 14px;
-    }
-
-    .admin-dashboard .admin-topbar ul a {
-        font-size: 14px;
-    }
 
     .dashboard-banner,
     .dashboard-main {
@@ -588,18 +423,6 @@
 }
 
 @media (max-width: 780px) {
-    .admin-topbar {
-        height: auto;
-        min-height: 78px;
-        flex-wrap: wrap;
-    }
-
-    .admin-dashboard .admin-topbar ul {
-        order: 3;
-        width: 100%;
-        flex-wrap: wrap;
-        justify-content: flex-start;
-    }
 
     .admin-main-content {
         margin-top: 112px;
@@ -628,43 +451,12 @@
     .appointment-table {
         min-width: 650px;
     }
-
-    .admin-dashboard .admin-account.profile-link {
-        flex-basis: 40px;
-        width: 40px;
-        height: 40px;
-    }
-
-    .admin-dashboard .admin-account.profile-link .nav-avatar {
-        width: 32px;
-        height: 32px;
-    }
 }
 
 @media (max-width: 520px) {
-    .admin-topbar {
-        padding: 10px 16px;
-    }
-
-    .admin-dashboard .admin-topbar .logo {
-        font-size: 24px;
-    }
-
-    .admin-dashboard .admin-topbar ul {
-        gap: 8px 15px;
-    }
-
-    .admin-dashboard .admin-topbar ul a {
-        font-size: 12px;
-    }
 
     .admin-main-content {
         margin-top: 125px;
-    }
-
-    .admin-account {
-        padding: 8px 10px;
-        font-size: 12px;
     }
 
     .dashboard-banner {

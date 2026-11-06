@@ -1,31 +1,20 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#ffffff">
     <title>Admin Profile | VaxAssist</title>
-
-    <link href="nav.css" rel="stylesheet">
     <link href="motion.css" rel="stylesheet">
     <script src="auth.js"></script>
     <script src="motion.js" defer></script>
     <link rel="stylesheet" href="admin_Profile.css?v=12">
+    <link rel="stylesheet" href="admin-footer.css?v=1">
+    <link rel="stylesheet" href="admin-nav.css?v=4">
+    <script src="admin-nav.js?v=1" defer></script>
 </head>
 <body>
-    <nav class="topbar" aria-label="Main navigation">
-        <a class="brand" href="admin_Dashboard.html">VaxAssist</a>
-        <button class="menu-toggle" id="menuToggle" type="button" aria-expanded="false" aria-controls="mainNav">Menu</button>
-        <ul class="nav-links" id="mainNav">
-            <li><a class="nav-link" href="admin_Dashboard.html">Dashboard</a></li>
-            <li><a class="nav-link" href="about.html">About Us</a></li>
-            <li><a class="nav-link" href="admin_ViewAppointment.html">View Appointment</a></li>
-            <li><a class="nav-link" href="admin_DoctorSchedule.html">Doctor Schedule</a></li>
-            <li><a class="nav-link" href="admin_ViewLeave.html">Leave Review</a></li>
-            <li><a class="nav-link" href="admin_ManageUsers.html">Manage Users</a></li>
-            <li><a class="nav-link" href="admin_VaccineInventory.html">Vaccine Stock</a></li>
-            <li><a class="nav-link profile-link active" aria-label="Admin profile" aria-current="page" href="admin_Profile.html?rev=4"><svg class="nav-avatar" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="20" fill="#e5eef2"/><circle cx="20" cy="14" r="6" fill="#203c47"/><path d="M8.5 33c1.2-6.4 5.3-9.7 11.5-9.7s10.3 3.3 11.5 9.7A16 16 0 0 1 20 36a16 16 0 0 1-11.5-3Z" fill="#203c47"/></svg></a></li>
-    </nav>
+    <div id="adminNavMount"></div>
 
     <main class="page-shell">
         <header class="page-heading">
@@ -44,9 +33,9 @@
                 <span class="status-pill"><span></span> Active</span>
                 <div class="summary-divider"></div>
                 <p class="summary-label">ACCOUNT CREATED</p>
-                <strong id="accountCreated">—</strong>
-                <a class="summary-action" href="admin_Dashboard.html">Return to Dashboard <span aria-hidden="true">→</span></a>
-                <a class="summary-action summary-logout" href="api_Logout.php">Log out <span aria-hidden="true">&#8594;</span></a>
+                <strong id="accountCreated">â€”</strong>
+                <a class="summary-action" href="admin_Dashboard.html">Return to Dashboard <span aria-hidden="true">🡪</span></a>
+                <a class="summary-action summary-logout" href="api_Logout.php">Log out <span aria-hidden="true">🡪</span></a>
             </aside>
 
             <div class="settings-column">
@@ -57,7 +46,7 @@
                             <h2 id="detailsTitle">Profile details</h2>
                             <p>These details are used to identify your administrator account.</p>
                         </div>
-                        <span class="heading-icon" aria-hidden="true">✎</span>
+                        <span class="heading-icon" aria-hidden="true">&#9998;</span>
                     </div>
 
                     <form id="profileForm" class="form-grid">
@@ -95,7 +84,7 @@
                             <h2 id="securityTitle">Password</h2>
                             <p>Update your password to keep your account protected.</p>
                         </div>
-                        <span class="heading-icon" aria-hidden="true">🔑</span>
+                        <span class="heading-icon" aria-hidden="true">&#128273;</span>
                     </div>
 
                     <form id="passwordForm" class="password-form">
@@ -307,13 +296,6 @@
                 } catch (error) {
                     byId('passwordMessage').textContent = error.message;
                 }
-            });
-
-            const toggle = byId('menuToggle');
-            toggle.addEventListener('click', () => {
-                const open = toggle.getAttribute('aria-expanded') !== 'true';
-                toggle.setAttribute('aria-expanded', String(open));
-                byId('mainNav').classList.toggle('open', open);
             });
 
             loadProfile();

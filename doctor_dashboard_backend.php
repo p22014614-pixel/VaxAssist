@@ -58,14 +58,11 @@ try {
         }
 
         $patientNotices = $conn->prepare("SELECT p.full_name, n.title, n.body, n.created_at
-            FROM notifications n JOIN patients p ON p.patient_id = n.patient_id
-            WHERE n.is_read = 0 AND n.doctor_id = ?
-              AND (n.appointment_id IS NULL OR EXISTS (
-                  SELECT 1 FROM appointments a
-                  WHERE a.appointment_id = n.appointment_id
-                    AND a.doctor_id = n.doctor_id
-                    AND a.patient_id = n.patient_id
-              ))
+            FROM notifications n
+            JOIN patients p ON p.patient_id = n.patient_id
+            JOIN appointments a ON a.appointment_id = n.appointment_id
+                AND a.patient_id = n.patient_id
+            WHERE n.is_read = 0 AND a.doctor_id = ?
             ORDER BY n.created_at DESC LIMIT 25");
         $patientNotices->bind_param('i', $doctor_id);
         $patientNotices->execute();
@@ -104,6 +101,10 @@ try {
         $_SESSION['doctor_notifications_pending'] = false;
     }
 
+    // The patient update feed depends on newer optional migration tables.
+    // Do not let those tables prevent the core dashboard analytics from loading.
+    $showLoginUpdates = false;
+    $patientUpdates = [];
     echo json_encode([
         'status' => 'success',
         'metrics' => [

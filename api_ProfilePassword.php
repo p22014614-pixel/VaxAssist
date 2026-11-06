@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-session_start();
+require_once __DIR__ . '/admin_backend_auth.php';
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
 
@@ -12,9 +12,6 @@ function respond(int $status, array $data): void
     exit;
 }
 
-if (empty($_SESSION['user_id'])) {
-    respond(401, ['error' => 'Please sign in to update your password.']);
-}
 
 if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'PUT') {
     header('Allow: PUT');
@@ -38,11 +35,11 @@ if ($currentPassword === '' || strlen($newPassword) < 8) {
     respond(422, ['error' => 'Enter your current password and a new password of at least 8 characters.']);
 }
 
-require __DIR__ . '/db.php';
+
 
 try {
     $statement = $pdo->prepare('SELECT password_hash FROM users WHERE id = ? LIMIT 1');
-    $statement->execute([(int) $_SESSION['user_id']]);
+    $statement->execute([(int) $_SESSION['admin_id']]);
     $user = $statement->fetch();
 
     if (!$user || !password_verify($currentPassword, $user['password_hash'])) {
@@ -51,7 +48,7 @@ try {
 
     $newHash = password_hash($newPassword, PASSWORD_DEFAULT);
     $update = $pdo->prepare('UPDATE users SET password_hash = ? WHERE id = ?');
-    $update->execute([$newHash, (int) $_SESSION['user_id']]);
+    $update->execute([$newHash, (int) $_SESSION['admin_id']]);
 
     respond(200, ['message' => 'Your password has been updated.']);
 } catch (PDOException $exception) {

@@ -1,0 +1,24 @@
+/* Shared admin footer styling to match the doctor portal. */
+.admin-footer,
+.admin-dashboard .admin-footer,
+.doctor-schedule-page footer,
+.staff-page .admin-footer,
+.inventory-page .admin-footer,
+.leave-review-page .admin-footer {
+    margin-top: auto;
+    padding: 20px;
+    border: 0;
+    background: #183642;
+    color: #fff;
+    text-align: center;
+    font-size: 14px;
+}
+
+.admin-footer p,
+.doctor-schedule-page footer p,
+.staff-page .admin-footer p,
+.inventory-page .admin-footer p,
+.leave-review-page .admin-footer p {
+    margin: 0;
+    color: inherit;
+}

@@ -1,41 +1,22 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#f7fafb">
     <title>Doctor Schedule | VaxAssist</title>
-
-    <link href="nav.css" rel="stylesheet">
     <link href="motion.css" rel="stylesheet">
     <script src="auth.js"></script>
     <script src="motion.js" defer></script>
 
     <link rel="stylesheet" href="admin_DoctorSchedule.css?v=5">
-    <link rel="stylesheet" href="admin_ProfileAvatar.css">
 
+    <link rel="stylesheet" href="admin-footer.css?v=1">
+    <link rel="stylesheet" href="admin-nav.css?v=4">
+    <script src="admin-nav.js?v=1" defer></script>
 </head>
 <body class="doctor-schedule-page">
-    <nav class="admin-topbar admin-nav" aria-label="Admin navigation">
-        <a class="logo" href="admin_Dashboard.html">VaxAssist</a>
-        <ul>
-            <li><a class="nav-link" href="admin_Dashboard.html">Dashboard</a></li>
-            <li><a class="nav-link" href="about.html">About Us</a></li>
-            <li><a class="nav-link" href="admin_ViewAppointment.html">View Appointment</a></li>
-            <li><a class="nav-link active" aria-current="page" href="admin_DoctorSchedule.html">Doctor Schedule</a></li>
-            <li><a class="nav-link" href="admin_ViewLeave.html">Leave Review</a></li>
-            <li><a class="nav-link" href="admin_ManageUsers.html">Manage Users</a></li>
-            <li><a class="nav-link" href="admin_VaccineInventory.html">Vaccine Stock</a></li>
-        </ul>
-
-        <a class="admin-account profile-link" href="admin_Profile.html" aria-label="Admin profile" title="Admin profile">
-            <svg class="avatar-image" viewBox="0 0 40 40" aria-hidden="true">
-                <circle cx="20" cy="20" r="20" fill="#e5eef2"/>
-                <circle cx="20" cy="14" r="6" fill="#203c47"/>
-                <path d="M8.5 33c1.2-6.4 5.3-9.7 11.5-9.7s10.3 3.3 11.5 9.7A16 16 0 0 1 20 36a16 16 0 0 1-11.5-3Z" fill="#203c47"/>
-            </svg>
-        </a>
-    </nav>
+    <div id="adminNavMount"></div>
 
     <div class="page-content">
         <header class="schedule-banner">
@@ -44,7 +25,7 @@
                 <h1>Doctor working days</h1>
                 <p>Set the weekdays each doctor is available at the clinic.</p>
             </div>
-            <div class="date-card"><span aria-hidden="true">▦</span><div><small>Today</small><strong id="todayLabel"></strong></div></div>
+            <div class="date-card"><span aria-hidden="true">&#128198;</span><div><small>Today</small><strong id="todayLabel"></strong></div></div>
         </header>
 
         <main class="schedule-main">
@@ -53,7 +34,7 @@
                     <span class="summary-icon" aria-hidden="true">&#129489;&#8205;&#9877;&#65039;</span>
                     <div>
                         <p>Doctors</p>
-                        <strong id="doctorCount">—</strong>
+                        <strong id="doctorCount">â€”</strong>
                     </div>
                 </article>
 
@@ -61,7 +42,7 @@
                     <span class="summary-icon" aria-hidden="true">&#128337;</span>
                     <div>
                         <p>Doctors available today</p>
-                        <strong id="todayDoctorCount">—</strong>
+                        <strong id="todayDoctorCount">â€”</strong>
                     </div>
                 </article>
 
@@ -69,7 +50,7 @@
                     <span class="summary-icon" aria-hidden="true">&#128197;</span>
                     <div>
                         <p>Weekdays covered</p>
-                        <strong id="coveredCount">—</strong>
+                        <strong id="coveredCount">â€”</strong>
                     </div>
                 </article>
             </section>
@@ -82,7 +63,7 @@
                 <p class="panel-description">Select a doctor to edit their working weekdays.</p>
                 <div class="toolbar">
                     <label class="search-field">
-                        <span aria-hidden="true">⌕</span>
+                        <span aria-hidden="true">âŒ•</span>
                         <span class="sr-only">Search doctors</span>
                         <input id="searchInput" type="search" placeholder="Search doctors">
                     </label>
@@ -108,7 +89,7 @@
                                 <th></th>
                             </tr>
                         </thead>
-                        <tbody id="doctorRows"><tr><td colspan="5" class="empty-cell">Loading doctors…</td></tr></tbody>
+                        <tbody id="doctorRows"><tr><td colspan="5" class="empty-cell">Loading doctorsâ€¦</td></tr></tbody>
                     </table>
                 </div>
                 <p id="statusMessage" class="status-message" role="status" aria-live="polite"></p>
@@ -119,7 +100,7 @@
 
     <dialog id="editDialog" aria-labelledby="dialogTitle">
         <form id="scheduleForm" method="dialog">
-            <div class="dialog-heading"><div><p class="section-kicker">WORKING DAYS</p><h2 id="dialogTitle">Edit doctor schedule</h2></div><button class="close-button" id="closeDialog" type="button" aria-label="Close">×</button></div>
+            <div class="dialog-heading"><div><p class="section-kicker">WORKING DAYS</p><h2 id="dialogTitle">Edit doctor schedule</h2></div><button class="close-button" id="closeDialog" type="button" aria-label="Close">&#128188;</button></div>
             <p id="doctorLabel" class="doctor-label"></p>
             <fieldset class="weekday-options"><legend>Select available weekdays</legend>
                 <label><input type="checkbox" name="weekday" value="1"><span>Monday</span></label>
@@ -185,7 +166,7 @@
         function openEditor(id) {
             activeDoctor = doctors.find(doctor => doctor.id === id);
             if (!activeDoctor) return;
-            document.getElementById('doctorLabel').textContent = `${activeDoctor.name} · ${activeDoctor.specialization}`;
+            document.getElementById('doctorLabel').textContent = `${activeDoctor.name} Â· ${activeDoctor.specialization}`;
             document.querySelectorAll('input[name="weekday"]').forEach(input => { input.checked = activeDoctor.weekdays.includes(Number(input.value)); });
             document.getElementById('editDialog').showModal();
         }
@@ -195,7 +176,7 @@
             if (!activeDoctor) return;
             const button = document.getElementById('saveButton');
             button.disabled = true;
-            button.textContent = 'Saving…';
+            button.textContent = 'Savingâ€¦';
             const weekdays = [...document.querySelectorAll('input[name="weekday"]:checked')].map(input => Number(input.value));
             try {
                 const response = await fetch('api_DoctorAvailability.php', {

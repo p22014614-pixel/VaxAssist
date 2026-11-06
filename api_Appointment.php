@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-session_start();
+require_once __DIR__ . '/admin_backend_auth.php';
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
 
@@ -12,11 +12,8 @@ function respond(int $status, array $data): void
     exit;
 }
 
-if (empty($_SESSION['user_id'])) {
-    respond(401, ['error' => 'Please sign in to manage appointments.']);
-}
 
-require __DIR__ . '/db.php';
+
 
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 

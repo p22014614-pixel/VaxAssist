@@ -1,9 +1,8 @@
 <?php
 declare(strict_types=1);
 
-session_start();
+require_once __DIR__ . '/api/lib.php';
 $_SESSION = [];
-
 if (ini_get('session.use_cookies')) {
     $cookie = session_get_cookie_params();
     setcookie(session_name(), '', [
@@ -15,7 +14,6 @@ if (ini_get('session.use_cookies')) {
         'samesite' => $cookie['samesite'] ?? 'Lax',
     ]);
 }
-
 session_destroy();
 header('Location: login.html');
 exit;

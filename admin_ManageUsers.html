@@ -1,44 +1,25 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#f7fafb">
     <title>Manage Staff &amp; Users | VaxAssist</title>
-
-    <link href="nav.css" rel="stylesheet">
     <link href="motion.css" rel="stylesheet">
     <script src="auth.js"></script>
     <script src="motion.js" defer></script>
     <link rel="stylesheet" href="admin_ManageUsers.css?v=4">
-    <link rel="stylesheet" href="admin_ProfileAvatar.css">
 
+    <link rel="stylesheet" href="admin-footer.css?v=1">
+    <link rel="stylesheet" href="admin-nav.css?v=4">
+    <script src="admin-nav.js?v=1" defer></script>
 </head>
 <body class="staff-page">
-    <nav class="staff-nav" aria-label="Admin navigation">
-        <a class="logo" href="admin_Dashboard.html">VaxAssist</a>
-        <ul>
-            <li><a class="nav-link" href="admin_Dashboard.html">Dashboard</a></li>
-            <li><a class="nav-link" href="about.html">About Us</a></li>
-            <li><a class="nav-link" href="admin_ViewAppointment.html">View Appointment</a></li>
-            <li><a class="nav-link" href="admin_DoctorSchedule.html">Doctor Schedule</a></li>
-            <li><a class="nav-link" href="admin_ViewLeave.html">Leave Review</a></li>
-            <li><a class="nav-link active" aria-current="page" href="admin_ManageUsers.html">Manage Users</a></li>
-            <li><a class="nav-link" href="admin_VaccineInventory.html">Vaccine Stock</a></li>
-        </ul>
-
-        <a class="avatar-link" href="admin_Profile.html" aria-label="Admin profile" title="Admin profile">
-            <svg class="avatar-image" viewBox="0 0 40 40" aria-hidden="true">
-                <circle cx="20" cy="20" r="20" fill="#e5eef2"/>
-                <circle cx="20" cy="14" r="6" fill="#203c47" />
-                <path d="M8.5 33c1.2-6.4 5.3-9.7 11.5-9.7s10.3 3.3 11.5 9.7A16 16 0 0 1 20 36a16 16 0 0 1-11.5-3Z" fill="#203c47" />
-            </svg>
-        </a>
-    </nav>
+    <div id="adminNavMount"></div>
 
     <header class="staff-banner">
         <div>
-            <p class="staff-eyebrow">VAXASSIST · CLINIC ADMINISTRATION</p>
+            <p class="staff-eyebrow">VAXASSIST Â· CLINIC ADMINISTRATION</p>
             <h1>Manage Staff &amp; Users</h1>
             <p>Manage your clinic team and user access.</p>
         </div>
@@ -205,7 +186,7 @@
                 department.textContent = member.department;
 
                 const phone = document.createElement('td');
-                phone.textContent = member.phone || '—';
+                phone.textContent = member.phone || 'â€”';
 
                 const actions = document.createElement('td');
                 const actionGroup = document.createElement('div');
@@ -359,5 +340,7 @@
 
         loadStaff();
     </script>
+
+    <footer class="admin-footer"><p>&copy; 2026 VaxAssist. All Rights Reserved.</p></footer>
 </body>
 </html>

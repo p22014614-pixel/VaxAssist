@@ -1,45 +1,25 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#f7fafb">
     <title>Vaccine Inventory | VaxAssist</title>
-
-    <link href="nav.css" rel="stylesheet">
     <link href="motion.css" rel="stylesheet">
     <script src="auth.js"></script>
     <script src="motion.js" defer></script>
     <link rel="stylesheet" href="admin_VaccineInventory.css">
-    <link rel="stylesheet" href="admin_ProfileAvatar.css">
+    <link rel="stylesheet" href="admin-footer.css?v=1">
+    <link rel="stylesheet" href="admin-nav.css?v=4">
+    <script src="admin-nav.js?v=1" defer></script>
 </head>
 <body class="admin-dashboard inventory-page">
-    <nav class="admin-topbar admin-nav" aria-label="Admin navigation">
-        <a class="logo" href="admin_Dashboard.html">VaxAssist</a>
-
-        <ul>
-            <li><a class="nav-link" href="admin_Dashboard.html">Dashboard</a></li>
-            <li><a class="nav-link" href="about.html">About Us</a></li>
-            <li><a class="nav-link" href="admin_ViewAppointment.html">View Appointment</a></li>
-            <li><a class="nav-link" href="admin_DoctorSchedule.html">Doctor Schedule</a></li>
-            <li><a class="nav-link" href="admin_ViewLeave.html">Doctor Leave</a></li>
-            <li><a class="nav-link" href="admin_ManageUsers.html">Manage Users</a></li>
-            <li><a class="nav-link active" aria-current="page" href="admin_VaccineInventory.html">Vaccine Stock</a></li>    
-        </ul>
-
-        <a class="avatar-link" href="admin_Profile.html" aria-label="Admin profile" title="Admin profile">
-            <svg class="avatar-image" viewBox="0 0 40 40" aria-hidden="true">
-                <circle cx="20" cy="20" r="20" fill="#e5eef2"/>
-                <circle cx="20" cy="14" r="6" fill="#203c47" />
-                <path d="M8.5 33c1.2-6.4 5.3-9.7 11.5-9.7s10.3 3.3 11.5 9.7A16 16 0 0 1 20 36a16 16 0 0 1-11.5-3Z" fill="#203c47" />
-            </svg>
-        </a>
-    </nav>
+    <div id="adminNavMount"></div>
 
     <div class="admin-main-content">
         <header class="dashboard-banner">
             <div class="banner-copy">
-                <p class="eyebrow">VAXASSIST · CLINIC ADMINISTRATION</p>
+                <p class="eyebrow">VAXASSIST Â· CLINIC ADMINISTRATION</p>
                 <h1>Vaccine Inventory</h1>
                 <p>
                     Manage vaccine details, prices, categories, dose counts, and travel lead times.
@@ -47,7 +27,7 @@
             </div>
 
             <button class="primary-action" id="addVaccineButton" type="button">
-                Add vaccine <span aria-hidden="true">＋</span>
+                Add vaccine <span aria-hidden="true">+</span>
             </button>
         </header>
 
@@ -57,7 +37,7 @@
                     <div>
                         <p class="section-kicker">STOCK OVERVIEW</p>
                         <h2 id="inventory-title">Existing vaccines</h2>
-                        <p id="inventoryCount">Loading inventory…</p>
+                        <p id="inventoryCount">Loading inventoryâ€¦</p>
                     </div>
                 </div>
 
@@ -90,7 +70,7 @@
                         <tbody id="vaccineRows">
                             <tr>
                                 <td class="loading-state" colspan="7">
-                                    Loading vaccines…
+                                    Loading vaccinesâ€¦
                                 </td>
                             </tr>
                         </tbody>
@@ -129,7 +109,7 @@
                     id="closeDialog"
                     aria-label="Close"
                 >
-                    ×
+                    &#128137;
                 </button>
             </div>
 

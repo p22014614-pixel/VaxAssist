@@ -57,7 +57,8 @@ function isoDate(d) {
 }
 
 function parseISO(s) {
-    const p = s.split('-').map(Number);
+    const value = String(s || '').slice(0, 10);
+    const p = value.split('-').map(Number);
     return new Date(p[0], p[1] - 1, p[2]);
 }
 
@@ -67,8 +68,11 @@ function daysFromToday(n) {
 }
 
 function timeText(t) {
-    const p = t.split(':').map(Number);
-    return ((p[0] % 12) || 12) + ':' + pad(p[1]) + ' ' + (p[0] < 12 ? 'AM' : 'PM');
+    const match = String(t || '').match(/^(\d{1,2}):(\d{2})/);
+    if (!match) return 'Time to be confirmed';
+    const hour = Number(match[1]);
+    const minute = Number(match[2]);
+    return ((hour % 12) || 12) + ':' + pad(minute) + ' ' + (hour < 12 ? 'AM' : 'PM');
 }
 
 function longDate(s) {
@@ -76,14 +80,28 @@ function longDate(s) {
 }
 
 function startOf(a) {
-    const p = a.appointment_time.split(':').map(Number);
     const d = parseISO(a.appointment_date);
-    d.setHours(p[0], p[1], 0, 0);
+    const match = String(a.appointment_time || '').match(/^(\d{1,2}):(\d{2})/);
+    if (!match) return new Date(NaN);
+    d.setHours(Number(match[1]), Number(match[2]), 0, 0);
     return d;
 }
 
 function isUpcoming(a) {
-    return a.status === 'booked' && startOf(a) > new Date();
+    const status = String(a.status || '').toLowerCase();
+    if (status !== 'booked' && status !== 'scheduled') return false;
+
+    const appointmentDay = parseISO(a.appointment_date);
+    if (Number.isNaN(appointmentDay.getTime())) return false;
+    appointmentDay.setHours(0, 0, 0, 0);
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (appointmentDay > today) return true;
+    if (appointmentDay < today) return false;
+
+    const scheduledTime = startOf(a);
+    return Number.isNaN(scheduledTime.getTime()) || scheduledTime > new Date();
 }
 
 function patientText(a) {
@@ -91,7 +109,8 @@ function patientText(a) {
 }
 
 function reference(a) {
-    return 'VAX-' + String(a.id).padStart(5, '0');
+    const id = a.id ?? a.appointment_id;
+    return 'VAX-' + String(id ?? 'confirmed').padStart(5, '0');
 }
 
 function countdown(a) {

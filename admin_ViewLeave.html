@@ -5,36 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#f7fafb">
     <title>Doctor Leave Review | VaxAssist</title>
-
-    <link href="nav.css" rel="stylesheet">
     <link href="motion.css" rel="stylesheet">
     <script src="auth.js"></script>
     <script src="motion.js" defer></script>
     <link rel="stylesheet" href="admin_ViewLeave.css?v=3">
-    <link rel="stylesheet" href="admin_ProfileAvatar.css">
 
+    <link rel="stylesheet" href="admin-footer.css?v=1">
+    <link rel="stylesheet" href="admin-nav.css?v=4">
+    <script src="admin-nav.js?v=1" defer></script>
 </head>
 <body class="admin-dashboard leave-review-page">
-    <nav class="admin-topbar admin-nav" aria-label="Admin navigation">
-        <a class="logo" href="admin_Dashboard.html">VaxAssist</a>
-        <ul>
-            <li><a class="nav-link" href="admin_Dashboard.html">Dashboard</a></li>
-            <li><a class="nav-link" href="about.html">About Us</a></li>
-            <li><a class="nav-link" href="admin_ViewAppointment.html">View Appointment</a></li>
-            <li><a class="nav-link" href="admin_DoctorSchedule.html">Doctor Schedule</a></li>
-            <li><a class="nav-link active" aria-current="page" href="admin_ViewLeave.html">Leave Review</a></li>
-            <li><a class="nav-link" href="admin_ManageUsers.html">Manage Users</a></li>
-            <li><a class="nav-link" href="admin_VaccineInventory.html">Vaccine Stock</a></li>
-        </ul>
-
-        <a class="avatar-link" href="admin_Profile.html" aria-label="Admin profile" title="Admin profile">
-            <svg class="avatar-image" viewBox="0 0 40 40" aria-hidden="true">
-                <circle cx="20" cy="20" r="20" fill="#e5eef2"/>
-                <circle cx="20" cy="14" r="6" fill="#203c47" />
-                <path d="M8.5 33c1.2-6.4 5.3-9.7 11.5-9.7s10.3 3.3 11.5 9.7A16 16 0 0 1 20 36a16 16 0 0 1-11.5-3Z" fill="#203c47" />
-            </svg>
-        </a>
-    </nav>
+    <div id="adminNavMount"></div>
 
     <div class="admin-main-content">
         <header class="leave-hero">
@@ -111,7 +92,7 @@
                     </div>
 
                     <div class="request-list" id="requestList" role="list" aria-live="polite">
-                        <p class="loading-state">Loading leave requests…</p>
+                        <p class="loading-state">Loading leave requests&#8230;</p>
                     </div>
                     <p class="demo-note" id="requestMessage" role="status" aria-live="polite"></p>
                 </div>
@@ -189,6 +170,13 @@
             };
         }
 
+        async function readApiResponse(response) {
+            try {
+                return await response.json();
+            } catch {
+                throw new Error('The leave service returned invalid JSON. Check the PHP error log.');
+            }
+        }
         async function loadLeaveRequests() {
             const list = document.getElementById('requestList');
             const message = document.getElementById('requestMessage');
@@ -199,7 +187,7 @@
                     cache: 'no-store'
                 });
 
-                const data = await response.json();
+                const data = await readApiResponse(response);
 
                 if (!response.ok) {
                     throw new Error(data.error || 'Could not load leave requests.');
@@ -219,9 +207,9 @@
                 list.innerHTML = '<div class="empty-state"><strong>Unable to load requests</strong><p></p></div>';
                 list.querySelector('.empty-state p').textContent = error.message;
                 document.getElementById('requestTotal').textContent = '0';
-                document.getElementById('pendingCount').textContent = '—';
-                document.getElementById('upcomingCount').textContent = '—';
-                document.getElementById('coverageCount').textContent = '—';
+                document.getElementById('pendingCount').textContent = '\u2014';
+                document.getElementById('upcomingCount').textContent = '\u2014';
+                document.getElementById('coverageCount').textContent = '\u2014';
                 document.getElementById('reviewPanel').innerHTML =
                     '<div class="detail-empty"><h2>Requests unavailable</h2><p>Check the admin API and database connection, then refresh.</p></div>';
             }
@@ -395,7 +383,7 @@
                         })
                     });
 
-                    const data = await response.json();
+                    const data = await readApiResponse(response);
 
                     if (!response.ok) {
                         throw new Error(data.error || 'Could not save the decision.');

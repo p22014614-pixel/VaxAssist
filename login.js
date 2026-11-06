@@ -41,7 +41,7 @@
     // Routes a signed-in account to the correct role-specific starting page.
     function destinationFor(user) {
         if (user.role === 'doctor') return 'doctor_dashboard.html';
-        if (user.role === 'admin') return 'admin_dashboard.html';
+        if (user.role === 'admin') return 'admin_Dashboard.html';
         if (user.role === 'patient') return 'patient_dashboard.html';
         throw new Error('Your account has no supported portal. Please contact the clinic.');
     }

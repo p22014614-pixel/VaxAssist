@@ -248,7 +248,8 @@ form.addEventListener('submit', async function (e) {
 function showSuccess(booking, result) {
     const d = selectedDoctor();
     const v = selectedVaccine();
-    document.getElementById('doneRef').textContent = 'VAX-' + String(result.id).padStart(5, '0');
+    const appointmentId = result && (result.id ?? result.appointment_id);
+    document.getElementById('doneRef').textContent = appointmentId ? 'VAX-' + String(appointmentId).padStart(5, '0') : 'Confirmed';
     document.getElementById('doneDoctor').textContent = d.name + ' (' + d.specialty + ')';
     document.getElementById('doneVaccine').textContent = v.name;
     document.getElementById('doneWhen').textContent = dateText(booking.appointment_date) + ', ' + timeText(booking.appointment_time);

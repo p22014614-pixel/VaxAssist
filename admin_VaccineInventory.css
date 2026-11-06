@@ -1,56 +1,4 @@
-/* Vaccine inventory page: dashboard palette, typography and cards. */
-.nav-link {
-    position: relative;
-    color: #52676e !important;
-    margin: 0 8px;
-    font-size: 0.95rem;
-    text-decoration: none;
-}
-
-.nav-link::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    bottom: -6px;
-    width: 100%;
-    height: 2px;
-    background: #167d8d;
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 0.25s ease;
-}
-
-.nav-link:hover::after,
-.nav-link.active::after {
-    transform: scaleX(1);
-}
-
-.notification-nav-icon {
-    display: inline-grid;
-    width: 38px;
-    height: 38px;
-    place-items: center;
-    border: 1px solid #dce6e8;
-    border-radius: 8px;
-    color: #52676e;
-    text-decoration: none;
-}
-
-.notification-nav-icon:hover,
-.notification-nav-icon:focus-visible {
-    color: #1976d2;
-    background: #eaf5ff;
-}
-
-.notification-nav-icon svg {
-    width: 19px;
-    height: 19px;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.8;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-}
+﻿
 
 .inventory-page {
     --admin-teal: #168091;
@@ -75,85 +23,8 @@
     box-sizing: border-box;
 }
 
-/* Dashboard navigation */
-.inventory-page .admin-topbar {
-    position: fixed;
-    z-index: 5;
-    inset: 0 0 auto;
-    height: 78px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 28px;
-    padding: 0 max(7.4%, 28px);
-    background: #fff;
-    border-bottom: 1px solid #edf1f2;
-}
-
-.inventory-page .admin-topbar .logo {
-    margin-right: auto;
-    color: var(--admin-teal);
-    font-size: 25px;
-    font-weight: 700;
-    letter-spacing: -.7px;
-    text-decoration: none;
-    white-space: nowrap;
-}
-
-.inventory-page .admin-topbar ul {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: clamp(10px, 1.2vw, 20px);
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
-
-.inventory-page .admin-topbar ul a {
-    display: inline-block;
-    padding: 10px 0;
-    color: #435967;
-    font-size: 16px;
-    text-decoration: none;
-    white-space: nowrap;
-}
-
-.inventory-page .admin-topbar ul a:hover,
-.inventory-page .admin-topbar ul a[aria-current="page"] {
-    color: var(--admin-teal);
-}
-
-.inventory-page .admin-topbar ul a[aria-current="page"] {
-    position: relative;
-}
-
-.inventory-page .admin-topbar ul a[aria-current="page"]::after {
-    position: absolute;
-    right: 0;
-    bottom: 2px;
-    left: 0;
-    height: 2px;
-    background: var(--admin-teal);
-    content: "";
-}
-
 .inventory-page .admin-sidebar {
     display: none;
-}
-
-.inventory-page .admin-account {
-    padding: 10px 15px;
-    border: 1px solid #b9d9dd;
-    border-radius: 7px;
-    color: var(--admin-teal);
-    font-size: 14px;
-    text-decoration: none;
-    white-space: nowrap;
-}
-
-.inventory-page .admin-account:hover {
-    background: var(--admin-soft);
 }
 
 /* Main page layout */
@@ -493,18 +364,6 @@
 
 /* Responsive layout */
 @media (max-width: 1050px) {
-    .inventory-page .admin-topbar {
-        padding: 12px 4%;
-        gap: 14px;
-    }
-
-    .inventory-page .admin-topbar ul {
-        gap: 14px;
-    }
-
-    .inventory-page .admin-topbar ul a {
-        font-size: 14px;
-    }
 
     .inventory-page .dashboard-banner {
         padding-right: 4%;
@@ -518,22 +377,6 @@
 }
 
 @media (max-width: 780px) {
-    .inventory-page .admin-topbar {
-        height: auto;
-        min-height: 78px;
-        flex-wrap: wrap;
-    }
-
-    .inventory-page .admin-topbar ul {
-        order: 3;
-        width: 100%;
-        flex-wrap: wrap;
-        justify-content: flex-start;
-    }
-
-    .inventory-page .admin-topbar ul a {
-        font-size: 14px;
-    }
 
     .inventory-page .admin-main-content {
         margin-top: 112px;
@@ -541,26 +384,6 @@
 }
 
 @media (max-width: 600px) {
-    .inventory-page .admin-topbar {
-        padding: 10px 16px;
-    }
-
-    .inventory-page .admin-topbar .logo {
-        font-size: 24px;
-    }
-
-    .inventory-page .admin-topbar ul {
-        gap: 8px 15px;
-    }
-
-    .inventory-page .admin-topbar ul a {
-        font-size: 12px;
-    }
-
-    .inventory-page .admin-account {
-        padding: 8px 10px;
-        font-size: 12px;
-    }
 
     .inventory-page .admin-main-content {
         margin-top: 125px;

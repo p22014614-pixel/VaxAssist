@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-session_start();
+require_once __DIR__ . '/admin_backend_auth.php';
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
 
@@ -68,7 +68,7 @@ function validateVaccine(array $input): array
     ];
 }
 
-require __DIR__ . '/db.php';
+
 
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 

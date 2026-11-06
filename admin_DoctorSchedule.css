@@ -1,4 +1,4 @@
-.doctor-schedule-page {
+﻿.doctor-schedule-page {
     --teal: #168091;
     --teal-dark: #116d7b;
     --ink: #193944;
@@ -17,78 +17,6 @@
     box-sizing: border-box;
 }
 
-.doctor-schedule-page .admin-topbar {
-    position: fixed;
-    z-index: 5;
-    inset: 0 0 auto;
-    height: 78px;
-    display: flex;
-    flex-wrap: nowrap;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 22px;
-    padding: 0 max(7.4%, 28px);
-    background: #fff;
-    border-bottom: 1px solid #edf1f2;
-}
-
-.doctor-schedule-page .admin-topbar .logo {
-    margin-right: auto !important;
-    color: var(--teal);
-    font-size: 25px;
-    font-weight: 700;
-    letter-spacing: -.7px;
-    text-decoration: none;
-    white-space: nowrap;
-}
-
-.doctor-schedule-page .admin-topbar ul {
-    margin-right: 0 !important;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 30px;
-    gap: clamp(10px, 1.2vw, 20px);
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
-
-.doctor-schedule-page .admin-topbar ul a {
-    display: inline-block;
-    padding: 10px 0;
-    color: #435967;
-    font-size: 16px;
-    text-decoration: none;
-    white-space: nowrap;
-}
-
-.doctor-schedule-page .admin-topbar ul a:hover,
-.doctor-schedule-page .admin-topbar ul a.active {
-    color: var(--teal);
-}
-
-.doctor-schedule-page .nav-link {
-    position: relative;
-}
-
-.doctor-schedule-page .nav-link::after {
-    position: absolute;
-    right: 0;
-    bottom: 3px;
-    left: 0;
-    height: 2px;
-    background: var(--teal);
-    content: "";
-    transform: scaleX(0);
-    transition: transform .2s ease;
-}
-
-.doctor-schedule-page .nav-link:hover::after,
-.doctor-schedule-page .nav-link.active::after {
-    transform: scaleX(1);
-}
-
 .admin-nav-actions {
     display: flex;
     flex: 0 0 auto;
@@ -96,32 +24,6 @@
     gap: 9px;
     white-space: nowrap;
 }
-
-.notification-nav-icon {
-    display: grid;
-    width: 34px;
-    height: 34px;
-    place-items: center;
-    border-radius: 7px;
-    color: #52676e;
-}
-
-.notification-nav-icon svg {
-    width: 18px;
-    height: 18px;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.8;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-}
-
-.admin-account.avatar-link { 
-    display: grid; 
-    width: 40px; 
-    height: 40px; flex: 0 0 40px; place-items: center; padding: 0; border: 0; border-radius: 50%; text-decoration: none; }
-
-.admin-account .avatar-image { display: block; width: 40px; height: 40px; }
 
 .page-content {
     min-height: 100vh;
@@ -578,34 +480,9 @@ tbody tr:last-child td {
 }
 
 @media (max-width: 1180px) {
-    .doctor-schedule-page .admin-topbar {
-        gap: 15px;
-        padding: 0 4%;
-    }
-
-    .doctor-schedule-page .admin-topbar ul {
-        gap: 12px;
-    }
-
-    .doctor-schedule-page .admin-topbar ul a {
-        font-size: 14px;
-    }
 }
 
 @media (max-width: 850px) {
-    .doctor-schedule-page .admin-topbar {
-        position: static;
-        height: auto;
-        flex-wrap: wrap;
-        padding: 12px 5%;
-    }
-
-    .doctor-schedule-page .admin-topbar ul {
-        order: 3;
-        width: 100%;
-        flex-wrap: wrap;
-        justify-content: flex-start;
-    }
 
     .page-content {
         margin-top: 0;
@@ -663,9 +540,5 @@ tbody tr:last-child td {
 
     .panel-heading {
         align-items: flex-start;
-    }
-
-    .doctor-schedule-page .admin-topbar ul {
-        gap: 7px 14px;
     }
 }

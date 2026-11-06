@@ -4,7 +4,13 @@
 // Returns the current signed-in user, role, and CSRF token to the browser.
 function session_show(array $p, array $in): void
 {
-    if (!empty($_SESSION['doctor_id'])) {
+    if (!empty($_SESSION['admin_id'])) {
+        $stmt = db()->prepare('SELECT id, first_name, last_name, email FROM users WHERE id = ?');
+        $stmt->execute([$_SESSION['admin_id']]);
+        $admin = $stmt->fetch();
+        if (!$admin) unset($_SESSION['admin_id']);
+        else out(['user' => ['id' => (int) $admin['id'], 'first_name' => $admin['first_name'], 'last_name' => $admin['last_name'], 'email' => $admin['email'], 'role' => 'admin'], 'csrf' => csrf_token(), 'unread_messages' => 0]);
+    }    if (!empty($_SESSION['doctor_id'])) {
         $stmt = db()->prepare('SELECT doctor_id, first_name, last_name, email FROM doctors WHERE doctor_id = ?');
         $stmt->execute([$_SESSION['doctor_id']]);
         $doctor = $stmt->fetch();
@@ -59,7 +65,17 @@ function session_create(array $p, array $in): void
             $user = ['id' => (int) $doctor['doctor_id'], 'first_name' => $doctor['first_name'], 'last_name' => $doctor['last_name'], 'email' => $doctor['email'], 'role' => 'doctor'];
             out(['user' => $user, 'csrf' => csrf_token()], 201);
         }
-        $_SESSION['login_failures'] = ($_SESSION['login_failures'] ?? 0) + 1;
+        $adminStmt = db()->prepare('SELECT id, first_name, last_name, email, password_hash, role FROM users WHERE email = ?');
+        $adminStmt->execute([$email]);
+        $admin = $adminStmt->fetch();
+        $adminRole = strtolower(trim((string) ($admin['role'] ?? '')));
+        $adminHash = $admin['password_hash'] ?? password_hash('not-a-real-password', PASSWORD_DEFAULT);
+        if ($admin && in_array($adminRole, ['admin', 'administrator'], true) && password_verify($password, $adminHash)) {
+            session_regenerate_id(true);
+            unset($_SESSION['login_failures'], $_SESSION['login_locked_until'], $_SESSION['patient_id'], $_SESSION['doctor_id']);
+            $_SESSION['admin_id'] = (int) $admin['id'];
+            out(['user' => ['id' => (int) $admin['id'], 'first_name' => $admin['first_name'], 'last_name' => $admin['last_name'], 'email' => $admin['email'], 'role' => 'admin'], 'csrf' => csrf_token()], 201);
+        }        $_SESSION['login_failures'] = ($_SESSION['login_failures'] ?? 0) + 1;
         if ($_SESSION['login_failures'] >= 5) {
             $_SESSION['login_locked_until'] = time() + 300;
             $_SESSION['login_failures'] = 0;

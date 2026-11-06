@@ -12,7 +12,21 @@ function respond(int $status, array $data): void
     exit;
 }
 
-require __DIR__ . '/db.php';
+try {
+    $pdo = new PDO(
+        'mysql:host=localhost;dbname=vaxassist;charset=utf8mb4',
+        'root',
+        '',
+        [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES => false,
+        ]
+    );
+} catch (Throwable $exception) {
+    error_log('Leave API database connection error: ' . $exception->getMessage());
+    respond(500, ['error' => 'Could not connect to the leave request database.']);
+}
 
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 

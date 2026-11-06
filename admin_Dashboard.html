@@ -1,47 +1,27 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#f7fafb">
     <title>Admin Dashboard | VaxAssist</title>
-
-    <link href="nav.css" rel="stylesheet">
     <link href="motion.css" rel="stylesheet">
     <script src="auth.js"></script>
     <script src="motion.js" defer></script>
     <link rel="stylesheet" href="admin_Dashboard.css?v=2">
 
+    <link rel="stylesheet" href="admin-footer.css?v=1">
+    <link rel="stylesheet" href="admin-nav.css?v=4">
+    <script src="admin-nav.js?v=1" defer></script>
 </head>
 
 <body class="admin-dashboard">
-    <nav class="admin-topbar admin-nav" aria-label="Admin navigation">
-        <a class="logo" href="admin_Dashboard.html">VaxAssist</a>
-
-        <ul>
-            <li><a class="nav-link active" aria-current="page" href="admin_Dashboard.html">Dashboard</a></li>
-            <li><a class="nav-link" href="about.html">About Us</a></li>
-            <li><a class="nav-link" href="admin_ViewAppointment.html">View Appointment</a></li>
-            <li><a class="nav-link" href="admin_DoctorSchedule.html">Doctor Schedule</a></li>
-            <li><a class="nav-link" href="admin_ViewLeave.html">Leave Review</a></li>
-            <li><a class="nav-link" href="admin_ManageUsers.html">Manage Users</a></li>
-            <li><a class="nav-link" href="admin_VaccineInventory.html">Vaccine Stock</a></li>
-        </ul>
-
-        <a class="admin-account profile-link" href="admin_Profile.html" aria-label="Admin profile" title="Admin profile">
-            <svg class="nav-avatar" viewBox="0 0 40 40" aria-hidden="true">
-                <circle cx="20" cy="20" r="20" fill="#e5eef2"/>
-                <circle cx="20" cy="14" r="6" fill="#203c47" />
-                <path d="M8.5 33c1.2-6.4 5.3-9.7 11.5-9.7s10.3 3.3 11.5 9.7A16 16 0 0 1 20 36a16 16 0 0 1-11.5-3Z" fill="#203c47" />
-            </svg>
-        </a>
-
-    </nav>
+    <div id="adminNavMount"></div>
 
     <div class="admin-main-content">
         <header class="dashboard-banner">
             <div class="banner-copy">
-                <p class="eyebrow">VAXASSIST · CLINIC ADMINISTRATION</p>
+                <p class="eyebrow">VAXASSIST Â· CLINIC ADMINISTRATION</p>
                 <h1>Admin Dashboard Overview</h1>
                 <p>
                     Monitor appointments, staff, and vaccine stock in one place.
@@ -49,7 +29,7 @@
             </div>
 
             <a class="primary-action" href="admin_ViewAppointment.html">
-                View appointments <span aria-hidden="true">→</span>
+                View appointments <span aria-hidden="true">🡪</span>
             </a>
         </header>
 
@@ -68,7 +48,7 @@
                         aria-label="View all appointments">
                         <span class="stat-mark" aria-hidden="true">01</span>
                         <h3>Total appointments</h3>
-                        <strong id="dashboardAppointmentsToday" aria-live="polite">—</strong>
+                        <strong id="dashboardAppointmentsToday" aria-live="polite">â€”</strong>
                         <p>Scheduled across the clinic</p>
                     </a>
 
@@ -84,14 +64,14 @@
                         aria-label="View doctors available to work today">
                         <span class="stat-mark" aria-hidden="true">03</span>
                         <h3>Doctors available today</h3>
-                        <strong id="doctorsAvailableToday" aria-live="polite">â€”</strong>
+                        <strong id="doctorsAvailableToday" aria-live="polite"></strong>
                         <p>Scheduled to work today</p>
                     </a>
 
                     <a class="stat-card">
                         <span class="stat-mark" aria-hidden="true">04</span>
                         <h3>Active staff</h3>
-                        <strong id="activeStaffCount" aria-live="polite">—</strong>
+                        <strong id="activeStaffCount" aria-live="polite"></strong>
                         <p>Current clinic team</p>
                     </a>
                 </div>
@@ -108,7 +88,7 @@
                             <h2 id="appointments-title">Today's appointments</h2>
                         </div>
                         <a href="admin_ViewAppointment.html">
-                            Full schedule <span aria-hidden="true">→</span>
+                            Full schedule <span aria-hidden="true"></span>
                         </a>
                     </div>
 
@@ -130,7 +110,7 @@
                             <tbody 
                                 id="dashboardAppointmentRows">
                                 <tr>    
-                                    <td colspan="5">Loading appointments…</td>
+                                    <td colspan="5">Loading appointmentsâ€¦</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -152,7 +132,7 @@
                                     <strong>Find Your Schedule</strong>
                                     <small>View and manage appointments</small>
                                 </span>
-                                <span class="shortcut-arrow" aria-hidden="true">→</span>
+                                <span class="shortcut-arrow" aria-hidden="true">🡪</span>
                             </a>
 
                             <a class="shortcut-link" href="admin_DoctorSchedule.html">
@@ -161,7 +141,7 @@
                                     <strong>Schedule a doctor</strong>
                                     <small>Arrange doctor working days</small>
                                 </span>
-                                <span class="shortcut-arrow" aria-hidden="true">→</span>
+                                <span class="shortcut-arrow" aria-hidden="true">🡪</span>
                             </a>
 
                             <a class="shortcut-link" href="admin_ViewLeave.html">
@@ -170,7 +150,7 @@
                                     <strong>View Leave Requests</strong>
                                     <small>View and manage leave requests</small>
                                 </span>
-                                <span class="shortcut-arrow" aria-hidden="true">→</span>
+                                <span class="shortcut-arrow" aria-hidden="true">🡪</span>
                             </a>
 
                             <a class="shortcut-link" href="admin_ManageUsers.html">
@@ -179,7 +159,7 @@
                                     <strong>Manage Users</strong>
                                     <small>Roles and account access</small>
                                 </span>
-                                <span class="shortcut-arrow" aria-hidden="true">→</span>
+                                <span class="shortcut-arrow" aria-hidden="true">🡪</span>
                             </a>
 
                             <a class="shortcut-link" href="admin_VaccineInventory.html">
@@ -188,7 +168,7 @@
                                     <strong>Vaccine stock</strong>
                                     <small>Inventory and quantities</small>
                                 </span>
-                                <span class="shortcut-arrow" aria-hidden="true">→</span>
+                                <span class="shortcut-arrow" aria-hidden="true">🡪</span>
                             </a>
 
                         </div>
@@ -208,7 +188,7 @@
                                 href="admin_VaccineInventory.html"
                                 aria-label="View full vaccine inventory"
                             >
-                                View all <span aria-hidden="true">→</span>
+                                View all <span aria-hidden="true">🡪</span>
                             </a>
                         </div>
 
@@ -218,13 +198,13 @@
                             aria-live="polite"
                         >
                             <li>
-                                <span>Loading vaccine stock…</span>
+                                <span>Loading vaccine stockâ€¦</span>
                                 <span></span>
                             </li>
                         </ul>
 
                         <p class="inventory-note" id="dashboardVaccineNote">
-                            Loading inventory summary…
+                            Loading inventory summaryâ€¦
                         </p>
                     </section>
                 </aside>
@@ -284,7 +264,7 @@
                     `).join('')
                     : '<tr><td colspan="5">No appointments scheduled for today.</td></tr>';
             } catch (error) {
-                if (count) count.textContent = '—';
+                if (count) count.textContent = 'â€”';
                 rows.innerHTML = `<tr><td colspan="5">${escapeHtml(error.message)}</td></tr>`;
             }
         }
@@ -339,7 +319,7 @@
                                 <span>${escapeHtml(vaccine.name)}</span>
                                 <span>
                                     ${doses} dose${doses === 1 ? '' : 's'} per course
-                                    · ${leadDays}
+                                    ; ${leadDays}
                                 </span>
                             </li>
                         `;
@@ -382,7 +362,7 @@
             })
             .catch(error => {
                 console.error(error);
-                document.getElementById('activeStaffCount').textContent = '—';
+                document.getElementById('activeStaffCount').textContent = 'â€”';
             });
 
         fetch('api_DoctorAvailability.php', {
@@ -402,7 +382,7 @@
             })
             .catch(error => {
                 console.error(error);
-                document.getElementById('doctorsAvailableToday').textContent = 'â€”';
+                document.getElementById('doctorsAvailableToday').textContent = 'Ã¢â‚¬â€';
             });
 
         fetch('api_LiveNumber.php?count=pending', {
