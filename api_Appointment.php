@@ -78,7 +78,7 @@ $validTimeSlots = [
     '03:00 PM - 05:00 PM',
 ];
 
-$validStatuses = ['Scheduled', 'Pending', 'Missed', 'Completed', 'Cancelled'];
+$validStatuses = ['Scheduled', 'Confirmed', 'Missed', 'Completed', 'Cancelled'];
 
 function validDate(string $date): bool
 {

@@ -88,19 +88,23 @@ a {
     text-align: center;
 }
 .avatar {
-    width: 76px;
-    height: 76px;
+    box-sizing: border-box;
+    width: 152px;
+    height: 152px;
     display: grid;
     place-items: center;
     margin: 0 auto 16px;
+    padding: 21px;
     border: 5px solid #f3f9fa;
     border-radius: 50%;
     background: #dff0f2;
     color: var(--teal-dark);
-    font-size: 23px;
+    font-size: 20px;
     font-weight: 700;
+    line-height: 1.15;
+    text-align: center;
+    overflow-wrap: anywhere;
 }
-.profile-summary h2 { margin: 0; font-size: 19px; }
 .summary-role { margin: 4px 0 14px; color: var(--muted); font-size: 13px; }
 .status-pill {
     display: inline-flex;
@@ -273,7 +277,6 @@ section.panel:has(#appointmentAlerts) {
 
 .form-grid > .form-actions,
 .password-form > .form-actions { grid-column: 1 / -1; }
-.password-form > .form-actions { grid-column: 1; justify-content: flex-end; }
 
 .primary-button,
 .secondary-button {
@@ -355,39 +358,14 @@ a:focus-visible { outline: 3px solid #84c5cf; outline-offset: 3px; }
         grid-template-columns: 1fr; 
     }
 
-    .profile-summary {
-        position: static;
-        display: grid;
-        grid-template-columns: 62px 1fr auto;
-        align-items: center;
-        gap: 0 14px;
-        padding: 16px;
-        text-align: left;
-    }
-    .avatar { 
-        width: 58px; 
-        height: 58px; 
-        grid-row: span 3; 
-        margin: 0; 
-        border-width: 3px; 
-        font-size: 18px; 
-    }
-
-    .profile-summary h2 { 
-        align-self: end; 
-        font-size: 16px; 
-    }
+    .profile-summary { position: static; padding: 16px; }
     
     .summary-role { 
         margin: 2px 0; 
         font-size: 11px; 
     }
 
-    .status-pill { 
-        grid-column: 3; 
-        grid-row: 1 / span 2; 
-        font-size: 10px; 
-    }
+    .status-pill { font-size: 10px; }
 
     .summary-divider,
     .summary-label,

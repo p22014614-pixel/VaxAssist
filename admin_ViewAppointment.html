@@ -116,6 +116,7 @@
             </div>
             <form class="booking-form" id="editForm">
                 <input type="hidden" name="appointment_id">
+                <input type="hidden" name="patient_id">
                 <label class="field">
                     Appointment date
                     <input name="appointment_date" type="date" required>
@@ -132,6 +133,7 @@
                 <label class="field">Status
                     <select name="status" required>
                         <option>Scheduled</option>
+                        <option>Confirmed</option>
                         <option>Missed</option>
                         <option>Completed</option>
                         <option>Cancelled</option>
@@ -170,7 +172,15 @@
                 <label class="field">Appointment date<input name="appointment_date" type="date" required></label>
                 <label class="field">Time<input name="time_slot" type="text" maxlength="100" placeholder="e.g. 08:00 AM - 09:00 AM" required></label>
                 <label class="field">Doctor<select name="doctor_id" required></select></label>
-                <label class="field">Status<select name="status" required><option>Scheduled</option><option>Missed</option><option>Confirmed</option><option>Completed</option><option>Cancelled</option></select></label>
+                <label class="field">Status
+                    <select name="status" required>
+                        <option>Scheduled</option>
+                        <option>Missed</option>
+                        <option>Confirmed</option>
+                        <option>Completed</option>
+                        <option>Cancelled</option>
+                    </select>
+                </label>
                 <label class="field edit-notes">Appointment notes<textarea name="symptoms_notes" rows="3" maxlength="2000"></textarea></label>
                 <p class="schedule-note edit-notice" id="addMessage" aria-live="polite"></p>
                 <div class="form-actions">
@@ -388,6 +398,7 @@
             if (editButton) {
                 populateDoctorOptions(appointment.doctor_id);
                 editForm.elements.appointment_id.value = appointment.appointment_id;
+                editForm.elements.patient_id.value = appointment.patient_id;
                 editForm.elements.appointment_date.value = appointment.appointment_date;
                 editForm.elements.time_slot.value = appointment.time_slot;
                 editForm.elements.doctor_id.value = appointment.doctor_id;
@@ -496,6 +507,7 @@
             const formData = new FormData(editForm);
             const payload = Object.fromEntries(formData.entries());
             payload.appointment_id = Number(payload.appointment_id);
+            payload.patient_id = Number(payload.patient_id);
             payload.doctor_id = Number(payload.doctor_id);
             try {
                 await updateAppointment('PUT', payload);
