@@ -144,6 +144,13 @@
         }
         const name = document.createElement('strong');
         name.textContent = booking.name;
+        row.append(name);
+        if (booking.child_name) {
+            const child = document.createElement('span');
+            child.className = 'appointment-child-badge';
+            child.textContent = `For child: ${booking.child_name}`;
+            row.append(child);
+        }
         const reason = document.createElement('span');
         reason.className = 'appointment-booking-reason';
         reason.textContent = `— ${booking.reason || 'No visit notes'}`;
@@ -159,7 +166,7 @@
         complete.textContent = 'Complete appointment';
         complete.dataset.completeAppointment = String(booking.appointment_id);
         actions.append(record, complete);
-        row.append(name, reason, actions);
+        row.append(reason, actions);
         return row;
     }
 

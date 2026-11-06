@@ -19,7 +19,7 @@ if ($action === 'get_day') {
     $date = $_GET['date'] ?? date('Y-m-d');
     $d = DateTime::createFromFormat('Y-m-d', $date);
     if (!$d || $d->format('Y-m-d') !== $date) { http_response_code(422); echo json_encode(['status'=>'error','message'=>'Choose a valid date.']); exit; }
-    $stmt = $conn->prepare("SELECT a.appointment_id, a.time_slot, a.appointment_time, a.symptoms_notes, p.full_name, p.patient_id FROM appointments a JOIN patients p ON p.patient_id=a.patient_id WHERE a.doctor_id=? AND a.appointment_date=? AND a.status='Scheduled' ORDER BY a.appointment_time, a.appointment_id");
+    $stmt = $conn->prepare("SELECT a.appointment_id, a.time_slot, a.appointment_time, a.symptoms_notes, p.full_name, p.patient_id, c.first_name AS child_name FROM appointments a JOIN patients p ON p.patient_id=a.patient_id LEFT JOIN children c ON c.child_id=a.child_id AND c.patient_id=a.patient_id WHERE a.doctor_id=? AND a.appointment_date=? AND a.status='Scheduled' ORDER BY a.appointment_time, a.appointment_id");
     $stmt->bind_param('is', $doctor_id, $date); $stmt->execute(); $res = $stmt->get_result(); $items = [];
     while ($row = $res->fetch_assoc()) {
         $time = $row['appointment_time'] ? substr((string) $row['appointment_time'], 0, 5) : '';
@@ -30,7 +30,7 @@ if ($action === 'get_day') {
             $key = $slotStart ? $slotStart->format('H:00') : 'other';
             $time = $slotStart ? $slotStart->format('H:i') : '';
         }
-        $items[$key][] = ['appointment_id'=>(int)$row['appointment_id'], 'name'=>$row['full_name'], 'reason'=>$row['symptoms_notes'], 'patient_id'=>(int)$row['patient_id'], 'appointment_time'=>$time];
+        $items[$key][] = ['appointment_id'=>(int)$row['appointment_id'], 'name'=>$row['full_name'], 'child_name'=>$row['child_name'], 'reason'=>$row['symptoms_notes'], 'patient_id'=>(int)$row['patient_id'], 'appointment_time'=>$time];
     }
     echo json_encode(['status'=>'success','data'=>$items]); exit;
 }

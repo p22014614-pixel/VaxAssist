@@ -508,6 +508,7 @@ footer {
 .appointment-hour-card .slot-details { display: grid; gap: 9px; min-width: 0; }
 .appointment-booking-row { padding: 9px 11px; border: 1px solid #eaf0f1; border-radius: 10px; background: #fff; }
 .appointment-booking-time { flex: 0 0 auto; padding: 4px 7px; border-radius: 7px; background: #eaf5f6; color: var(--primary-dark); font-size: .78rem; font-weight: 700; }
+.appointment-child-badge { display: inline-flex; align-items: center; width: fit-content; padding: 4px 8px; border: 1px solid #cfe8dc; border-radius: 999px; background: #eff8f3; color: #286b50; font-size: .76rem; font-weight: 700; }
 .appointment-booking-reason { color: var(--text-muted); font-size: .86rem; }
 .appointment-slot-empty { color: #84969b; font-size: .9rem; }
 .other-time-slots { display: grid; gap: 10px; margin-top: 18px; }

@@ -73,15 +73,19 @@ try {
             $patientUpdates[] = ['kind' => 'patient-notification', 'title' => $row['title'], 'patient' => $row['full_name'], 'detail' => $row['body'] ?: 'A patient notification is unread.', 'created_at' => $row['created_at']];
         }
 
-        $newAppointments = $conn->prepare("SELECT p.full_name, a.appointment_date, a.appointment_time, v.name AS vaccine_name, a.created_at
-            FROM appointments a JOIN patients p ON p.patient_id = a.patient_id LEFT JOIN vaccines v ON v.vaccine_id = a.vaccine_id
+        $newAppointments = $conn->prepare("SELECT p.full_name, c.first_name AS child_name, a.appointment_date, a.appointment_time, v.name AS vaccine_name, a.created_at
+            FROM appointments a JOIN patients p ON p.patient_id = a.patient_id
+            LEFT JOIN children c ON c.child_id = a.child_id AND c.patient_id = a.patient_id
+            LEFT JOIN vaccines v ON v.vaccine_id = a.vaccine_id
             WHERE a.doctor_id = ? AND a.status = 'Scheduled' AND a.created_at > ?
             ORDER BY a.created_at DESC LIMIT 25");
         $newAppointments->bind_param('is', $doctor_id, $since);
         $newAppointments->execute();
         foreach ($newAppointments->get_result()->fetch_all(MYSQLI_ASSOC) as $row) {
             $when = $row['appointment_date'] . ($row['appointment_time'] ? ' at ' . $row['appointment_time'] : '');
-            $patientUpdates[] = ['kind' => 'appointment', 'title' => 'New scheduled appointment', 'patient' => $row['full_name'], 'detail' => $when . ($row['vaccine_name'] ? ' · ' . $row['vaccine_name'] : ''), 'created_at' => $row['created_at']];
+            $detail = $row['child_name'] ? 'For child: ' . $row['child_name'] . ' · ' : '';
+            $detail .= $when . ($row['vaccine_name'] ? ' · ' . $row['vaccine_name'] : '');
+            $patientUpdates[] = ['kind' => 'appointment', 'title' => 'New scheduled appointment', 'patient' => $row['full_name'], 'detail' => $detail, 'created_at' => $row['created_at']];
         }
 
         $newPrechecks = $conn->prepare("SELECT p.full_name, pf.submitted_at, v.name AS vaccine_name
