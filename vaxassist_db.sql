@@ -1049,3 +1049,80 @@ INSERT IGNORE INTO `doctor_availability` (`doctor_id`, `weekday`)
 SELECT `doctor_id`, `d`.`weekday` FROM `doctors`
 JOIN (SELECT 1 AS weekday UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5) d
 WHERE `email` = 'try1@gmail.com';
+
+---- Missing admin side -----
+CREATE TABLE `users` (
+  `id` int(11) NOT NULL,
+  `first_name` varchar(100) NOT NULL,
+  `last_name` varchar(100) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `phone` varchar(30) NOT NULL,
+  `dob` date NOT NULL,
+  `password_hash` varchar(255) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `terms_accepted` tinyint(1) NOT NULL DEFAULT 0,
+  `role` varchar(30) NOT NULL DEFAULT 'Administrator'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+INSERT INTO `users` (`id`, `first_name`, `last_name`, `email`, `phone`, `dob`, `password_hash`, `created_at`, `terms_accepted`, `role`) VALUES
+(5, 'Chng', 'Zhe Han', 'hanzhechng001@gmail.com', '011 111 1111', '2020-03-11', '$2y$10$rBiSluongP1x.OYBfB4eqOxZZyZa0nTriUvIk4qGrpA3MOkO.L8zC', '2026-10-14 05:57:51', 1, 'Administrator'),
+(9, 'Victor', 'Lai', 'victor1996@gmail.com', '016-558-9572', '1996-02-22', '$2y$10$w94kZXHg.tK7/NIyYmLsOOqhSlxHo9rpVjVAs7vBbzIEbg/G71YJu', '2026-10-26 05:04:19', 1, 'Administrator');
+
+
+ALTER TABLE `users`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `email` (`email`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `users`
+--
+ALTER TABLE `users`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+COMMIT;
+
+CREATE TABLE `staff` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `first_name` varchar(100) NOT NULL,
+  `last_name` varchar(100) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `phone` varchar(30) DEFAULT NULL,
+  `role` enum('Administrator','Doctor','Nurse','Receptionist') NOT NULL,
+  `department` varchar(100) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `staff`
+--
+
+INSERT INTO `staff` (`id`, `first_name`, `last_name`, `email`, `phone`, `role`, `department`, `created_at`, `updated_at`) VALUES
+(2, 'Jason', '', 'jason001@gmail.com', '011-222-3344', 'Administrator', 'Vaccination', '2026-10-19 04:11:08', '2026-10-19 04:11:08'),
+(3, 'Alex', '', 'alextan2001@gmail.com', '012- 567- 0962', 'Doctor', 'X-Ray', '2026-10-19 04:18:29', '2026-10-19 04:18:29'),
+(5, 'Alex', '', 'test1@gmail.com', '011-222-3344', 'Doctor', 'Vaccination', '2026-10-20 02:45:52', '2026-10-20 02:45:52');
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `staff`
+--
+ALTER TABLE `staff`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `email` (`email`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `staff`
+--
+ALTER TABLE `staff`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+COMMIT;
