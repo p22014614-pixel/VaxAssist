@@ -81,15 +81,19 @@ try {
             $patientUpdates[] = ['kind' => 'appointment', 'title' => 'New scheduled appointment', 'patient' => $row['full_name'], 'detail' => $when . ($row['vaccine_name'] ? ' · ' . $row['vaccine_name'] : ''), 'created_at' => $row['created_at']];
         }
 
-        $newPrechecks = $conn->prepare("SELECT p.full_name, pf.submitted_at, v.name AS vaccine_name
+        $newPrechecks = $conn->prepare("SELECT p.full_name, pf.submitted_at, v.name AS vaccine_name,
+                a.appointment_date, a.appointment_time, a.created_at AS appointment_created_at
             FROM precheck_forms pf JOIN patients p ON p.patient_id = pf.patient_id
             JOIN appointments a ON a.appointment_id = pf.appointment_id AND a.doctor_id = ? AND a.patient_id = pf.patient_id
             LEFT JOIN vaccines v ON v.vaccine_id = pf.vaccine_id
-            WHERE pf.submitted_at > ? ORDER BY pf.submitted_at DESC LIMIT 25");
-        $newPrechecks->bind_param('is', $doctor_id, $since);
+            WHERE pf.submitted_at > ? OR (a.created_at > ? AND pf.submitted_at <= ?)
+            ORDER BY GREATEST(pf.submitted_at, a.created_at) DESC LIMIT 25");
+        $newPrechecks->bind_param('isss', $doctor_id, $since, $since, $since);
         $newPrechecks->execute();
         foreach ($newPrechecks->get_result()->fetch_all(MYSQLI_ASSOC) as $row) {
-            $patientUpdates[] = ['kind' => 'precheck', 'title' => 'Patient submitted a pre-check form', 'patient' => $row['full_name'], 'detail' => $row['vaccine_name'] ?: 'Review the patient’s vaccination screening responses.', 'created_at' => $row['submitted_at']];
+            $when = $row['appointment_date'] . ($row['appointment_time'] ? ' at ' . $row['appointment_time'] : '');
+            $eventTime = $row['submitted_at'] > $row['appointment_created_at'] ? $row['submitted_at'] : $row['appointment_created_at'];
+            $patientUpdates[] = ['kind' => 'precheck', 'title' => 'Patient submitted a pre-check form', 'patient' => $row['full_name'], 'detail' => ($row['vaccine_name'] ?: 'Vaccination') . ' · appointment ' . $when, 'created_at' => $eventTime];
         }
 
         usort($patientUpdates, static fn($a, $b) => strcmp($b['created_at'], $a['created_at']));
@@ -101,10 +105,6 @@ try {
         $_SESSION['doctor_notifications_pending'] = false;
     }
 
-    // The patient update feed depends on newer optional migration tables.
-    // Do not let those tables prevent the core dashboard analytics from loading.
-    $showLoginUpdates = false;
-    $patientUpdates = [];
     echo json_encode([
         'status' => 'success',
         'metrics' => [
