@@ -133,26 +133,39 @@
         // Searches only for patients associated with the signed-in doctor's care.
         function searchPatient() {
             const q = document.getElementById("patientSearchInput").value.trim();
-            if (!q) { alert("Enter a patient name or IC/passport number."); return; }
+            const detailsCard = document.getElementById("patientDetailsCard");
+            const activePatient = document.getElementById("activePatientId");
+            const historyButton = document.getElementById("viewPatientHistory");
+            const clearPatient = () => {
+                activePatient.value = "";
+                historyButton.disabled = true;
+                detailsCard.style.display = "none";
+            };
+            if (!q) {
+                clearPatient();
+                window.alert("Enter a patient name or IC/passport number.");
+                return;
+            }
             const exactId = new URLSearchParams(window.location.search).get('patient_id');
             const idPart = exactId && q === (new URLSearchParams(window.location.search).get('search') || '') ? `&patient_id=${encodeURIComponent(exactId)}` : '';
             return VaxApi.get(`doctor_patientRecord_backend.php?query=${encodeURIComponent(q)}${idPart}`)
                 .then(data => {
                     if (data.status === "success") {
                         const p = data.patient;
-                        document.getElementById("patientDetailsCard").style.display = "block";
-                        document.getElementById("activePatientId").value = p.patient_id;
-                        document.getElementById("viewPatientHistory").disabled = false;
+                        detailsCard.style.display = "block";
+                        activePatient.value = p.patient_id;
+                        historyButton.disabled = false;
                         document.getElementById("patientNameHeader").innerText = `${p.name} (ID: P-${p.patient_id})`;
                         document.getElementById("patientInfoSubtext").textContent =
                             `Age: ${p.age ?? 'Not provided'} | Gender: ${p.gender} | Blood Type: ${p.blood_type || 'Not recorded'} | Allergies: ${p.allergies || 'None recorded'}`;
                     } else {
-                        document.getElementById("activePatientId").value = "";
-                        document.getElementById("viewPatientHistory").disabled = true;
-                        document.getElementById("patientDetailsCard").style.display = "none";
-                        alert("No patient found matching search criteria.");
+                        clearPatient();
+                        window.alert(data.message || "No patient found in your care matching that search.");
                     }
-                }).catch(() => alert("Could not load patient records. Please try again."));
+                }).catch(error => {
+                    clearPatient();
+                    window.alert(error.message || "Could not load patient records. Please try again.");
+                });
         }
 
         // Lets the search field submit with Enter while keeping the walk-in form state intact.
