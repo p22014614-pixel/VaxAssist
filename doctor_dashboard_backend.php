@@ -36,75 +36,70 @@ try {
         $months[] = ['month' => $row['month'], 'scheduled' => (int) $row['scheduled'], 'completed' => (int) $row['completed']];
     }
 
-    // Collects updates since this doctor's previous login, while keeping patient records doctor-scoped.
-    $showLoginUpdates = !empty($_SESSION['doctor_notifications_pending']);
-    $patientUpdates = $_SESSION['doctor_login_updates'] ?? [];
-    if ($showLoginUpdates) {
-        $conn->begin_transaction();
-        $cursorQuery = $conn->prepare('SELECT last_seen_at FROM doctor_notification_cursors WHERE doctor_id = ? FOR UPDATE');
-        $cursorQuery->bind_param('i', $doctor_id);
-        $cursorQuery->execute();
-        $cursorRow = $cursorQuery->get_result()->fetch_assoc();
-        $since = $cursorRow['last_seen_at'] ?? date('Y-m-d H:i:s', strtotime('-7 days'));
+    // Collects new activity since the doctor's last dashboard check.
+    $conn->begin_transaction();
+    $cursorQuery = $conn->prepare('SELECT last_seen_at FROM doctor_notification_cursors WHERE doctor_id = ? FOR UPDATE');
+    $cursorQuery->bind_param('i', $doctor_id);
+    $cursorQuery->execute();
+    $cursorRow = $cursorQuery->get_result()->fetch_assoc();
+    $since = $cursorRow['last_seen_at'] ?? date('Y-m-d H:i:s', strtotime('-7 days'));
+    $patientUpdates = [];
 
-        $incoming = $conn->prepare("SELECT p.full_name, m.message_text AS detail, m.created_at
-            FROM messages m JOIN patients p ON p.patient_id = m.patient_id
-            WHERE m.doctor_id = ? AND m.sender_type = 'patient' AND m.is_read = 0
-            ORDER BY m.created_at DESC LIMIT 25");
-        $incoming->bind_param('i', $doctor_id);
-        $incoming->execute();
-        foreach ($incoming->get_result()->fetch_all(MYSQLI_ASSOC) as $row) {
-            $patientUpdates[] = ['kind' => 'message', 'title' => 'Unread patient message', 'patient' => $row['full_name'], 'detail' => $row['detail'], 'created_at' => $row['created_at']];
-        }
+    $incoming = $conn->prepare("SELECT p.full_name, m.message_text AS detail, m.created_at
+        FROM messages m JOIN patients p ON p.patient_id = m.patient_id
+        WHERE m.doctor_id = ? AND m.sender_type = 'patient' AND m.is_read = 0 AND m.created_at > ?
+        ORDER BY m.created_at DESC LIMIT 25");
+    $incoming->bind_param('is', $doctor_id, $since);
+    $incoming->execute();
+    foreach ($incoming->get_result()->fetch_all(MYSQLI_ASSOC) as $row) {
+        $patientUpdates[] = ['kind' => 'message', 'title' => 'Unread patient message', 'patient' => $row['full_name'], 'detail' => $row['detail'], 'created_at' => $row['created_at']];
+    }
 
-        $patientNotices = $conn->prepare("SELECT p.full_name, n.title, n.body, n.created_at
+    $patientNotices = $conn->prepare("SELECT p.full_name, n.title, n.body, n.created_at
             FROM notifications n
             JOIN patients p ON p.patient_id = n.patient_id
             JOIN appointments a ON a.appointment_id = n.appointment_id
                 AND a.patient_id = n.patient_id
-            WHERE n.is_read = 0 AND a.doctor_id = ?
+            WHERE n.is_read = 0 AND a.doctor_id = ? AND n.created_at > ?
             ORDER BY n.created_at DESC LIMIT 25");
-        $patientNotices->bind_param('i', $doctor_id);
-        $patientNotices->execute();
-        foreach ($patientNotices->get_result()->fetch_all(MYSQLI_ASSOC) as $row) {
-            $patientUpdates[] = ['kind' => 'patient-notification', 'title' => $row['title'], 'patient' => $row['full_name'], 'detail' => $row['body'] ?: 'A patient notification is unread.', 'created_at' => $row['created_at']];
-        }
+    $patientNotices->bind_param('is', $doctor_id, $since);
+    $patientNotices->execute();
+    foreach ($patientNotices->get_result()->fetch_all(MYSQLI_ASSOC) as $row) {
+        $patientUpdates[] = ['kind' => 'patient-notification', 'title' => $row['title'], 'patient' => $row['full_name'], 'detail' => $row['body'] ?: 'A patient notification is unread.', 'created_at' => $row['created_at']];
+    }
 
-        $newAppointments = $conn->prepare("SELECT p.full_name, a.appointment_date, a.appointment_time, v.name AS vaccine_name, a.created_at
+    $newAppointments = $conn->prepare("SELECT p.full_name, a.appointment_date, a.appointment_time, v.name AS vaccine_name, a.created_at
             FROM appointments a JOIN patients p ON p.patient_id = a.patient_id LEFT JOIN vaccines v ON v.vaccine_id = a.vaccine_id
             WHERE a.doctor_id = ? AND a.status = 'Scheduled' AND a.created_at > ?
             ORDER BY a.created_at DESC LIMIT 25");
-        $newAppointments->bind_param('is', $doctor_id, $since);
-        $newAppointments->execute();
-        foreach ($newAppointments->get_result()->fetch_all(MYSQLI_ASSOC) as $row) {
-            $when = $row['appointment_date'] . ($row['appointment_time'] ? ' at ' . $row['appointment_time'] : '');
-            $patientUpdates[] = ['kind' => 'appointment', 'title' => 'New scheduled appointment', 'patient' => $row['full_name'], 'detail' => $when . ($row['vaccine_name'] ? ' · ' . $row['vaccine_name'] : ''), 'created_at' => $row['created_at']];
-        }
+    $newAppointments->bind_param('is', $doctor_id, $since);
+    $newAppointments->execute();
+    foreach ($newAppointments->get_result()->fetch_all(MYSQLI_ASSOC) as $row) {
+        $when = $row['appointment_date'] . ($row['appointment_time'] ? ' at ' . $row['appointment_time'] : '');
+        $patientUpdates[] = ['kind' => 'appointment', 'title' => 'New vaccination appointment booked', 'patient' => $row['full_name'], 'detail' => $when . ($row['vaccine_name'] ? ' · ' . $row['vaccine_name'] : ''), 'created_at' => $row['created_at']];
+    }
 
-        $newPrechecks = $conn->prepare("SELECT p.full_name, pf.submitted_at, v.name AS vaccine_name
+    $newPrechecks = $conn->prepare("SELECT p.full_name, pf.submitted_at, v.name AS vaccine_name,
+                a.appointment_date, a.appointment_time, a.created_at AS appointment_created_at
             FROM precheck_forms pf JOIN patients p ON p.patient_id = pf.patient_id
             JOIN appointments a ON a.appointment_id = pf.appointment_id AND a.doctor_id = ? AND a.patient_id = pf.patient_id
             LEFT JOIN vaccines v ON v.vaccine_id = pf.vaccine_id
-            WHERE pf.submitted_at > ? ORDER BY pf.submitted_at DESC LIMIT 25");
-        $newPrechecks->bind_param('is', $doctor_id, $since);
-        $newPrechecks->execute();
-        foreach ($newPrechecks->get_result()->fetch_all(MYSQLI_ASSOC) as $row) {
-            $patientUpdates[] = ['kind' => 'precheck', 'title' => 'Patient submitted a pre-check form', 'patient' => $row['full_name'], 'detail' => $row['vaccine_name'] ?: 'Review the patient’s vaccination screening responses.', 'created_at' => $row['submitted_at']];
-        }
-
-        usort($patientUpdates, static fn($a, $b) => strcmp($b['created_at'], $a['created_at']));
-        $cursor = $conn->prepare('INSERT INTO doctor_notification_cursors (doctor_id, last_seen_at) VALUES (?, NOW()) ON DUPLICATE KEY UPDATE last_seen_at = VALUES(last_seen_at)');
-        $cursor->bind_param('i', $doctor_id);
-        $cursor->execute();
-        $conn->commit();
-        $_SESSION['doctor_login_updates'] = $patientUpdates;
-        $_SESSION['doctor_notifications_pending'] = false;
+            WHERE pf.submitted_at > ? OR (pf.submitted_at <= ? AND a.created_at > ?)
+            ORDER BY GREATEST(pf.submitted_at, a.created_at) DESC LIMIT 25");
+    $newPrechecks->bind_param('isss', $doctor_id, $since, $since, $since);
+    $newPrechecks->execute();
+    foreach ($newPrechecks->get_result()->fetch_all(MYSQLI_ASSOC) as $row) {
+        $when = $row['appointment_date'] . ($row['appointment_time'] ? ' at ' . $row['appointment_time'] : '');
+        $eventTime = $row['submitted_at'] > $row['appointment_created_at'] ? $row['submitted_at'] : $row['appointment_created_at'];
+        $patientUpdates[] = ['kind' => 'precheck', 'title' => 'Patient submitted a pre-check form', 'patient' => $row['full_name'], 'detail' => ($row['vaccine_name'] ?: 'Vaccination') . ' · appointment ' . $when, 'created_at' => $eventTime];
     }
 
-    // The patient update feed depends on newer optional migration tables.
-    // Do not let those tables prevent the core dashboard analytics from loading.
-    $showLoginUpdates = false;
-    $patientUpdates = [];
+    usort($patientUpdates, static fn($a, $b) => strcmp($b['created_at'], $a['created_at']));
+    $cursor = $conn->prepare('INSERT INTO doctor_notification_cursors (doctor_id, last_seen_at) VALUES (?, NOW()) ON DUPLICATE KEY UPDATE last_seen_at = VALUES(last_seen_at)');
+    $cursor->bind_param('i', $doctor_id);
+    $cursor->execute();
+    $conn->commit();
+    $showLoginUpdates = count($patientUpdates) > 0;
     echo json_encode([
         'status' => 'success',
         'metrics' => [

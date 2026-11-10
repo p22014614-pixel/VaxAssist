@@ -103,12 +103,20 @@ try {
     $duplicate->execute();
     if ($duplicate->get_result()->fetch_row()) throw new RuntimeException('A vaccination record already exists for this appointment.');
 
-    $vaccine = $conn->prepare('SELECT name FROM vaccines WHERE vaccine_id = ?');
+    $vaccine = $conn->prepare('SELECT name, total_doses FROM vaccines WHERE vaccine_id = ?');
     $vaccine->bind_param('i', $vaccineId);
     $vaccine->execute();
-    $vaccineRow = $vaccine->get_result()->fetch_row();
-    $vaccineName = $vaccineRow[0] ?? null;
+    $vaccineRow = $vaccine->get_result()->fetch_assoc();
+    $vaccineName = $vaccineRow['name'] ?? null;
     if (!$vaccineName) throw new RuntimeException('The selected vaccine could not be found.');
+    $totalDoses = max(1, (int) $vaccineRow['total_doses']);
+    if ($doseNumber > $totalDoses) throw new RuntimeException('Dose number cannot exceed the selected vaccine total of ' . $totalDoses . '.');
+
+    $progress = $conn->prepare('SELECT COALESCE(MAX(dose_number), 0) FROM vaccination_records WHERE patient_id = ? AND (child_id <=> ?) AND vaccine_id = ? FOR UPDATE');
+    $progress->bind_param('iii', $visit['patient_id'], $visit['child_id'], $vaccineId);
+    $progress->execute();
+    $previousDose = (int) $progress->get_result()->fetch_row()[0];
+    if ($doseNumber !== $previousDose + 1) throw new RuntimeException('Record the next dose in sequence: dose ' . ($previousDose + 1) . ' of ' . $totalDoses . '.');
 
     if ($batchId !== null) {
         $batch = $conn->prepare('SELECT vaccine_id, quantity_in_stock, expiry_date FROM vaccine_batches WHERE batch_id = ? FOR UPDATE');

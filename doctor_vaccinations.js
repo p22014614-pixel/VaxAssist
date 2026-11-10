@@ -40,6 +40,11 @@
         status.classList.toggle('is-error', Boolean(message) && isError);
     }
 
+    function showError(message) {
+        setStatus(message, true);
+        window.alert(message);
+    }
+
     // Formats a database date for display in the vaccination page.
     function formatDate(value) {
         if (!value) return 'Not provided';
@@ -254,8 +259,34 @@
         } else {
             vaccineSelect.disabled = false;
         }
-        vaccineSelect.onchange = () => populateBatches();
+        vaccineSelect.onchange = () => {
+            populateBatches();
+            populateDoseOptions(patient);
+        };
         populateBatches();
+        populateDoseOptions(patient);
+    }
+
+    // Dose choices follow the selected vaccine's database total and this patient's history.
+    function populateDoseOptions(patient) {
+        const doseSelect = document.getElementById('recordDose');
+        const vaccine = vaccines.find((item) => Number(item.vaccine_id) === Number(vaccineSelect.value));
+        const total = Number(vaccine?.total_doses || 0);
+        const history = (patient.vaccination_history || []).filter((record) => Number(record.vaccine_id) === Number(vaccineSelect.value));
+        const completed = history.reduce((max, record) => Math.max(max, Number(record.dose_number) || 0), 0);
+        doseSelect.replaceChildren();
+        if (!vaccine || total < 1 || completed >= total) {
+            doseSelect.add(new Option(vaccine ? 'All doses already recorded' : 'Choose vaccine first', ''));
+            doseSelect.disabled = true;
+            return;
+        }
+        for (let dose = 1; dose <= total; dose += 1) {
+            const option = new Option(`Dose ${dose} of ${total}`, String(dose));
+            option.disabled = dose !== completed + 1;
+            doseSelect.add(option);
+        }
+        doseSelect.value = String(completed + 1);
+        doseSelect.disabled = false;
     }
 
     // Shows only available stock batches for the selected vaccine.
@@ -298,7 +329,6 @@
         form.hidden = patient.status === 'Completed';
         if (patient.status !== 'Completed') {
             document.getElementById('recordAppointmentId').value = patient.appointment_id;
-            document.getElementById('recordDose').value = Math.max(1, Number(patient.previous_doses || 0) + 1);
             const now = new Date();
             const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
             const dateInput = document.getElementById('recordDate');
@@ -343,6 +373,21 @@
     form.addEventListener('submit', async (event) => {
         event.preventDefault();
         if (!selected) return;
+        if (!form.reportValidity()) return;
+        if (!vaccineSelect.value || !document.getElementById('recordDose').value) {
+            showError('Choose a vaccine and an available dose number before saving.');
+            return;
+        }
+        const givenDate = document.getElementById('recordDate').value;
+        const nextDate = document.getElementById('recordNextDose').value;
+        if (givenDate > document.getElementById('recordDate').max) {
+            showError('Date given cannot be in the future.');
+            return;
+        }
+        if (nextDate && nextDate < givenDate) {
+            showError('Next dose date must be the same day or later than the date given.');
+            return;
+        }
         const button = document.getElementById('saveVaccinationRecord');
         button.disabled = true;
         setStatus('');
@@ -364,7 +409,7 @@
             await loadRoster();
             setStatus(successMessage);
         } catch (error) {
-            setStatus(error.message || 'Vaccination record could not be saved.', true);
+            showError(error.message || 'Vaccination record could not be saved.');
         } finally {
             button.disabled = false;
         }

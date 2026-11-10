@@ -1,14 +1,11 @@
--- Unified VaxAssist database setup: doctor base schema, patient extension, shared seed data, and doctor portal additions.
--- This file replaces the separate vaxassist_db_alvan.sql, patients_extension.sql, and patients_seed.sql import steps.
-
 -- phpMyAdmin SQL Dump
--- version 5.2.1
+-- version 5.2.3
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 18, 2026 at 10:12 AM
--- Server version: 10.4.32-MariaDB
--- PHP Version: 8.2.12
+-- Generation Time: Nov 10, 2026 at 09:33 AM
+-- Server version: 10.11.16-MariaDB
+-- PHP Version: 8.5.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -34,21 +31,126 @@ CREATE TABLE `appointments` (
   `appointment_id` int(11) NOT NULL,
   `doctor_id` int(11) NOT NULL,
   `patient_id` int(11) NOT NULL,
+  `child_id` int(11) DEFAULT NULL,
+  `vaccine_id` int(11) DEFAULT NULL,
   `appointment_date` date NOT NULL,
+  `appointment_time` time DEFAULT NULL,
   `time_slot` enum('08:00 AM - 10:00 AM','10:00 AM - 12:00 PM','01:00 PM - 03:00 PM','03:00 PM - 05:00 PM') NOT NULL,
-  `status` enum('Scheduled','Completed','Cancelled') DEFAULT 'Scheduled',
+  `status` enum('Scheduled','Completed','Cancelled','Missed') DEFAULT 'Scheduled',
   `symptoms_notes` text DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `cancel_reason` varchar(300) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `appointments`
 --
 
-INSERT INTO `appointments` (`appointment_id`, `doctor_id`, `patient_id`, `appointment_date`, `time_slot`, `status`, `symptoms_notes`, `created_at`) VALUES
-(1, 1, 1, '2026-10-18', '08:00 AM - 10:00 AM', 'Scheduled', 'Cardiology Routine Review & ECG', '2026-10-18 06:58:13'),
-(2, 1, 2, '2026-10-18', '10:00 AM - 12:00 PM', 'Scheduled', 'Influenza Vaccine Consultation', '2026-10-18 06:58:13'),
-(3, 1, 3, '2026-10-18', '01:00 PM - 03:00 PM', 'Scheduled', 'Orthopedic Joint Checkup', '2026-10-18 06:58:13');
+INSERT INTO `appointments` (`appointment_id`, `doctor_id`, `patient_id`, `child_id`, `vaccine_id`, `appointment_date`, `appointment_time`, `time_slot`, `status`, `symptoms_notes`, `created_at`, `cancel_reason`) VALUES
+(1, 1, 1, NULL, NULL, '2026-10-18', NULL, '08:00 AM - 10:00 AM', 'Scheduled', 'Cardiology Routine Review & ECG', '2026-10-18 06:58:13', NULL),
+(2, 1, 2, NULL, NULL, '2026-10-18', NULL, '10:00 AM - 12:00 PM', 'Scheduled', 'Influenza Vaccine Consultation', '2026-10-18 06:58:13', NULL),
+(3, 1, 3, NULL, NULL, '2026-10-18', NULL, '01:00 PM - 03:00 PM', 'Scheduled', 'Orthopedic Joint Checkup', '2026-10-18 06:58:13', NULL),
+(4, 2, 4, NULL, 1, '2026-11-16', '10:00:00', '10:00 AM - 12:00 PM', 'Scheduled', 'Travelling to Ghana next month.', '2026-11-10 08:31:38', NULL),
+(5, 3, 4, 1, 14, '2026-11-23', '14:30:00', '01:00 PM - 03:00 PM', 'Scheduled', NULL, '2026-11-10 08:31:38', NULL),
+(6, 4, 4, NULL, 17, '2026-11-30', '09:30:00', '08:00 AM - 10:00 AM', 'Scheduled', NULL, '2026-11-10 08:31:38', NULL),
+(7, 2, 4, NULL, 2, '2026-10-29', '11:00:00', '10:00 AM - 12:00 PM', 'Completed', NULL, '2026-11-10 08:31:38', NULL),
+(8, 8, 4, 1, 11, '2026-10-11', '15:00:00', '03:00 PM - 05:00 PM', 'Completed', NULL, '2026-11-10 08:31:38', NULL),
+(9, 9, 4, NULL, 3, '2026-09-30', '10:30:00', '10:00 AM - 12:00 PM', 'Completed', NULL, '2026-11-10 08:31:38', NULL),
+(10, 9, 4, NULL, 3, '2026-10-23', '11:30:00', '10:00 AM - 12:00 PM', 'Cancelled', NULL, '2026-11-10 08:31:38', 'Change of plans.'),
+(11, 4, 4, NULL, 16, '2026-09-11', '16:00:00', '03:00 PM - 05:00 PM', 'Missed', NULL, '2026-11-10 08:31:38', NULL),
+(12, 4, 4, NULL, 17, '2026-04-14', '09:00:00', '08:00 AM - 10:00 AM', 'Completed', NULL, '2026-11-10 08:31:38', NULL),
+(13, 4, 1, NULL, 17, '2026-11-16', '10:30:00', '10:00 AM - 12:00 PM', 'Scheduled', NULL, '2026-11-10 08:31:38', NULL),
+(14, 3, 1, 2, 14, '2026-09-11', '14:00:00', '01:00 PM - 03:00 PM', 'Completed', NULL, '2026-11-10 08:31:38', NULL),
+(15, 2, 2, NULL, 1, '2026-11-23', '09:00:00', '08:00 AM - 10:00 AM', 'Scheduled', 'Trip to Kenya in six weeks.', '2026-11-10 08:31:38', NULL),
+(16, 9, 3, NULL, 16, '2026-11-16', '15:30:00', '03:00 PM - 05:00 PM', 'Scheduled', NULL, '2026-11-10 08:31:38', NULL),
+(17, 2, 1, NULL, 2, '2026-08-12', '09:00:00', '08:00 AM - 10:00 AM', 'Completed', NULL, '2026-11-10 08:31:38', NULL),
+(18, 2, 2, NULL, 2, '2026-07-13', '10:00:00', '10:00 AM - 12:00 PM', 'Completed', NULL, '2026-11-10 08:31:38', NULL),
+(19, 2, 3, NULL, 2, '2026-06-13', '11:00:00', '10:00 AM - 12:00 PM', 'Completed', NULL, '2026-11-10 08:31:38', NULL),
+(20, 3, 1, NULL, 14, '2026-08-05', '09:00:00', '08:00 AM - 10:00 AM', 'Completed', NULL, '2026-11-10 08:31:38', NULL),
+(21, 3, 2, NULL, 14, '2026-07-06', '10:00:00', '10:00 AM - 12:00 PM', 'Completed', NULL, '2026-11-10 08:31:38', NULL),
+(22, 3, 3, NULL, 14, '2026-06-06', '11:00:00', '10:00 AM - 12:00 PM', 'Completed', NULL, '2026-11-10 08:31:38', NULL),
+(23, 4, 1, NULL, 17, '2026-07-29', '09:00:00', '08:00 AM - 10:00 AM', 'Completed', NULL, '2026-11-10 08:31:38', NULL),
+(24, 4, 2, NULL, 17, '2026-06-29', '10:00:00', '10:00 AM - 12:00 PM', 'Completed', NULL, '2026-11-10 08:31:38', NULL),
+(25, 4, 3, NULL, 17, '2026-05-30', '11:00:00', '10:00 AM - 12:00 PM', 'Completed', NULL, '2026-11-10 08:31:38', NULL),
+(26, 5, 1, NULL, 16, '2026-07-22', '09:00:00', '08:00 AM - 10:00 AM', 'Completed', NULL, '2026-11-10 08:31:38', NULL),
+(27, 5, 2, NULL, 16, '2026-06-22', '10:00:00', '10:00 AM - 12:00 PM', 'Completed', NULL, '2026-11-10 08:31:38', NULL),
+(28, 5, 3, NULL, 16, '2026-05-23', '11:00:00', '10:00 AM - 12:00 PM', 'Completed', NULL, '2026-11-10 08:31:38', NULL),
+(29, 6, 1, NULL, 10, '2026-07-15', '09:00:00', '08:00 AM - 10:00 AM', 'Completed', NULL, '2026-11-10 08:31:38', NULL),
+(30, 6, 2, NULL, 10, '2026-06-15', '10:00:00', '10:00 AM - 12:00 PM', 'Completed', NULL, '2026-11-10 08:31:38', NULL),
+(31, 6, 3, NULL, 10, '2026-05-16', '11:00:00', '10:00 AM - 12:00 PM', 'Completed', NULL, '2026-11-10 08:31:38', NULL),
+(32, 7, 1, NULL, 16, '2026-07-08', '09:00:00', '08:00 AM - 10:00 AM', 'Completed', NULL, '2026-11-10 08:31:38', NULL),
+(33, 7, 2, NULL, 16, '2026-06-08', '10:00:00', '10:00 AM - 12:00 PM', 'Completed', NULL, '2026-11-10 08:31:38', NULL),
+(34, 7, 3, NULL, 16, '2026-05-09', '11:00:00', '10:00 AM - 12:00 PM', 'Completed', NULL, '2026-11-10 08:31:38', NULL),
+(35, 8, 1, NULL, 14, '2026-07-01', '09:00:00', '08:00 AM - 10:00 AM', 'Completed', NULL, '2026-11-10 08:31:38', NULL),
+(36, 8, 2, NULL, 14, '2026-06-01', '10:00:00', '10:00 AM - 12:00 PM', 'Completed', NULL, '2026-11-10 08:31:38', NULL),
+(37, 8, 3, NULL, 14, '2026-05-02', '11:00:00', '10:00 AM - 12:00 PM', 'Completed', NULL, '2026-11-10 08:31:38', NULL),
+(38, 9, 1, NULL, 17, '2026-06-24', '09:00:00', '08:00 AM - 10:00 AM', 'Completed', NULL, '2026-11-10 08:31:38', NULL),
+(39, 9, 2, NULL, 17, '2026-05-25', '10:00:00', '10:00 AM - 12:00 PM', 'Completed', NULL, '2026-11-10 08:31:38', NULL),
+(40, 9, 3, NULL, 17, '2026-04-25', '11:00:00', '10:00 AM - 12:00 PM', 'Completed', NULL, '2026-11-10 08:31:38', NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `children`
+--
+
+CREATE TABLE `children` (
+  `child_id` int(11) NOT NULL,
+  `patient_id` int(11) NOT NULL COMMENT 'the parent',
+  `first_name` varchar(50) NOT NULL,
+  `dob` date NOT NULL,
+  `gender` enum('Male','Female','Other') NOT NULL DEFAULT 'Male',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `children`
+--
+
+INSERT INTO `children` (`child_id`, `patient_id`, `first_name`, `dob`, `gender`, `created_at`) VALUES
+(1, 4, 'Aiden', '2025-09-06', 'Male', '2026-11-10 08:31:38'),
+(2, 1, 'Noah', '2024-05-24', 'Male', '2026-11-10 08:31:38');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `child_schedule`
+--
+
+CREATE TABLE `child_schedule` (
+  `schedule_id` int(11) NOT NULL,
+  `vaccine_id` int(11) NOT NULL,
+  `age_months` smallint(6) NOT NULL COMMENT 'age when the dose is due',
+  `dose_number` tinyint(3) UNSIGNED NOT NULL DEFAULT 0 COMMENT '0 = not tracked (e.g. yearly flu shot)',
+  `dose_label` varchar(30) NOT NULL,
+  `requirement` enum('Required','Recommended') NOT NULL,
+  `reason` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `child_schedule`
+--
+
+INSERT INTO `child_schedule` (`schedule_id`, `vaccine_id`, `age_months`, `dose_number`, `dose_label`, `requirement`, `reason`) VALUES
+(1, 9, 0, 1, 'Single dose', 'Required', 'Protects against severe forms of tuberculosis.'),
+(2, 10, 0, 1, 'Dose 1 of 3', 'Required', 'Protects the liver against hepatitis B infection.'),
+(3, 10, 1, 2, 'Dose 2 of 3', 'Required', 'Second dose of the hepatitis B course.'),
+(4, 11, 2, 1, 'Dose 1 of 4', 'Required', 'Covers diphtheria, tetanus, whooping cough, polio and Hib in one injection.'),
+(5, 12, 2, 1, 'Dose 1 of 4', 'Required', 'Protects against pneumonia, meningitis and ear infections.'),
+(6, 13, 2, 1, 'Dose 1 of 2', 'Recommended', 'Oral vaccine that prevents severe diarrhoea in babies.'),
+(7, 11, 3, 2, 'Dose 2 of 4', 'Required', 'Second dose of the five-in-one vaccine.'),
+(8, 12, 3, 2, 'Dose 2 of 4', 'Required', 'Second dose of the pneumococcal course.'),
+(9, 13, 3, 2, 'Dose 2 of 2', 'Recommended', 'Completes the rotavirus course.'),
+(10, 11, 5, 3, 'Dose 3 of 4', 'Required', 'Third dose of the five-in-one vaccine.'),
+(11, 12, 5, 3, 'Dose 3 of 4', 'Required', 'Third dose of the pneumococcal course.'),
+(12, 10, 6, 3, 'Dose 3 of 3', 'Required', 'Completes the hepatitis B course.'),
+(13, 17, 6, 0, 'Yearly', 'Recommended', 'Flu vaccine is advised every year from 6 months old.'),
+(14, 14, 9, 1, 'Dose 1 of 2', 'Required', 'Protects against measles, mumps and rubella.'),
+(15, 12, 12, 4, 'Booster', 'Required', 'Booster dose to keep protection strong.'),
+(16, 14, 12, 2, 'Dose 2 of 2', 'Required', 'Second dose gives long-lasting protection.'),
+(17, 15, 12, 1, 'Dose 1 of 2', 'Recommended', 'Protects against chickenpox and shingles later in life.'),
+(18, 11, 18, 4, 'Booster', 'Required', 'Booster dose of the five-in-one vaccine.'),
+(19, 15, 36, 2, 'Dose 2 of 2', 'Recommended', 'Second dose completes chickenpox protection.');
 
 -- --------------------------------------------------------
 
@@ -70,6 +172,197 @@ CREATE TABLE `consultation_records` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `contact_messages`
+--
+
+CREATE TABLE `contact_messages` (
+  `message_id` int(11) NOT NULL,
+  `patient_id` int(11) DEFAULT NULL COMMENT 'set when the sender was logged in',
+  `name` varchar(100) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `subject` varchar(100) NOT NULL,
+  `message` varchar(1000) NOT NULL,
+  `ip_address` varchar(45) NOT NULL,
+  `status` enum('New','Read','Replied') NOT NULL DEFAULT 'New',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `destinations`
+--
+
+CREATE TABLE `destinations` (
+  `destination_id` int(11) NOT NULL,
+  `country_code` char(2) NOT NULL,
+  `country` varchar(100) NOT NULL,
+  `region` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `destinations`
+--
+
+INSERT INTO `destinations` (`destination_id`, `country_code`, `country`, `region`) VALUES
+(1, 'AU', 'Australia', 'Oceania'),
+(2, 'BR', 'Brazil', 'South America'),
+(3, 'KH', 'Cambodia', 'Asia'),
+(4, 'CN', 'China', 'Asia'),
+(5, 'EG', 'Egypt', 'Middle East'),
+(6, 'GH', 'Ghana', 'Africa'),
+(7, 'IN', 'India', 'Asia'),
+(8, 'ID', 'Indonesia', 'Asia'),
+(9, 'JP', 'Japan', 'Asia'),
+(10, 'KE', 'Kenya', 'Africa'),
+(11, 'NP', 'Nepal', 'Asia'),
+(12, 'NG', 'Nigeria', 'Africa'),
+(13, 'PE', 'Peru', 'South America'),
+(14, 'PH', 'Philippines', 'Asia'),
+(15, 'SA', 'Saudi Arabia', 'Middle East'),
+(16, 'SG', 'Singapore', 'Asia'),
+(17, 'ZA', 'South Africa', 'Africa'),
+(18, 'KR', 'South Korea', 'Asia'),
+(19, 'TZ', 'Tanzania', 'Africa'),
+(20, 'TH', 'Thailand', 'Asia'),
+(21, 'UG', 'Uganda', 'Africa'),
+(22, 'GB', 'United Kingdom', 'Europe'),
+(23, 'US', 'United States', 'North America'),
+(24, 'VN', 'Vietnam', 'Asia');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `destination_vaccines`
+--
+
+CREATE TABLE `destination_vaccines` (
+  `destination_id` int(11) NOT NULL,
+  `vaccine_id` int(11) NOT NULL,
+  `requirement` enum('Required','Recommended') NOT NULL,
+  `reason` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `destination_vaccines`
+--
+
+INSERT INTO `destination_vaccines` (`destination_id`, `vaccine_id`, `requirement`, `reason`) VALUES
+(1, 14, 'Recommended', 'Measles outbreaks happen worldwide. Make sure you have had two doses.'),
+(1, 16, 'Recommended', 'Keeps tetanus and diphtheria cover up to date (every 10 years).'),
+(1, 17, 'Recommended', 'Flu circulates all year in the tropics and in winter elsewhere. Useful before long flights.'),
+(2, 1, 'Recommended', 'Mosquito-borne and present in this region. One dose gives lifelong protection.'),
+(2, 2, 'Recommended', 'Spread through contaminated food and water, especially if you eat street food or stay with locals.'),
+(2, 3, 'Recommended', 'Spread through food and water. Advised for almost every destination outside Europe and North America.'),
+(2, 4, 'Recommended', 'Worth considering if you will be around dogs, bats or monkeys, or far from medical care.'),
+(2, 17, 'Recommended', 'Flu circulates all year in the tropics and in winter elsewhere. Useful before long flights.'),
+(3, 2, 'Recommended', 'Spread through contaminated food and water, especially if you eat street food or stay with locals.'),
+(3, 3, 'Recommended', 'Spread through food and water. Advised for almost every destination outside Europe and North America.'),
+(3, 4, 'Recommended', 'Worth considering if you will be around dogs, bats or monkeys, or far from medical care.'),
+(3, 5, 'Recommended', 'Mosquito-borne. Advised for stays over a month or time spent in rural and farming areas.'),
+(4, 2, 'Recommended', 'Spread through contaminated food and water, especially if you eat street food or stay with locals.'),
+(4, 3, 'Recommended', 'Spread through food and water. Advised for almost every destination outside Europe and North America.'),
+(4, 5, 'Recommended', 'Mosquito-borne. Advised for stays over a month or time spent in rural and farming areas.'),
+(4, 14, 'Recommended', 'Measles outbreaks happen worldwide. Make sure you have had two doses.'),
+(4, 17, 'Recommended', 'Flu circulates all year in the tropics and in winter elsewhere. Useful before long flights.'),
+(5, 2, 'Recommended', 'Spread through contaminated food and water, especially if you eat street food or stay with locals.'),
+(5, 3, 'Recommended', 'Spread through food and water. Advised for almost every destination outside Europe and North America.'),
+(5, 8, 'Recommended', 'Advised if you have not had a booster as an adult and are visiting a region where polio is still reported.'),
+(5, 16, 'Recommended', 'Keeps tetanus and diphtheria cover up to date (every 10 years).'),
+(6, 1, 'Required', 'A yellow fever certificate is required to enter. One dose gives lifelong protection.'),
+(6, 2, 'Recommended', 'Spread through contaminated food and water, especially if you eat street food or stay with locals.'),
+(6, 3, 'Recommended', 'Spread through food and water. Advised for almost every destination outside Europe and North America.'),
+(6, 4, 'Recommended', 'Worth considering if you will be around dogs, bats or monkeys, or far from medical care.'),
+(6, 6, 'Recommended', 'Advised for the African meningitis belt, especially during the dry season.'),
+(6, 8, 'Recommended', 'Advised if you have not had a booster as an adult and are visiting a region where polio is still reported.'),
+(7, 2, 'Recommended', 'Spread through contaminated food and water, especially if you eat street food or stay with locals.'),
+(7, 3, 'Recommended', 'Spread through food and water. Advised for almost every destination outside Europe and North America.'),
+(7, 4, 'Recommended', 'Worth considering if you will be around dogs, bats or monkeys, or far from medical care.'),
+(7, 5, 'Recommended', 'Mosquito-borne. Advised for stays over a month or time spent in rural and farming areas.'),
+(7, 7, 'Recommended', 'Mainly for aid workers or travellers to areas with active outbreaks.'),
+(7, 8, 'Recommended', 'Advised if you have not had a booster as an adult and are visiting a region where polio is still reported.'),
+(8, 2, 'Recommended', 'Spread through contaminated food and water, especially if you eat street food or stay with locals.'),
+(8, 3, 'Recommended', 'Spread through food and water. Advised for almost every destination outside Europe and North America.'),
+(8, 4, 'Recommended', 'Worth considering if you will be around dogs, bats or monkeys, or far from medical care.'),
+(8, 5, 'Recommended', 'Mosquito-borne. Advised for stays over a month or time spent in rural and farming areas.'),
+(8, 16, 'Recommended', 'Keeps tetanus and diphtheria cover up to date (every 10 years).'),
+(9, 3, 'Recommended', 'Spread through food and water. Advised for almost every destination outside Europe and North America.'),
+(9, 5, 'Recommended', 'Mosquito-borne. Advised for stays over a month or time spent in rural and farming areas.'),
+(9, 14, 'Recommended', 'Measles outbreaks happen worldwide. Make sure you have had two doses.'),
+(9, 17, 'Recommended', 'Flu circulates all year in the tropics and in winter elsewhere. Useful before long flights.'),
+(10, 1, 'Recommended', 'Mosquito-borne and present in this region. One dose gives lifelong protection.'),
+(10, 2, 'Recommended', 'Spread through contaminated food and water, especially if you eat street food or stay with locals.'),
+(10, 3, 'Recommended', 'Spread through food and water. Advised for almost every destination outside Europe and North America.'),
+(10, 4, 'Recommended', 'Worth considering if you will be around dogs, bats or monkeys, or far from medical care.'),
+(10, 6, 'Recommended', 'Advised for the African meningitis belt, especially during the dry season.'),
+(10, 8, 'Recommended', 'Advised if you have not had a booster as an adult and are visiting a region where polio is still reported.'),
+(11, 2, 'Recommended', 'Spread through contaminated food and water, especially if you eat street food or stay with locals.'),
+(11, 3, 'Recommended', 'Spread through food and water. Advised for almost every destination outside Europe and North America.'),
+(11, 4, 'Recommended', 'Worth considering if you will be around dogs, bats or monkeys, or far from medical care.'),
+(11, 5, 'Recommended', 'Mosquito-borne. Advised for stays over a month or time spent in rural and farming areas.'),
+(11, 6, 'Recommended', 'Advised for the African meningitis belt, especially during the dry season.'),
+(11, 8, 'Recommended', 'Advised if you have not had a booster as an adult and are visiting a region where polio is still reported.'),
+(12, 1, 'Required', 'A yellow fever certificate is required to enter. One dose gives lifelong protection.'),
+(12, 2, 'Recommended', 'Spread through contaminated food and water, especially if you eat street food or stay with locals.'),
+(12, 3, 'Recommended', 'Spread through food and water. Advised for almost every destination outside Europe and North America.'),
+(12, 6, 'Recommended', 'Advised for the African meningitis belt, especially during the dry season.'),
+(12, 7, 'Recommended', 'Mainly for aid workers or travellers to areas with active outbreaks.'),
+(12, 8, 'Recommended', 'Advised if you have not had a booster as an adult and are visiting a region where polio is still reported.'),
+(13, 1, 'Recommended', 'Mosquito-borne and present in this region. One dose gives lifelong protection.'),
+(13, 2, 'Recommended', 'Spread through contaminated food and water, especially if you eat street food or stay with locals.'),
+(13, 3, 'Recommended', 'Spread through food and water. Advised for almost every destination outside Europe and North America.'),
+(13, 4, 'Recommended', 'Worth considering if you will be around dogs, bats or monkeys, or far from medical care.'),
+(14, 2, 'Recommended', 'Spread through contaminated food and water, especially if you eat street food or stay with locals.'),
+(14, 3, 'Recommended', 'Spread through food and water. Advised for almost every destination outside Europe and North America.'),
+(14, 4, 'Recommended', 'Worth considering if you will be around dogs, bats or monkeys, or far from medical care.'),
+(14, 5, 'Recommended', 'Mosquito-borne. Advised for stays over a month or time spent in rural and farming areas.'),
+(14, 7, 'Recommended', 'Mainly for aid workers or travellers to areas with active outbreaks.'),
+(15, 2, 'Recommended', 'Spread through contaminated food and water, especially if you eat street food or stay with locals.'),
+(15, 3, 'Recommended', 'Spread through food and water. Advised for almost every destination outside Europe and North America.'),
+(15, 6, 'Required', 'Proof of vaccination is required for Hajj and Umrah visas.'),
+(15, 8, 'Recommended', 'Advised if you have not had a booster as an adult and are visiting a region where polio is still reported.'),
+(15, 17, 'Recommended', 'Flu circulates all year in the tropics and in winter elsewhere. Useful before long flights.'),
+(16, 3, 'Recommended', 'Spread through food and water. Advised for almost every destination outside Europe and North America.'),
+(16, 16, 'Recommended', 'Keeps tetanus and diphtheria cover up to date (every 10 years).'),
+(17, 2, 'Recommended', 'Spread through contaminated food and water, especially if you eat street food or stay with locals.'),
+(17, 3, 'Recommended', 'Spread through food and water. Advised for almost every destination outside Europe and North America.'),
+(17, 4, 'Recommended', 'Worth considering if you will be around dogs, bats or monkeys, or far from medical care.'),
+(17, 16, 'Recommended', 'Keeps tetanus and diphtheria cover up to date (every 10 years).'),
+(18, 3, 'Recommended', 'Spread through food and water. Advised for almost every destination outside Europe and North America.'),
+(18, 14, 'Recommended', 'Measles outbreaks happen worldwide. Make sure you have had two doses.'),
+(18, 17, 'Recommended', 'Flu circulates all year in the tropics and in winter elsewhere. Useful before long flights.'),
+(19, 1, 'Recommended', 'Mosquito-borne and present in this region. One dose gives lifelong protection.'),
+(19, 2, 'Recommended', 'Spread through contaminated food and water, especially if you eat street food or stay with locals.'),
+(19, 3, 'Recommended', 'Spread through food and water. Advised for almost every destination outside Europe and North America.'),
+(19, 4, 'Recommended', 'Worth considering if you will be around dogs, bats or monkeys, or far from medical care.'),
+(19, 6, 'Recommended', 'Advised for the African meningitis belt, especially during the dry season.'),
+(19, 8, 'Recommended', 'Advised if you have not had a booster as an adult and are visiting a region where polio is still reported.'),
+(20, 2, 'Recommended', 'Spread through contaminated food and water, especially if you eat street food or stay with locals.'),
+(20, 3, 'Recommended', 'Spread through food and water. Advised for almost every destination outside Europe and North America.'),
+(20, 4, 'Recommended', 'Worth considering if you will be around dogs, bats or monkeys, or far from medical care.'),
+(20, 5, 'Recommended', 'Mosquito-borne. Advised for stays over a month or time spent in rural and farming areas.'),
+(20, 16, 'Recommended', 'Keeps tetanus and diphtheria cover up to date (every 10 years).'),
+(21, 1, 'Required', 'A yellow fever certificate is required to enter. One dose gives lifelong protection.'),
+(21, 2, 'Recommended', 'Spread through contaminated food and water, especially if you eat street food or stay with locals.'),
+(21, 3, 'Recommended', 'Spread through food and water. Advised for almost every destination outside Europe and North America.'),
+(21, 4, 'Recommended', 'Worth considering if you will be around dogs, bats or monkeys, or far from medical care.'),
+(21, 6, 'Recommended', 'Advised for the African meningitis belt, especially during the dry season.'),
+(21, 8, 'Recommended', 'Advised if you have not had a booster as an adult and are visiting a region where polio is still reported.'),
+(22, 14, 'Recommended', 'Measles outbreaks happen worldwide. Make sure you have had two doses.'),
+(22, 16, 'Recommended', 'Keeps tetanus and diphtheria cover up to date (every 10 years).'),
+(22, 17, 'Recommended', 'Flu circulates all year in the tropics and in winter elsewhere. Useful before long flights.'),
+(23, 14, 'Recommended', 'Measles outbreaks happen worldwide. Make sure you have had two doses.'),
+(23, 16, 'Recommended', 'Keeps tetanus and diphtheria cover up to date (every 10 years).'),
+(23, 17, 'Recommended', 'Flu circulates all year in the tropics and in winter elsewhere. Useful before long flights.'),
+(24, 2, 'Recommended', 'Spread through contaminated food and water, especially if you eat street food or stay with locals.'),
+(24, 3, 'Recommended', 'Spread through food and water. Advised for almost every destination outside Europe and North America.'),
+(24, 4, 'Recommended', 'Worth considering if you will be around dogs, bats or monkeys, or far from medical care.'),
+(24, 5, 'Recommended', 'Mosquito-borne. Advised for stays over a month or time spent in rural and farming areas.'),
+(24, 16, 'Recommended', 'Keeps tetanus and diphtheria cover up to date (every 10 years).');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `doctors`
 --
 
@@ -83,15 +376,114 @@ CREATE TABLE `doctors` (
   `password_hash` varchar(255) NOT NULL,
   `specialization` varchar(150) NOT NULL DEFAULT 'Cardiology & Orthopedic Medicine',
   `consultation_room` varchar(20) NOT NULL DEFAULT 'Room 304',
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `profile_photo` mediumblob DEFAULT NULL,
+  `profile_photo_mime` varchar(50) DEFAULT NULL,
+  `bio` text DEFAULT NULL,
+  `years_experience` tinyint(3) UNSIGNED DEFAULT NULL,
+  `languages` varchar(150) DEFAULT NULL,
+  `keywords` text DEFAULT NULL COMMENT 'comma-separated search words for the Doctors page'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `doctors`
 --
 
-INSERT INTO `doctors` (`doctor_id`, `first_name`, `last_name`, `email`, `phone`, `dob`, `password_hash`, `specialization`, `consultation_room`, `created_at`) VALUES
-(1, 'Alex', 'Taylor', 'try1@gmail.com', '0129998888', '1985-05-12', '$2y$10$Wbao0n/7NbEDtp2HJOEhie3ch63L8C4Gr/.THsbiZkmzmE3nOwmdm', 'Cardiology & Orthopedic Medicine', 'Room 304', '2026-10-18 06:58:13');
+INSERT INTO `doctors` (`doctor_id`, `first_name`, `last_name`, `email`, `phone`, `dob`, `password_hash`, `specialization`, `consultation_room`, `created_at`, `profile_photo`, `profile_photo_mime`, `bio`, `years_experience`, `languages`, `keywords`) VALUES
+(1, 'Alex', 'Taylor', 'try1@gmail.com', '0129998888', '1985-05-12', '$2y$10$Wbao0n/7NbEDtp2HJOEhie3ch63L8C4Gr/.THsbiZkmzmE3nOwmdm', 'Cardiology & Orthopedic Medicine', 'Room 304', '2026-10-18 06:58:13', NULL, NULL, NULL, NULL, NULL, NULL),
+(2, 'Aisha', 'Rahman', 'aisha.rahman@vaxassist.demo', '+60 3-0000 1000', '1985-01-01', '$2y$10$t/.s0bFo0JG0UrDJTeq0ZexfzsPzxDPWruYUeYx.QwvL6Z3c7H42G', 'Travel Medicine', 'Room 101', '2026-11-10 08:31:38', NULL, NULL, 'Advises travellers on vaccines, malaria prevention and health planning for overseas trips.', 12, 'English, Malay', 'travel, yellow fever, typhoid, hepatitis a, rabies, malaria'),
+(3, 'Daniel', 'Lim', 'daniel.lim@vaxassist.demo', '+60 3-0000 1001', '1985-01-01', '$2y$10$hjUMz9rSrMLj8f5caEALaeRdg3ZOyLDMlkRpr/bYMJd2b3GTbbuzy', 'Paediatrics', 'Room 102', '2026-11-10 08:31:38', NULL, NULL, 'Looks after babies and children, including growth checks and the childhood vaccination schedule.', 9, 'English, Mandarin', 'child, baby, fever, mmr, booster, rotavirus, bcg'),
+(4, 'Priya', 'Nair', 'priya.nair@vaxassist.demo', '+60 3-0000 1002', '1985-01-01', '$2y$10$sQR1sK4CIstfazX/0yzobuX3oEdMsXDMs.jhLpfEuUY2KPV0a.9IG', 'General Practice', 'Room 103', '2026-11-10 08:31:38', NULL, NULL, 'Family doctor for everyday health concerns, check-ups and vaccine advice for all ages.', 15, 'English, Tamil, Malay', 'cough, cold, fever, flu, influenza, check-up, vaccine, tetanus'),
+(5, 'Ahmad', 'Farid', 'ahmad.farid@vaxassist.demo', '+60 3-0000 1003', '1985-01-01', '$2y$10$IMYyEdfLn.kk0wr5KictBOXHTERIwdKBgGsN35BmDspRgWA0ZoJy2', 'Internal Medicine', 'Room 104', '2026-11-10 08:31:38', NULL, NULL, 'Manages long-term conditions such as diabetes, blood pressure and liver health.', 18, 'English, Malay', 'diabetes, blood pressure, hepatitis b, liver, fatigue'),
+(6, 'Mei', 'Ling Tan', 'mei.ling.tan@vaxassist.demo', '+60 3-0000 1004', '1985-01-01', '$2y$10$x3Hki7b7hX/3oGnN3XmqzeqFGqTwdCwNYhKzi/ZL1R6GB87FJeJaG', 'Infectious Diseases', 'Room 105', '2026-11-10 08:31:38', NULL, NULL, 'Treats infections and advises on vaccine-preventable diseases, outbreaks and post-exposure care.', 8, 'English, Mandarin', 'infection, hepatitis b, rabies, post-exposure, measles, dengue, allergy, vaccine reaction'),
+(7, 'Rajesh', 'Kumar', 'rajesh.kumar@vaxassist.demo', '+60 3-0000 1005', '1985-01-01', '$2y$10$phHF2/12zpdDfwQxOrXuQOp2HhcjscR8iVta9ksTmPuJ8m96k./XS', 'Preventive Medicine', 'Room 106', '2026-11-10 08:31:38', NULL, NULL, 'Plans adult immunisation, health screening and workplace or community vaccination programmes.', 14, 'English, Hindi', 'adult vaccine, screening, influenza, tetanus, workplace, pneumococcal, booster'),
+(8, 'Siti', 'Aminah', 'siti.aminah@vaxassist.demo', '+60 3-0000 1006', '1985-01-01', '$2y$10$dIGmjQ9fUboJfWk5c5mm3uSRnPdEe7ZUhPmcrEbjulPaC4TV3nV3u', 'Paediatrics', 'Room 107', '2026-11-10 08:31:38', NULL, NULL, 'Child health and development, with a special interest in newborn care and immunisation.', 6, 'English, Malay', 'newborn, baby, child, hepatitis b, dtap, pneumococcal, vaccine'),
+(9, 'Jason', 'Wong', 'jason.wong@vaxassist.demo', '+60 3-0000 1007', '1985-01-01', '$2y$10$cdBGWJl3DkAXRepUW4Djq.s47EI5LHykBoLOApQjlTXO7MJqt3N2e', 'General Practice', 'Room 108', '2026-11-10 08:31:38', NULL, NULL, 'Walk-in friendly family doctor offering vaccinations, travel health letters and minor procedures.', 10, 'English, Mandarin, Cantonese', 'vaccine, travel, typhoid, hepatitis a, cough, fever, headache');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `doctor_availability`
+--
+
+CREATE TABLE `doctor_availability` (
+  `doctor_id` int(11) NOT NULL,
+  `weekday` tinyint(3) UNSIGNED NOT NULL COMMENT '1 = Monday ... 5 = Friday'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `doctor_availability`
+--
+
+INSERT INTO `doctor_availability` (`doctor_id`, `weekday`) VALUES
+(1, 1),
+(1, 2),
+(1, 3),
+(1, 4),
+(1, 5),
+(2, 1),
+(2, 3),
+(2, 5),
+(3, 1),
+(3, 2),
+(3, 4),
+(4, 1),
+(4, 2),
+(4, 3),
+(4, 4),
+(4, 5),
+(5, 2),
+(5, 3),
+(5, 5),
+(6, 2),
+(6, 4),
+(7, 1),
+(7, 3),
+(8, 3),
+(8, 4),
+(8, 5),
+(9, 1),
+(9, 2),
+(9, 3),
+(9, 4),
+(9, 5);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `doctor_notification_cursors`
+--
+
+CREATE TABLE `doctor_notification_cursors` (
+  `doctor_id` int(11) NOT NULL,
+  `last_seen_at` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `doctor_password_resets`
+--
+
+CREATE TABLE `doctor_password_resets` (
+  `reset_id` int(11) NOT NULL,
+  `doctor_id` int(11) NOT NULL,
+  `token_hash` char(64) NOT NULL,
+  `expires_at` datetime NOT NULL,
+  `used` tinyint(1) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `doctor_patient_links`
+--
+
+CREATE TABLE `doctor_patient_links` (
+  `doctor_id` int(11) NOT NULL,
+  `patient_id` int(11) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -132,7 +524,91 @@ CREATE TABLE `messages` (
 INSERT INTO `messages` (`message_id`, `doctor_id`, `patient_id`, `sender_type`, `message_text`, `is_read`, `created_at`) VALUES
 (1, 1, 2, 'patient', 'Hello Dr. Alex, I received my flu vaccine yesterday. My arm feels slightly warm and sore. Is this normal?', 0, '2026-10-18 06:58:13'),
 (2, 1, 2, 'doctor', 'Hi Sarah, yes, mild soreness and warmth at the injection site are common post-vaccine reactions.', 1, '2026-10-18 06:58:13'),
-(3, 1, 2, 'doctor', 'test 1', 0, '2026-10-18 07:48:43');
+(3, 1, 2, 'doctor', 'test 1', 0, '2026-10-18 07:48:43'),
+(4, 2, 4, 'patient', 'Hi Dr. Rahman, I\'m travelling to Ghana next month. Besides yellow fever, is there anything else I should have?', 1, '2026-11-08 08:11:38'),
+(5, 2, 4, 'doctor', 'Hello! Typhoid and hepatitis A are both advised for Ghana, and we should talk about malaria tablets. Bring your itinerary to your appointment and we will go through it.', 1, '2026-11-08 08:31:38'),
+(6, 2, 4, 'patient', 'Thank you, I will bring it along.', 1, '2026-11-08 08:41:38'),
+(7, 3, 4, 'doctor', 'Hi, this is a reminder that Aiden\'s MMR appointment is coming up. Please let us know if he has a fever on the day.', 0, '2026-11-10 07:56:38'),
+(8, 4, 1, 'patient', 'Is it fine to have my flu shot if I have a mild cold?', 1, '2026-11-09 22:31:38'),
+(9, 4, 1, 'doctor', 'A mild cold is usually fine, but if you have a fever we should move it. Please complete the pre-consultation form so I can check.', 0, '2026-11-10 01:31:38');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `notifications`
+--
+
+CREATE TABLE `notifications` (
+  `notification_id` int(11) NOT NULL,
+  `patient_id` int(11) NOT NULL,
+  `doctor_id` int(11) DEFAULT NULL,
+  `appointment_id` int(11) DEFAULT NULL,
+  `type` enum('Appointment','Reminder','Booster','Late','Announcement') NOT NULL,
+  `title` varchar(150) NOT NULL,
+  `body` text DEFAULT NULL,
+  `action_url` varchar(200) DEFAULT NULL,
+  `action_label` varchar(50) DEFAULT NULL,
+  `is_read` tinyint(1) NOT NULL DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `notifications`
+--
+
+INSERT INTO `notifications` (`notification_id`, `patient_id`, `doctor_id`, `appointment_id`, `type`, `title`, `body`, `action_url`, `action_label`, `is_read`, `created_at`) VALUES
+(1, 4, NULL, NULL, 'Late', 'Doctor running late', 'Dr. Aisha Rahman is running about 15 minutes behind. Your Yellow Fever appointment is still on, with a slightly later start.', 'appointments.html', 'View appointment', 0, '2026-11-10 08:19:38'),
+(2, 4, NULL, NULL, 'Reminder', 'Appointment tomorrow', 'Reminder: Yellow Fever vaccine with Dr. Aisha Rahman at 10:00 AM. Please bring your ID and travel details.', 'appointments.html', 'View appointment', 0, '2026-11-10 05:31:38'),
+(3, 4, NULL, NULL, 'Booster', 'Aiden\'s pneumococcal booster is overdue', 'Aiden is due for his Pneumococcal (PCV) booster. Book a visit to keep his schedule on track.', 'booking.html?vaccine=Pneumococcal%20(PCV)', 'Book now', 0, '2026-11-09 12:31:38'),
+(4, 4, NULL, NULL, 'Appointment', 'Booking confirmed', 'Your MMR appointment for Aiden with Dr. Daniel Lim has been confirmed.', 'appointments.html', 'View appointment', 1, '2026-11-09 04:31:38'),
+(5, 4, NULL, NULL, 'Booster', 'Hepatitis A second dose coming up', 'Your second Hepatitis A dose is due in about 40 days. You can book a slot any time before then.', 'vaccinations.html', 'See my records', 0, '2026-11-07 08:31:38'),
+(6, 4, NULL, NULL, 'Announcement', 'Discounted flu booster slots', 'Selected influenza booster slots this month are available at a reduced price while stocks last.', 'booking.html?vaccine=Influenza', 'Book a slot', 1, '2026-11-05 08:31:38'),
+(7, 4, NULL, NULL, 'Appointment', 'Appointment rescheduled', 'Your Typhoid appointment was moved to a new time at your request.', 'appointments.html?tab=history', 'View history', 1, '2026-10-25 08:31:38'),
+(8, 4, NULL, NULL, 'Announcement', 'Welcome to VaxAssist', 'Thanks for joining. Complete your health profile so your doctor has what they need before each vaccine.', 'profile.html?tab=health', 'Open profile', 1, '2026-10-01 08:31:38'),
+(9, 1, NULL, NULL, 'Reminder', 'Influenza booking confirmed', 'Your influenza appointment with Dr. Priya Nair is booked. Please complete the pre-consultation form beforehand.', 'precheck.html?vaccine=Influenza', 'Fill in the form', 0, '2026-11-10 07:01:38'),
+(10, 1, NULL, NULL, 'Booster', 'Noah\'s DTaP-IPV-Hib dose 2 is overdue', 'Noah is due for the next dose in his DTaP-IPV-Hib course. Book a visit to catch up.', 'booking.html?vaccine=DTaP-IPV-Hib', 'Book now', 0, '2026-11-08 06:31:38'),
+(11, 1, NULL, NULL, 'Announcement', 'Welcome to VaxAssist', 'Thanks for joining. Complete your health profile so your doctor has what they need before each vaccine.', 'profile.html?tab=health', 'Open profile', 1, '2026-10-13 13:51:38'),
+(12, 2, NULL, NULL, 'Reminder', 'Yellow Fever appointment booked', 'Your Yellow Fever appointment is booked. Bring your passport and travel details.', 'appointments.html', 'View appointment', 0, '2026-11-10 07:31:38'),
+(13, 2, NULL, NULL, 'Booster', 'Hepatitis A second dose coming up', 'Your second Hepatitis A dose is due in about five months.', 'vaccinations.html', 'See my records', 1, '2026-11-06 21:11:38'),
+(14, 3, NULL, NULL, 'Announcement', 'Welcome to VaxAssist', 'Thanks for joining. Complete your health profile so your doctor has what they need before each vaccine.', 'profile.html?tab=health', 'Open profile', 0, '2026-11-10 05:11:38');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `notification_preferences`
+--
+
+CREATE TABLE `notification_preferences` (
+  `patient_id` int(11) NOT NULL,
+  `email_reminders` tinyint(1) NOT NULL DEFAULT 1,
+  `sms_reminders` tinyint(1) NOT NULL DEFAULT 1,
+  `booster_alerts` tinyint(1) NOT NULL DEFAULT 1,
+  `clinic_news` tinyint(1) NOT NULL DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `notification_preferences`
+--
+
+INSERT INTO `notification_preferences` (`patient_id`, `email_reminders`, `sms_reminders`, `booster_alerts`, `clinic_news`) VALUES
+(1, 1, 1, 1, 1),
+(2, 1, 1, 1, 1),
+(3, 1, 1, 1, 1),
+(4, 1, 1, 1, 1);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `password_resets`
+--
+
+CREATE TABLE `password_resets` (
+  `reset_id` int(11) NOT NULL,
+  `patient_id` int(11) NOT NULL,
+  `token_hash` char(64) NOT NULL COMMENT 'SHA-256 of the emailed token; the token itself is never stored',
+  `expires_at` datetime NOT NULL,
+  `used` tinyint(1) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -143,376 +619,66 @@ INSERT INTO `messages` (`message_id`, `doctor_id`, `patient_id`, `sender_type`, 
 CREATE TABLE `patients` (
   `patient_id` int(11) NOT NULL,
   `full_name` varchar(100) NOT NULL,
-  `ic_passport` varchar(50) NOT NULL,
+  `email` varchar(100) DEFAULT NULL,
+  `password_hash` varchar(255) DEFAULT NULL,
+  `ic_passport` varchar(50) DEFAULT NULL,
   `phone` varchar(20) DEFAULT NULL,
   `dob` date DEFAULT NULL,
   `gender` enum('Male','Female','Other') NOT NULL DEFAULT 'Male',
   `blood_type` varchar(5) DEFAULT 'O+',
   `allergies` text DEFAULT 'Penicillin',
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `address` text DEFAULT NULL,
+  `emergency_contact_name` varchar(100) DEFAULT NULL,
+  `emergency_contact_phone` varchar(20) DEFAULT NULL,
+  `height_cm` smallint(6) DEFAULT NULL,
+  `weight_kg` decimal(5,1) DEFAULT NULL,
+  `no_known_allergies` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 --
 -- Dumping data for table `patients`
 --
-INSERT INTO `patients` (`patient_id`, `full_name`, `ic_passport`, `phone`, `dob`, `gender`, `blood_type`, `allergies`, `created_at`) VALUES
-(1, 'Michael Wong', '800820-07-5531', '0191112222', '1980-08-20', 'Male', 'O+', 'Penicillin', '2026-10-18 06:58:13'),
-(2, 'Sarah Jenkins', '920315-08-6622', '0183334444', '1992-03-15', 'Female', 'A+', 'None', '2026-10-18 06:58:13'),
-(3, 'Ahmad Razak', '881105-10-7711', '0175556666', '1988-11-05', 'Male', 'B+', 'Aspirin', '2026-10-18 06:58:13');
+
+INSERT INTO `patients` (`patient_id`, `full_name`, `email`, `password_hash`, `ic_passport`, `phone`, `dob`, `gender`, `blood_type`, `allergies`, `created_at`, `address`, `emergency_contact_name`, `emergency_contact_phone`, `height_cm`, `weight_kg`, `no_known_allergies`) VALUES
+(1, 'Michael Wong', 'michael@example.com', '$2y$10$kYVmuR.B4vEXGw6L6i8CGuN0TzuT9zmWe2YpWYo8SrPLdecU6Uswm', '800820-07-5531', '0191112222', '1980-08-20', 'Male', 'O+', 'Penicillin', '2026-10-18 06:58:13', NULL, NULL, NULL, NULL, NULL, 0),
+(2, 'Sarah Jenkins', 'sarah@example.com', '$2y$10$6vGcJSEjmZ6ObZ60i3UHNe7Z/NOHebH50mKDTXE1v1YpMV/HO1Jb2', '920315-08-6622', '0183334444', '1992-03-15', 'Female', 'A+', 'None', '2026-10-18 06:58:13', NULL, NULL, NULL, NULL, NULL, 0),
+(3, 'Ahmad Razak', 'ahmad@example.com', '$2y$10$oDqglPVErvmxxp6R2b4wJOQLbsS2de9SMSifjAwb2wXVhEaPTfr32', '881105-10-7711', '0175556666', '1988-11-05', 'Male', 'B+', 'Aspirin', '2026-10-18 06:58:13', NULL, NULL, NULL, NULL, NULL, 0),
+(4, 'Demo Patient', 'demo@example.com', '$2y$10$nVyjH6mh7qwLVmsX1rVc4eibjDKCNBMCeyiiW48s0Lx.Aw8iOMGyi', NULL, '+60 12-345 6789', '1998-05-14', 'Female', 'O+', NULL, '2026-11-10 08:31:38', NULL, NULL, NULL, 165, 58.0, 0);
+
+-- --------------------------------------------------------
 
 --
--- Indexes for dumped tables
+-- Table structure for table `patient_health_items`
 --
 
---
--- Indexes for table `appointments`
---
-ALTER TABLE `appointments`
-  ADD PRIMARY KEY (`appointment_id`),
-  ADD KEY `doctor_id` (`doctor_id`),
-  ADD KEY `patient_id` (`patient_id`);
-
---
--- Indexes for table `consultation_records`
---
-ALTER TABLE `consultation_records`
-  ADD PRIMARY KEY (`record_id`),
-  ADD KEY `doctor_id` (`doctor_id`),
-  ADD KEY `patient_id` (`patient_id`);
-
---
--- Indexes for table `doctors`
---
-ALTER TABLE `doctors`
-  ADD PRIMARY KEY (`doctor_id`),
-  ADD UNIQUE KEY `email` (`email`);
-
---
--- Indexes for table `leave_requests`
---
-ALTER TABLE `leave_requests`
-  ADD PRIMARY KEY (`leave_id`),
-  ADD KEY `doctor_id` (`doctor_id`);
-
---
--- Indexes for table `messages`
---
-ALTER TABLE `messages`
-  ADD PRIMARY KEY (`message_id`),
-  ADD KEY `doctor_id` (`doctor_id`),
-  ADD KEY `patient_id` (`patient_id`);
-
---
--- Indexes for table `patients`
---
-ALTER TABLE `patients`
-  ADD PRIMARY KEY (`patient_id`),
-  ADD UNIQUE KEY `ic_passport` (`ic_passport`);
-
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `appointments`
---
-ALTER TABLE `appointments`
-  MODIFY `appointment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-
---
--- AUTO_INCREMENT for table `consultation_records`
---
-ALTER TABLE `consultation_records`
-  MODIFY `record_id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `doctors`
---
-ALTER TABLE `doctors`
-  MODIFY `doctor_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT for table `leave_requests`
---
-ALTER TABLE `leave_requests`
-  MODIFY `leave_id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `messages`
---
-ALTER TABLE `messages`
-  MODIFY `message_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-
---
--- AUTO_INCREMENT for table `patients`
---
-ALTER TABLE `patients`
-  MODIFY `patient_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-
---
--- Constraints for dumped tables
---
-
---
--- Constraints for table `appointments`
---
-ALTER TABLE `appointments`
-  ADD CONSTRAINT `appointments_ibfk_1` FOREIGN KEY (`doctor_id`) REFERENCES `doctors` (`doctor_id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `appointments_ibfk_2` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`patient_id`) ON DELETE CASCADE;
-
---
--- Constraints for table `consultation_records`
---
-ALTER TABLE `consultation_records`
-  ADD CONSTRAINT `consultation_records_ibfk_1` FOREIGN KEY (`doctor_id`) REFERENCES `doctors` (`doctor_id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `consultation_records_ibfk_2` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`patient_id`) ON DELETE CASCADE;
-
---
--- Constraints for table `leave_requests`
---
-ALTER TABLE `leave_requests`
-  ADD CONSTRAINT `leave_requests_ibfk_1` FOREIGN KEY (`doctor_id`) REFERENCES `doctors` (`doctor_id`) ON DELETE CASCADE;
-
---
--- Constraints for table `messages`
---
-ALTER TABLE `messages`
-  ADD CONSTRAINT `messages_ibfk_1` FOREIGN KEY (`doctor_id`) REFERENCES `doctors` (`doctor_id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `messages_ibfk_2` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`patient_id`) ON DELETE CASCADE;
-COMMIT;
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-
--- Doctor portal profile photo fields are used by the doctor profile and navigation pages.
-ALTER TABLE `doctors`
-  ADD COLUMN `profile_photo` mediumblob DEFAULT NULL,
-  ADD COLUMN `profile_photo_mime` varchar(50) DEFAULT NULL;
-
--- =====================================================================
--- VaxAssist patient-side database extension
---
--- Run this AFTER vaxassist_db.sql (the team's database). It does not
--- delete or rename anything the doctor/admin side already uses. It only:
---   1. adds columns to patients, doctors and appointments
---   2. creates the new tables the patient pages need
---   3. fills in the vaccine, destination and childhood-schedule data
---
--- Run it once. (Re-running fails at the FOREIGN KEY lines because they
--- already exist.)
--- =====================================================================
-
-USE `vaxassist_db`;
-
--- ---------------------------------------------------------------------
--- 1. Changes to the team's existing tables
--- ---------------------------------------------------------------------
-
--- Patients need an email + password to log in. The registration form has
--- no IC/passport field, so that column must allow NULL (the UNIQUE index
--- still stops duplicates when a value is given).
-ALTER TABLE `patients`
-  MODIFY `ic_passport` varchar(50) DEFAULT NULL,
-  ADD COLUMN IF NOT EXISTS `email` varchar(100) DEFAULT NULL AFTER `full_name`,
-  ADD COLUMN IF NOT EXISTS `password_hash` varchar(255) DEFAULT NULL AFTER `email`,
-  ADD COLUMN IF NOT EXISTS `address` text DEFAULT NULL,
-  ADD COLUMN IF NOT EXISTS `emergency_contact_name` varchar(100) DEFAULT NULL,
-  ADD COLUMN IF NOT EXISTS `emergency_contact_phone` varchar(20) DEFAULT NULL,
-  ADD COLUMN IF NOT EXISTS `height_cm` smallint(6) DEFAULT NULL,
-  ADD COLUMN IF NOT EXISTS `weight_kg` decimal(5,1) DEFAULT NULL,
-  ADD COLUMN IF NOT EXISTS `no_known_allergies` tinyint(1) NOT NULL DEFAULT 0,
-  ADD UNIQUE KEY `uq_patients_email` (`email`);
-
--- The Doctors page shows a bio, experience and languages.
-ALTER TABLE `doctors`
-  ADD COLUMN IF NOT EXISTS `bio` text DEFAULT NULL,
-  ADD COLUMN IF NOT EXISTS `years_experience` tinyint(3) unsigned DEFAULT NULL,
-  ADD COLUMN IF NOT EXISTS `languages` varchar(150) DEFAULT NULL,
-  ADD COLUMN IF NOT EXISTS `keywords` text DEFAULT NULL COMMENT 'comma-separated search words for the Doctors page';
-
--- ---------------------------------------------------------------------
--- 2. New tables
--- ---------------------------------------------------------------------
-
-CREATE TABLE IF NOT EXISTS `children` (
-  `child_id` int(11) NOT NULL AUTO_INCREMENT,
-  `patient_id` int(11) NOT NULL COMMENT 'the parent',
-  `first_name` varchar(50) NOT NULL,
-  `dob` date NOT NULL,
-  `gender` enum('Male','Female','Other') NOT NULL DEFAULT 'Male',
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`child_id`),
-  KEY `idx_children_patient` (`patient_id`),
-  CONSTRAINT `fk_children_patient` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`patient_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
-CREATE TABLE IF NOT EXISTS `patient_health_items` (
-  `item_id` int(11) NOT NULL AUTO_INCREMENT,
+CREATE TABLE `patient_health_items` (
+  `item_id` int(11) NOT NULL,
   `patient_id` int(11) NOT NULL,
   `item_type` enum('Allergy','Condition','Medication') NOT NULL,
-  `name` varchar(100) NOT NULL,
-  PRIMARY KEY (`item_id`),
-  UNIQUE KEY `uq_health_item` (`patient_id`,`item_type`,`name`),
-  CONSTRAINT `fk_health_patient` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`patient_id`) ON DELETE CASCADE
+  `name` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-CREATE TABLE IF NOT EXISTS `password_resets` (
-  `reset_id` int(11) NOT NULL AUTO_INCREMENT,
-  `patient_id` int(11) NOT NULL,
-  `token_hash` char(64) NOT NULL COMMENT 'SHA-256 of the emailed token; the token itself is never stored',
-  `expires_at` datetime NOT NULL,
-  `used` tinyint(1) NOT NULL DEFAULT 0,
-  PRIMARY KEY (`reset_id`),
-  UNIQUE KEY `uq_reset_token` (`token_hash`),
-  CONSTRAINT `fk_reset_patient` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`patient_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+--
+-- Dumping data for table `patient_health_items`
+--
 
--- Doctors reset their password through their own table, because password_resets points at patients.
--- (The reset code used to create this table the first time a doctor asked for a reset, which broke patient resets before that.)
-CREATE TABLE IF NOT EXISTS `doctor_password_resets` (
-  `reset_id` int(11) NOT NULL AUTO_INCREMENT,
-  `doctor_id` int(11) NOT NULL,
-  `token_hash` char(64) NOT NULL,
-  `expires_at` datetime NOT NULL,
-  `used` tinyint(1) NOT NULL DEFAULT 0,
-  PRIMARY KEY (`reset_id`),
-  UNIQUE KEY `token_hash` (`token_hash`),
-  KEY `idx_doctor_reset` (`doctor_id`,`used`),
-  CONSTRAINT `fk_doctor_reset_doctor` FOREIGN KEY (`doctor_id`) REFERENCES `doctors` (`doctor_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+INSERT INTO `patient_health_items` (`item_id`, `patient_id`, `item_type`, `name`) VALUES
+(5, 1, 'Allergy', 'Latex'),
+(6, 2, 'Condition', 'Hay fever'),
+(2, 4, 'Allergy', 'Egg'),
+(1, 4, 'Allergy', 'Penicillin'),
+(3, 4, 'Condition', 'Asthma'),
+(4, 4, 'Medication', 'Salbutamol inhaler');
 
-CREATE TABLE IF NOT EXISTS `vaccines` (
-  `vaccine_id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  `category` enum('Travel','Childhood','Booster','Consultation') NOT NULL,
-  `total_doses` tinyint(3) unsigned NOT NULL DEFAULT 1,
-  `price` decimal(8,2) NOT NULL DEFAULT 0.00 COMMENT 'demo price in RM',
-  `lead_days` smallint(6) DEFAULT NULL COMMENT 'travel vaccines: ideal days before departure',
-  PRIMARY KEY (`vaccine_id`),
-  UNIQUE KEY `uq_vaccine_name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+-- --------------------------------------------------------
 
-CREATE TABLE IF NOT EXISTS `vaccine_batches` (
-  `batch_id` int(11) NOT NULL AUTO_INCREMENT,
-  `vaccine_id` int(11) NOT NULL,
-  `batch_number` varchar(50) NOT NULL,
-  `manufacturer` varchar(100) DEFAULT NULL,
-  `expiry_date` date DEFAULT NULL,
-  `quantity_in_stock` int(11) NOT NULL DEFAULT 0,
-  PRIMARY KEY (`batch_id`),
-  UNIQUE KEY `uq_batch_number` (`batch_number`),
-  KEY `idx_batch_expiry` (`expiry_date`),
-  CONSTRAINT `fk_batch_vaccine` FOREIGN KEY (`vaccine_id`) REFERENCES `vaccines` (`vaccine_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+--
+-- Table structure for table `payments`
+--
 
-CREATE TABLE IF NOT EXISTS `destinations` (
-  `destination_id` int(11) NOT NULL AUTO_INCREMENT,
-  `country_code` char(2) NOT NULL,
-  `country` varchar(100) NOT NULL,
-  `region` varchar(50) NOT NULL,
-  PRIMARY KEY (`destination_id`),
-  UNIQUE KEY `uq_country_code` (`country_code`),
-  UNIQUE KEY `uq_country` (`country`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
-CREATE TABLE IF NOT EXISTS `destination_vaccines` (
-  `destination_id` int(11) NOT NULL,
-  `vaccine_id` int(11) NOT NULL,
-  `requirement` enum('Required','Recommended') NOT NULL,
-  `reason` text DEFAULT NULL,
-  PRIMARY KEY (`destination_id`,`vaccine_id`),
-  CONSTRAINT `fk_dv_destination` FOREIGN KEY (`destination_id`) REFERENCES `destinations` (`destination_id`) ON DELETE CASCADE,
-  CONSTRAINT `fk_dv_vaccine` FOREIGN KEY (`vaccine_id`) REFERENCES `vaccines` (`vaccine_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
-CREATE TABLE IF NOT EXISTS `child_schedule` (
-  `schedule_id` int(11) NOT NULL AUTO_INCREMENT,
-  `vaccine_id` int(11) NOT NULL,
-  `age_months` smallint(6) NOT NULL COMMENT 'age when the dose is due',
-  `dose_number` tinyint(3) unsigned NOT NULL DEFAULT 0 COMMENT '0 = not tracked (e.g. yearly flu shot)',
-  `dose_label` varchar(30) NOT NULL,
-  `requirement` enum('Required','Recommended') NOT NULL,
-  `reason` text DEFAULT NULL,
-  PRIMARY KEY (`schedule_id`),
-  KEY `idx_schedule_age` (`age_months`),
-  CONSTRAINT `fk_schedule_vaccine` FOREIGN KEY (`vaccine_id`) REFERENCES `vaccines` (`vaccine_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
-CREATE TABLE IF NOT EXISTS `doctor_availability` (
-  `doctor_id` int(11) NOT NULL,
-  `weekday` tinyint(3) unsigned NOT NULL COMMENT '1 = Monday ... 5 = Friday',
-  PRIMARY KEY (`doctor_id`,`weekday`),
-  CONSTRAINT `fk_avail_doctor` FOREIGN KEY (`doctor_id`) REFERENCES `doctors` (`doctor_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- Booking a child or a specific vaccine, and the exact start time.
--- The team's time_slot (2-hour window) is still filled in so the
--- doctor-side schedule keeps working.
--- 'Missed' is added to the team's status list; their existing values are unchanged.
-ALTER TABLE `appointments`
-  MODIFY `status` enum('Scheduled','Completed','Cancelled','Missed') DEFAULT 'Scheduled',
-  ADD COLUMN IF NOT EXISTS `cancel_reason` varchar(300) DEFAULT NULL,
-  ADD COLUMN IF NOT EXISTS `child_id` int(11) DEFAULT NULL AFTER `patient_id`,
-  ADD COLUMN IF NOT EXISTS `vaccine_id` int(11) DEFAULT NULL AFTER `child_id`,
-  ADD COLUMN IF NOT EXISTS `appointment_time` time DEFAULT NULL AFTER `appointment_date`,
-  ADD KEY `idx_appt_child` (`child_id`),
-  ADD KEY `idx_appt_vaccine` (`vaccine_id`),
-  ADD KEY `idx_appt_doctor_date` (`doctor_id`,`appointment_date`),
-  ADD CONSTRAINT `fk_appt_child` FOREIGN KEY (`child_id`) REFERENCES `children` (`child_id`) ON DELETE SET NULL,
-  ADD CONSTRAINT `fk_appt_vaccine` FOREIGN KEY (`vaccine_id`) REFERENCES `vaccines` (`vaccine_id`) ON DELETE SET NULL;
-
-CREATE TABLE IF NOT EXISTS `vaccination_records` (
-  `record_id` int(11) NOT NULL AUTO_INCREMENT,
-  `patient_id` int(11) NOT NULL COMMENT 'the account owner (the parent, for a child)',
-  `child_id` int(11) DEFAULT NULL COMMENT 'NULL = the patient themself',
-  `vaccine_id` int(11) NOT NULL,
-  `batch_id` int(11) DEFAULT NULL,
-  `doctor_id` int(11) DEFAULT NULL,
-  `appointment_id` int(11) DEFAULT NULL,
-  `dose_number` tinyint(3) unsigned NOT NULL DEFAULT 1,
-  `date_given` date NOT NULL,
-  `next_dose_date` date DEFAULT NULL,
-  `notes` text DEFAULT NULL,
-  PRIMARY KEY (`record_id`),
-  KEY `idx_vr_patient` (`patient_id`),
-  KEY `idx_vr_child` (`child_id`),
-  KEY `idx_vr_vaccine` (`vaccine_id`),
-  KEY `idx_vr_batch` (`batch_id`),
-  CONSTRAINT `fk_vr_patient` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`patient_id`) ON DELETE CASCADE,
-  CONSTRAINT `fk_vr_child` FOREIGN KEY (`child_id`) REFERENCES `children` (`child_id`) ON DELETE CASCADE,
-  CONSTRAINT `fk_vr_vaccine` FOREIGN KEY (`vaccine_id`) REFERENCES `vaccines` (`vaccine_id`),
-  CONSTRAINT `fk_vr_batch` FOREIGN KEY (`batch_id`) REFERENCES `vaccine_batches` (`batch_id`) ON DELETE SET NULL,
-  CONSTRAINT `fk_vr_doctor` FOREIGN KEY (`doctor_id`) REFERENCES `doctors` (`doctor_id`) ON DELETE SET NULL,
-  CONSTRAINT `fk_vr_appointment` FOREIGN KEY (`appointment_id`) REFERENCES `appointments` (`appointment_id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
-CREATE TABLE IF NOT EXISTS `notifications` (
-  `notification_id` int(11) NOT NULL AUTO_INCREMENT,
-  `patient_id` int(11) NOT NULL,
-  `type` enum('Appointment','Reminder','Booster','Late','Announcement') NOT NULL,
-  `title` varchar(150) NOT NULL,
-  `body` text DEFAULT NULL,
-  `action_url` varchar(200) DEFAULT NULL,
-  `action_label` varchar(50) DEFAULT NULL,
-  `is_read` tinyint(1) NOT NULL DEFAULT 0,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`notification_id`),
-  KEY `idx_notif_patient_read` (`patient_id`,`is_read`),
-  CONSTRAINT `fk_notif_patient` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`patient_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
-CREATE TABLE IF NOT EXISTS `notification_preferences` (
-  `patient_id` int(11) NOT NULL,
-  `email_reminders` tinyint(1) NOT NULL DEFAULT 1,
-  `sms_reminders` tinyint(1) NOT NULL DEFAULT 1,
-  `booster_alerts` tinyint(1) NOT NULL DEFAULT 1,
-  `clinic_news` tinyint(1) NOT NULL DEFAULT 1,
-  PRIMARY KEY (`patient_id`),
-  CONSTRAINT `fk_pref_patient` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`patient_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
-CREATE TABLE IF NOT EXISTS `payments` (
-  `payment_id` int(11) NOT NULL AUTO_INCREMENT,
+CREATE TABLE `payments` (
+  `payment_id` int(11) NOT NULL,
   `patient_id` int(11) NOT NULL,
   `appointment_id` int(11) DEFAULT NULL,
   `receipt_no` varchar(20) NOT NULL,
@@ -520,42 +686,70 @@ CREATE TABLE IF NOT EXISTS `payments` (
   `method` varchar(30) DEFAULT NULL,
   `insurance_covered` decimal(8,2) NOT NULL DEFAULT 0.00,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `paid_at` datetime DEFAULT NULL,
-  PRIMARY KEY (`payment_id`),
-  UNIQUE KEY `uq_receipt_no` (`receipt_no`),
-  KEY `idx_pay_patient_status` (`patient_id`,`status`),
-  CONSTRAINT `fk_pay_patient` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`patient_id`) ON DELETE CASCADE,
-  CONSTRAINT `fk_pay_appointment` FOREIGN KEY (`appointment_id`) REFERENCES `appointments` (`appointment_id`) ON DELETE SET NULL
+  `paid_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-CREATE TABLE IF NOT EXISTS `payment_items` (
-  `item_id` int(11) NOT NULL AUTO_INCREMENT,
+--
+-- Dumping data for table `payments`
+--
+
+INSERT INTO `payments` (`payment_id`, `patient_id`, `appointment_id`, `receipt_no`, `status`, `method`, `insurance_covered`, `created_at`, `paid_at`) VALUES
+(1, 4, 7, 'VA-2026-0001', 'Paid', 'Credit card', 0.00, '2026-10-29 00:00:00', '2026-10-29 10:00:00'),
+(2, 4, 9, 'VA-2026-0002', 'Paid', 'Insurance + e-wallet', 100.00, '2026-09-30 00:00:00', '2026-09-30 10:00:00'),
+(3, 4, 8, 'VA-2026-0003', 'Paid', 'E-wallet', 0.00, '2026-10-11 00:00:00', '2026-10-11 10:00:00'),
+(4, 4, 12, 'VA-2026-0004', 'Paid', 'Credit card', 0.00, '2026-04-14 00:00:00', '2026-04-14 10:00:00'),
+(5, 4, 4, 'VA-2026-0005', 'Pending', NULL, 0.00, '2026-11-10 08:31:38', NULL),
+(6, 4, 6, 'VA-2026-0006', 'Pending', NULL, 0.00, '2026-11-10 08:31:38', NULL),
+(7, 4, 10, 'VA-2026-0007', 'Refunded', 'Credit card', 0.00, '2026-10-23 00:00:00', '2026-10-23 10:00:00'),
+(8, 1, 13, 'VA-2026-0008', 'Pending', NULL, 0.00, '2026-11-10 08:31:38', NULL),
+(9, 2, 15, 'VA-2026-0009', 'Paid', 'Online banking', 0.00, '2026-11-09 00:00:00', '2026-11-09 10:00:00');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `payment_items`
+--
+
+CREATE TABLE `payment_items` (
+  `item_id` int(11) NOT NULL,
   `payment_id` int(11) NOT NULL,
   `label` varchar(150) NOT NULL,
-  `amount` decimal(8,2) NOT NULL,
-  PRIMARY KEY (`item_id`),
-  KEY `idx_item_payment` (`payment_id`),
-  CONSTRAINT `fk_item_payment` FOREIGN KEY (`payment_id`) REFERENCES `payments` (`payment_id`) ON DELETE CASCADE
+  `amount` decimal(8,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-CREATE TABLE IF NOT EXISTS `reviews` (
-  `review_id` int(11) NOT NULL AUTO_INCREMENT,
-  `appointment_id` int(11) NOT NULL COMMENT 'one review per visit; the doctor comes from the appointment',
-  `patient_id` int(11) NOT NULL,
-  `rating` tinyint(3) unsigned NOT NULL,
-  `comment` varchar(500) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`review_id`),
-  UNIQUE KEY `uq_review_appointment` (`appointment_id`),
-  KEY `idx_review_patient` (`patient_id`),
-  CONSTRAINT `chk_review_rating` CHECK (`rating` BETWEEN 1 AND 5),
-  CONSTRAINT `fk_review_appointment` FOREIGN KEY (`appointment_id`) REFERENCES `appointments` (`appointment_id`) ON DELETE CASCADE,
-  CONSTRAINT `fk_review_patient` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`patient_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+--
+-- Dumping data for table `payment_items`
+--
 
-CREATE TABLE IF NOT EXISTS `precheck_forms` (
-  `form_id` int(11) NOT NULL AUTO_INCREMENT,
+INSERT INTO `payment_items` (`item_id`, `payment_id`, `label`, `amount`) VALUES
+(1, 1, 'Typhoid vaccine', 95.00),
+(2, 1, 'Consultation fee', 40.00),
+(3, 2, 'Hepatitis A vaccine (dose 1)', 120.00),
+(4, 2, 'Consultation fee', 40.00),
+(5, 3, 'DTaP-IPV-Hib (dose 3)', 180.00),
+(6, 3, 'Consultation fee', 40.00),
+(7, 4, 'Influenza vaccine', 70.00),
+(8, 4, 'Consultation fee', 40.00),
+(9, 5, 'Yellow Fever vaccine', 130.00),
+(10, 5, 'Consultation fee', 40.00),
+(11, 6, 'Influenza vaccine', 70.00),
+(12, 6, 'Consultation fee', 40.00),
+(13, 7, 'Booking deposit (refunded)', 20.00),
+(14, 8, 'Influenza vaccine', 70.00),
+(15, 8, 'Consultation fee', 40.00),
+(16, 9, 'Yellow Fever vaccine', 130.00),
+(17, 9, 'Consultation fee', 40.00);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `precheck_forms`
+--
+
+CREATE TABLE `precheck_forms` (
+  `form_id` int(11) NOT NULL,
   `patient_id` int(11) NOT NULL,
+  `appointment_id` int(11) DEFAULT NULL,
   `child_id` int(11) DEFAULT NULL,
   `vaccine_id` int(11) DEFAULT NULL,
   `has_fever` tinyint(1) NOT NULL,
@@ -567,35 +761,170 @@ CREATE TABLE IF NOT EXISTS `precheck_forms` (
   `allergies` varchar(300) DEFAULT NULL,
   `medications` varchar(300) DEFAULT NULL,
   `notes` varchar(500) DEFAULT NULL,
-  `submitted_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`form_id`),
-  KEY `idx_precheck_patient` (`patient_id`),
-  CONSTRAINT `fk_precheck_patient` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`patient_id`) ON DELETE CASCADE,
-  CONSTRAINT `fk_precheck_child` FOREIGN KEY (`child_id`) REFERENCES `children` (`child_id`) ON DELETE SET NULL,
-  CONSTRAINT `fk_precheck_vaccine` FOREIGN KEY (`vaccine_id`) REFERENCES `vaccines` (`vaccine_id`) ON DELETE SET NULL
+  `submitted_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-CREATE TABLE IF NOT EXISTS `contact_messages` (
-  `message_id` int(11) NOT NULL AUTO_INCREMENT,
-  `patient_id` int(11) DEFAULT NULL COMMENT 'set when the sender was logged in',
-  `name` varchar(100) NOT NULL,
-  `email` varchar(100) NOT NULL,
-  `subject` varchar(100) NOT NULL,
-  `message` varchar(1000) NOT NULL,
-  `ip_address` varchar(45) NOT NULL,
-  `status` enum('New','Read','Replied') NOT NULL DEFAULT 'New',
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `reviews`
+--
+
+CREATE TABLE `reviews` (
+  `review_id` int(11) NOT NULL,
+  `appointment_id` int(11) NOT NULL COMMENT 'one review per visit; the doctor comes from the appointment',
+  `patient_id` int(11) NOT NULL,
+  `rating` tinyint(3) UNSIGNED NOT NULL,
+  `comment` varchar(500) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ;
+
+--
+-- Dumping data for table `reviews`
+--
+
+INSERT INTO `reviews` (`review_id`, `appointment_id`, `patient_id`, `rating`, `comment`, `created_at`) VALUES
+(1, 17, 1, 5, 'Very gentle and clear.', '2026-11-10 08:31:38'),
+(2, 18, 2, 5, 'Explained everything well.', '2026-11-10 08:31:38'),
+(3, 19, 3, 5, 'Quick and friendly.', '2026-11-10 08:31:38'),
+(4, 20, 1, 5, 'Explained everything well.', '2026-11-10 08:31:38'),
+(5, 21, 2, 5, 'Quick and friendly.', '2026-11-10 08:31:38'),
+(6, 22, 3, 4, 'Felt looked after.', '2026-11-10 08:31:38'),
+(7, 23, 1, 5, 'Quick and friendly.', '2026-11-10 08:31:38'),
+(8, 24, 2, 4, 'Felt looked after.', '2026-11-10 08:31:38'),
+(9, 25, 3, 5, 'Good advice, short wait.', '2026-11-10 08:31:38'),
+(10, 26, 1, 5, 'Felt looked after.', '2026-11-10 08:31:38'),
+(11, 27, 2, 4, 'Good advice, short wait.', '2026-11-10 08:31:38'),
+(12, 28, 3, 4, NULL, '2026-11-10 08:31:38'),
+(13, 29, 1, 4, 'Good advice, short wait.', '2026-11-10 08:31:38'),
+(14, 30, 2, 5, NULL, '2026-11-10 08:31:38'),
+(15, 31, 3, 5, 'Very gentle and clear.', '2026-11-10 08:31:38'),
+(16, 32, 1, 5, NULL, '2026-11-10 08:31:38'),
+(17, 33, 2, 5, 'Very gentle and clear.', '2026-11-10 08:31:38'),
+(18, 34, 3, 4, 'Explained everything well.', '2026-11-10 08:31:38'),
+(19, 35, 1, 4, 'Very gentle and clear.', '2026-11-10 08:31:38'),
+(20, 36, 2, 5, 'Explained everything well.', '2026-11-10 08:31:38'),
+(21, 37, 3, 4, 'Quick and friendly.', '2026-11-10 08:31:38'),
+(22, 38, 1, 5, 'Explained everything well.', '2026-11-10 08:31:38'),
+(23, 39, 2, 5, 'Quick and friendly.', '2026-11-10 08:31:38'),
+(24, 40, 3, 5, 'Felt looked after.', '2026-11-10 08:31:38'),
+(25, 12, 4, 5, 'Quick and painless.', '2026-11-10 08:31:38');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `staff`
+--
+
+CREATE TABLE `staff` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `first_name` varchar(100) NOT NULL,
+  `last_name` varchar(100) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `phone` varchar(30) DEFAULT NULL,
+  `role` enum('Administrator','Doctor','Nurse','Receptionist') NOT NULL,
+  `department` varchar(100) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`message_id`),
-  KEY `idx_contact_ip_time` (`ip_address`,`created_at`),
-  CONSTRAINT `fk_contact_patient` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`patient_id`) ON DELETE SET NULL
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- ---------------------------------------------------------------------
--- 3. Reference data (same lists the Planner and Booking pages use)
---    Prices are demo prices in RM.
--- ---------------------------------------------------------------------
+--
+-- Dumping data for table `staff`
+--
 
-INSERT IGNORE INTO `vaccines` (`vaccine_id`, `name`, `category`, `total_doses`, `price`, `lead_days`) VALUES
+INSERT INTO `staff` (`id`, `first_name`, `last_name`, `email`, `phone`, `role`, `department`, `created_at`, `updated_at`) VALUES
+(2, 'Jason', '', 'jason001@gmail.com', '011-222-3344', 'Administrator', 'Vaccination', '2026-10-18 20:11:08', '2026-10-18 20:11:08'),
+(3, 'Alex', '', 'alextan2001@gmail.com', '012- 567- 0962', 'Doctor', 'X-Ray', '2026-10-18 20:18:29', '2026-10-18 20:18:29'),
+(5, 'Alex', '', 'test1@gmail.com', '011-222-3344', 'Doctor', 'Vaccination', '2026-10-19 18:45:52', '2026-10-19 18:45:52');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `users`
+--
+
+CREATE TABLE `users` (
+  `id` int(11) NOT NULL,
+  `first_name` varchar(100) NOT NULL,
+  `last_name` varchar(100) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `phone` varchar(30) NOT NULL,
+  `dob` date NOT NULL,
+  `password_hash` varchar(255) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `terms_accepted` tinyint(1) NOT NULL DEFAULT 0,
+  `role` varchar(30) NOT NULL DEFAULT 'Administrator'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `users`
+--
+
+INSERT INTO `users` (`id`, `first_name`, `last_name`, `email`, `phone`, `dob`, `password_hash`, `created_at`, `terms_accepted`, `role`) VALUES
+(5, 'Chng', 'Zhe Han', 'hanzhechng001@gmail.com', '011 111 1111', '2020-03-11', '$2y$10$rBiSluongP1x.OYBfB4eqOxZZyZa0nTriUvIk4qGrpA3MOkO.L8zC', '2026-10-13 21:57:51', 1, 'Administrator'),
+(9, 'Victor', 'Lai', 'victor1996@gmail.com', '016-558-9572', '1996-02-22', '$2y$10$w94kZXHg.tK7/NIyYmLsOOqhSlxHo9rpVjVAs7vBbzIEbg/G71YJu', '2026-10-25 21:04:19', 1, 'Administrator');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `vaccination_records`
+--
+
+CREATE TABLE `vaccination_records` (
+  `record_id` int(11) NOT NULL,
+  `patient_id` int(11) NOT NULL COMMENT 'the account owner (the parent, for a child)',
+  `child_id` int(11) DEFAULT NULL COMMENT 'NULL = the patient themself',
+  `vaccine_id` int(11) NOT NULL,
+  `batch_id` int(11) DEFAULT NULL,
+  `doctor_id` int(11) DEFAULT NULL,
+  `appointment_id` int(11) DEFAULT NULL,
+  `dose_number` tinyint(3) UNSIGNED NOT NULL DEFAULT 1,
+  `date_given` date NOT NULL,
+  `next_dose_date` date DEFAULT NULL,
+  `notes` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `vaccination_records`
+--
+
+INSERT INTO `vaccination_records` (`record_id`, `patient_id`, `child_id`, `vaccine_id`, `batch_id`, `doctor_id`, `appointment_id`, `dose_number`, `date_given`, `next_dose_date`, `notes`) VALUES
+(1, 4, NULL, 2, 1, 2, NULL, 1, '2026-10-29', NULL, 'Booster needed after 3 years if still travelling.'),
+(2, 4, NULL, 3, 2, 9, NULL, 1, '2026-09-30', '2026-12-20', 'Second dose 6 to 12 months after the first.'),
+(3, 4, NULL, 17, 3, 4, NULL, 1, '2026-04-14', '2027-04-14', NULL),
+(4, 4, NULL, 16, 4, 4, NULL, 1, '2023-11-06', '2033-11-03', 'Repeat every 10 years.'),
+(5, 4, 1, 9, 5, 8, NULL, 1, '2025-09-06', NULL, NULL),
+(6, 4, 1, 10, 6, 3, NULL, 3, '2026-03-05', NULL, 'Course complete.'),
+(7, 4, 1, 13, 7, 3, NULL, 2, '2026-01-09', NULL, 'Course complete.'),
+(8, 4, 1, 12, 8, 3, NULL, 2, '2026-01-14', '2026-10-31', 'Booster dose at 12 months.'),
+(9, 4, 1, 11, 9, 8, NULL, 3, '2026-10-11', '2027-02-23', 'Booster due at 18 months.'),
+(10, 1, 2, 9, 12, 8, NULL, 1, '2024-06-13', NULL, NULL),
+(11, 1, 2, 10, 10, 8, NULL, 1, '2024-06-13', NULL, NULL),
+(12, 1, 2, 10, 10, 3, NULL, 2, '2024-07-13', NULL, NULL),
+(13, 1, 2, 11, 11, 3, NULL, 1, '2024-08-12', '2024-12-10', 'Dose 2 was due about two months later.'),
+(14, 2, NULL, 3, 13, 2, NULL, 1, '2026-10-21', '2027-04-19', 'Second dose 6 months after the first.'),
+(15, 2, NULL, 2, 14, 2, NULL, 1, '2026-10-21', NULL, NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `vaccines`
+--
+
+CREATE TABLE `vaccines` (
+  `vaccine_id` int(11) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `category` enum('Travel','Childhood','Booster','Consultation') NOT NULL,
+  `total_doses` tinyint(3) UNSIGNED NOT NULL DEFAULT 1,
+  `price` decimal(8,2) NOT NULL DEFAULT 0.00 COMMENT 'demo price in RM',
+  `lead_days` smallint(6) DEFAULT NULL COMMENT 'travel vaccines: ideal days before departure'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `vaccines`
+--
+
+INSERT INTO `vaccines` (`vaccine_id`, `name`, `category`, `total_doses`, `price`, `lead_days`) VALUES
 (1, 'Yellow Fever', 'Travel', 1, 130.00, 10),
 (2, 'Typhoid', 'Travel', 1, 95.00, 14),
 (3, 'Hepatitis A', 'Travel', 2, 120.00, 14),
@@ -615,499 +944,222 @@ INSERT IGNORE INTO `vaccines` (`vaccine_id`, `name`, `category`, `total_doses`, 
 (17, 'Influenza', 'Booster', 1, 70.00, 14),
 (18, 'Vaccine consultation', 'Consultation', 1, 40.00, NULL);
 
-INSERT IGNORE INTO `destinations` (`destination_id`, `country_code`, `country`, `region`) VALUES
-(1, 'AU', 'Australia', 'Oceania'),
-(2, 'BR', 'Brazil', 'South America'),
-(3, 'KH', 'Cambodia', 'Asia'),
-(4, 'CN', 'China', 'Asia'),
-(5, 'EG', 'Egypt', 'Middle East'),
-(6, 'GH', 'Ghana', 'Africa'),
-(7, 'IN', 'India', 'Asia'),
-(8, 'ID', 'Indonesia', 'Asia'),
-(9, 'JP', 'Japan', 'Asia'),
-(10, 'KE', 'Kenya', 'Africa'),
-(11, 'NP', 'Nepal', 'Asia'),
-(12, 'NG', 'Nigeria', 'Africa'),
-(13, 'PE', 'Peru', 'South America'),
-(14, 'PH', 'Philippines', 'Asia'),
-(15, 'SA', 'Saudi Arabia', 'Middle East'),
-(16, 'SG', 'Singapore', 'Asia'),
-(17, 'ZA', 'South Africa', 'Africa'),
-(18, 'KR', 'South Korea', 'Asia'),
-(19, 'TZ', 'Tanzania', 'Africa'),
-(20, 'TH', 'Thailand', 'Asia'),
-(21, 'UG', 'Uganda', 'Africa'),
-(22, 'GB', 'United Kingdom', 'Europe'),
-(23, 'US', 'United States', 'North America'),
-(24, 'VN', 'Vietnam', 'Asia');
-
-INSERT IGNORE INTO `destination_vaccines` (`destination_id`, `vaccine_id`, `requirement`, `reason`) VALUES
-(1, 17, 'Recommended', 'Flu circulates all year in the tropics and in winter elsewhere. Useful before long flights.'),
-(1, 16, 'Recommended', 'Keeps tetanus and diphtheria cover up to date (every 10 years).'),
-(1, 14, 'Recommended', 'Measles outbreaks happen worldwide. Make sure you have had two doses.'),
-(2, 1, 'Recommended', 'Mosquito-borne and present in this region. One dose gives lifelong protection.'),
-(2, 3, 'Recommended', 'Spread through food and water. Advised for almost every destination outside Europe and North America.'),
-(2, 2, 'Recommended', 'Spread through contaminated food and water, especially if you eat street food or stay with locals.'),
-(2, 4, 'Recommended', 'Worth considering if you will be around dogs, bats or monkeys, or far from medical care.'),
-(2, 17, 'Recommended', 'Flu circulates all year in the tropics and in winter elsewhere. Useful before long flights.'),
-(3, 3, 'Recommended', 'Spread through food and water. Advised for almost every destination outside Europe and North America.'),
-(3, 2, 'Recommended', 'Spread through contaminated food and water, especially if you eat street food or stay with locals.'),
-(3, 4, 'Recommended', 'Worth considering if you will be around dogs, bats or monkeys, or far from medical care.'),
-(3, 5, 'Recommended', 'Mosquito-borne. Advised for stays over a month or time spent in rural and farming areas.'),
-(4, 3, 'Recommended', 'Spread through food and water. Advised for almost every destination outside Europe and North America.'),
-(4, 2, 'Recommended', 'Spread through contaminated food and water, especially if you eat street food or stay with locals.'),
-(4, 5, 'Recommended', 'Mosquito-borne. Advised for stays over a month or time spent in rural and farming areas.'),
-(4, 17, 'Recommended', 'Flu circulates all year in the tropics and in winter elsewhere. Useful before long flights.'),
-(4, 14, 'Recommended', 'Measles outbreaks happen worldwide. Make sure you have had two doses.'),
-(5, 3, 'Recommended', 'Spread through food and water. Advised for almost every destination outside Europe and North America.'),
-(5, 2, 'Recommended', 'Spread through contaminated food and water, especially if you eat street food or stay with locals.'),
-(5, 8, 'Recommended', 'Advised if you have not had a booster as an adult and are visiting a region where polio is still reported.'),
-(5, 16, 'Recommended', 'Keeps tetanus and diphtheria cover up to date (every 10 years).'),
-(6, 1, 'Required', 'A yellow fever certificate is required to enter. One dose gives lifelong protection.'),
-(6, 3, 'Recommended', 'Spread through food and water. Advised for almost every destination outside Europe and North America.'),
-(6, 2, 'Recommended', 'Spread through contaminated food and water, especially if you eat street food or stay with locals.'),
-(6, 6, 'Recommended', 'Advised for the African meningitis belt, especially during the dry season.'),
-(6, 4, 'Recommended', 'Worth considering if you will be around dogs, bats or monkeys, or far from medical care.'),
-(6, 8, 'Recommended', 'Advised if you have not had a booster as an adult and are visiting a region where polio is still reported.'),
-(7, 3, 'Recommended', 'Spread through food and water. Advised for almost every destination outside Europe and North America.'),
-(7, 2, 'Recommended', 'Spread through contaminated food and water, especially if you eat street food or stay with locals.'),
-(7, 4, 'Recommended', 'Worth considering if you will be around dogs, bats or monkeys, or far from medical care.'),
-(7, 5, 'Recommended', 'Mosquito-borne. Advised for stays over a month or time spent in rural and farming areas.'),
-(7, 8, 'Recommended', 'Advised if you have not had a booster as an adult and are visiting a region where polio is still reported.'),
-(7, 7, 'Recommended', 'Mainly for aid workers or travellers to areas with active outbreaks.'),
-(8, 3, 'Recommended', 'Spread through food and water. Advised for almost every destination outside Europe and North America.'),
-(8, 2, 'Recommended', 'Spread through contaminated food and water, especially if you eat street food or stay with locals.'),
-(8, 4, 'Recommended', 'Worth considering if you will be around dogs, bats or monkeys, or far from medical care.'),
-(8, 5, 'Recommended', 'Mosquito-borne. Advised for stays over a month or time spent in rural and farming areas.'),
-(8, 16, 'Recommended', 'Keeps tetanus and diphtheria cover up to date (every 10 years).'),
-(9, 3, 'Recommended', 'Spread through food and water. Advised for almost every destination outside Europe and North America.'),
-(9, 5, 'Recommended', 'Mosquito-borne. Advised for stays over a month or time spent in rural and farming areas.'),
-(9, 17, 'Recommended', 'Flu circulates all year in the tropics and in winter elsewhere. Useful before long flights.'),
-(9, 14, 'Recommended', 'Measles outbreaks happen worldwide. Make sure you have had two doses.'),
-(10, 1, 'Recommended', 'Mosquito-borne and present in this region. One dose gives lifelong protection.'),
-(10, 3, 'Recommended', 'Spread through food and water. Advised for almost every destination outside Europe and North America.'),
-(10, 2, 'Recommended', 'Spread through contaminated food and water, especially if you eat street food or stay with locals.'),
-(10, 4, 'Recommended', 'Worth considering if you will be around dogs, bats or monkeys, or far from medical care.'),
-(10, 6, 'Recommended', 'Advised for the African meningitis belt, especially during the dry season.'),
-(10, 8, 'Recommended', 'Advised if you have not had a booster as an adult and are visiting a region where polio is still reported.'),
-(11, 3, 'Recommended', 'Spread through food and water. Advised for almost every destination outside Europe and North America.'),
-(11, 2, 'Recommended', 'Spread through contaminated food and water, especially if you eat street food or stay with locals.'),
-(11, 4, 'Recommended', 'Worth considering if you will be around dogs, bats or monkeys, or far from medical care.'),
-(11, 5, 'Recommended', 'Mosquito-borne. Advised for stays over a month or time spent in rural and farming areas.'),
-(11, 8, 'Recommended', 'Advised if you have not had a booster as an adult and are visiting a region where polio is still reported.'),
-(11, 6, 'Recommended', 'Advised for the African meningitis belt, especially during the dry season.'),
-(12, 1, 'Required', 'A yellow fever certificate is required to enter. One dose gives lifelong protection.'),
-(12, 3, 'Recommended', 'Spread through food and water. Advised for almost every destination outside Europe and North America.'),
-(12, 2, 'Recommended', 'Spread through contaminated food and water, especially if you eat street food or stay with locals.'),
-(12, 6, 'Recommended', 'Advised for the African meningitis belt, especially during the dry season.'),
-(12, 8, 'Recommended', 'Advised if you have not had a booster as an adult and are visiting a region where polio is still reported.'),
-(12, 7, 'Recommended', 'Mainly for aid workers or travellers to areas with active outbreaks.'),
-(13, 1, 'Recommended', 'Mosquito-borne and present in this region. One dose gives lifelong protection.'),
-(13, 3, 'Recommended', 'Spread through food and water. Advised for almost every destination outside Europe and North America.'),
-(13, 2, 'Recommended', 'Spread through contaminated food and water, especially if you eat street food or stay with locals.'),
-(13, 4, 'Recommended', 'Worth considering if you will be around dogs, bats or monkeys, or far from medical care.'),
-(14, 3, 'Recommended', 'Spread through food and water. Advised for almost every destination outside Europe and North America.'),
-(14, 2, 'Recommended', 'Spread through contaminated food and water, especially if you eat street food or stay with locals.'),
-(14, 4, 'Recommended', 'Worth considering if you will be around dogs, bats or monkeys, or far from medical care.'),
-(14, 5, 'Recommended', 'Mosquito-borne. Advised for stays over a month or time spent in rural and farming areas.'),
-(14, 7, 'Recommended', 'Mainly for aid workers or travellers to areas with active outbreaks.'),
-(15, 6, 'Required', 'Proof of vaccination is required for Hajj and Umrah visas.'),
-(15, 3, 'Recommended', 'Spread through food and water. Advised for almost every destination outside Europe and North America.'),
-(15, 2, 'Recommended', 'Spread through contaminated food and water, especially if you eat street food or stay with locals.'),
-(15, 17, 'Recommended', 'Flu circulates all year in the tropics and in winter elsewhere. Useful before long flights.'),
-(15, 8, 'Recommended', 'Advised if you have not had a booster as an adult and are visiting a region where polio is still reported.'),
-(16, 3, 'Recommended', 'Spread through food and water. Advised for almost every destination outside Europe and North America.'),
-(16, 16, 'Recommended', 'Keeps tetanus and diphtheria cover up to date (every 10 years).'),
-(17, 3, 'Recommended', 'Spread through food and water. Advised for almost every destination outside Europe and North America.'),
-(17, 2, 'Recommended', 'Spread through contaminated food and water, especially if you eat street food or stay with locals.'),
-(17, 4, 'Recommended', 'Worth considering if you will be around dogs, bats or monkeys, or far from medical care.'),
-(17, 16, 'Recommended', 'Keeps tetanus and diphtheria cover up to date (every 10 years).'),
-(18, 3, 'Recommended', 'Spread through food and water. Advised for almost every destination outside Europe and North America.'),
-(18, 17, 'Recommended', 'Flu circulates all year in the tropics and in winter elsewhere. Useful before long flights.'),
-(18, 14, 'Recommended', 'Measles outbreaks happen worldwide. Make sure you have had two doses.'),
-(19, 1, 'Recommended', 'Mosquito-borne and present in this region. One dose gives lifelong protection.'),
-(19, 3, 'Recommended', 'Spread through food and water. Advised for almost every destination outside Europe and North America.'),
-(19, 2, 'Recommended', 'Spread through contaminated food and water, especially if you eat street food or stay with locals.'),
-(19, 4, 'Recommended', 'Worth considering if you will be around dogs, bats or monkeys, or far from medical care.'),
-(19, 6, 'Recommended', 'Advised for the African meningitis belt, especially during the dry season.'),
-(19, 8, 'Recommended', 'Advised if you have not had a booster as an adult and are visiting a region where polio is still reported.'),
-(20, 3, 'Recommended', 'Spread through food and water. Advised for almost every destination outside Europe and North America.'),
-(20, 2, 'Recommended', 'Spread through contaminated food and water, especially if you eat street food or stay with locals.'),
-(20, 4, 'Recommended', 'Worth considering if you will be around dogs, bats or monkeys, or far from medical care.'),
-(20, 5, 'Recommended', 'Mosquito-borne. Advised for stays over a month or time spent in rural and farming areas.'),
-(20, 16, 'Recommended', 'Keeps tetanus and diphtheria cover up to date (every 10 years).'),
-(21, 1, 'Required', 'A yellow fever certificate is required to enter. One dose gives lifelong protection.'),
-(21, 3, 'Recommended', 'Spread through food and water. Advised for almost every destination outside Europe and North America.'),
-(21, 2, 'Recommended', 'Spread through contaminated food and water, especially if you eat street food or stay with locals.'),
-(21, 4, 'Recommended', 'Worth considering if you will be around dogs, bats or monkeys, or far from medical care.'),
-(21, 6, 'Recommended', 'Advised for the African meningitis belt, especially during the dry season.'),
-(21, 8, 'Recommended', 'Advised if you have not had a booster as an adult and are visiting a region where polio is still reported.'),
-(22, 17, 'Recommended', 'Flu circulates all year in the tropics and in winter elsewhere. Useful before long flights.'),
-(22, 16, 'Recommended', 'Keeps tetanus and diphtheria cover up to date (every 10 years).'),
-(22, 14, 'Recommended', 'Measles outbreaks happen worldwide. Make sure you have had two doses.'),
-(23, 17, 'Recommended', 'Flu circulates all year in the tropics and in winter elsewhere. Useful before long flights.'),
-(23, 16, 'Recommended', 'Keeps tetanus and diphtheria cover up to date (every 10 years).'),
-(23, 14, 'Recommended', 'Measles outbreaks happen worldwide. Make sure you have had two doses.'),
-(24, 3, 'Recommended', 'Spread through food and water. Advised for almost every destination outside Europe and North America.'),
-(24, 2, 'Recommended', 'Spread through contaminated food and water, especially if you eat street food or stay with locals.'),
-(24, 4, 'Recommended', 'Worth considering if you will be around dogs, bats or monkeys, or far from medical care.'),
-(24, 5, 'Recommended', 'Mosquito-borne. Advised for stays over a month or time spent in rural and farming areas.'),
-(24, 16, 'Recommended', 'Keeps tetanus and diphtheria cover up to date (every 10 years).');
-
-INSERT INTO `child_schedule` (`vaccine_id`, `age_months`, `dose_number`, `dose_label`, `requirement`, `reason`) VALUES
-(9, 0, 1, 'Single dose', 'Required', 'Protects against severe forms of tuberculosis.'),
-(10, 0, 1, 'Dose 1 of 3', 'Required', 'Protects the liver against hepatitis B infection.'),
-(10, 1, 2, 'Dose 2 of 3', 'Required', 'Second dose of the hepatitis B course.'),
-(11, 2, 1, 'Dose 1 of 4', 'Required', 'Covers diphtheria, tetanus, whooping cough, polio and Hib in one injection.'),
-(12, 2, 1, 'Dose 1 of 4', 'Required', 'Protects against pneumonia, meningitis and ear infections.'),
-(13, 2, 1, 'Dose 1 of 2', 'Recommended', 'Oral vaccine that prevents severe diarrhoea in babies.'),
-(11, 3, 2, 'Dose 2 of 4', 'Required', 'Second dose of the five-in-one vaccine.'),
-(12, 3, 2, 'Dose 2 of 4', 'Required', 'Second dose of the pneumococcal course.'),
-(13, 3, 2, 'Dose 2 of 2', 'Recommended', 'Completes the rotavirus course.'),
-(11, 5, 3, 'Dose 3 of 4', 'Required', 'Third dose of the five-in-one vaccine.'),
-(12, 5, 3, 'Dose 3 of 4', 'Required', 'Third dose of the pneumococcal course.'),
-(10, 6, 3, 'Dose 3 of 3', 'Required', 'Completes the hepatitis B course.'),
-(17, 6, 0, 'Yearly', 'Recommended', 'Flu vaccine is advised every year from 6 months old.'),
-(14, 9, 1, 'Dose 1 of 2', 'Required', 'Protects against measles, mumps and rubella.'),
-(12, 12, 4, 'Booster', 'Required', 'Booster dose to keep protection strong.'),
-(14, 12, 2, 'Dose 2 of 2', 'Required', 'Second dose gives long-lasting protection.'),
-(15, 12, 1, 'Dose 1 of 2', 'Recommended', 'Protects against chickenpox and shingles later in life.'),
-(11, 18, 4, 'Booster', 'Required', 'Booster dose of the five-in-one vaccine.'),
-(15, 36, 2, 'Dose 2 of 2', 'Recommended', 'Second dose completes chickenpox protection.');
-
--- Doctor portal support fields: patient notices and pre-checks can be tied to a specific appointment owner.
-ALTER TABLE `notifications`
-  ADD COLUMN `doctor_id` int(11) DEFAULT NULL AFTER `patient_id`,
-  ADD COLUMN `appointment_id` int(11) DEFAULT NULL AFTER `doctor_id`,
-  ADD KEY `idx_notif_doctor_unread` (`doctor_id`,`is_read`),
-  ADD KEY `idx_notif_appointment` (`appointment_id`),
-  ADD CONSTRAINT `fk_notif_doctor` FOREIGN KEY (`doctor_id`) REFERENCES `doctors` (`doctor_id`) ON DELETE SET NULL,
-  ADD CONSTRAINT `fk_notif_appointment` FOREIGN KEY (`appointment_id`) REFERENCES `appointments` (`appointment_id`) ON DELETE SET NULL;
-
-ALTER TABLE `precheck_forms`
-  ADD COLUMN `appointment_id` int(11) DEFAULT NULL AFTER `patient_id`,
-  ADD KEY `idx_precheck_appointment` (`appointment_id`),
-  ADD CONSTRAINT `fk_precheck_appointment` FOREIGN KEY (`appointment_id`) REFERENCES `appointments` (`appointment_id`) ON DELETE SET NULL;
-
-CREATE TABLE `doctor_notification_cursors` (
-  `doctor_id` int(11) NOT NULL,
-  `last_seen_at` datetime DEFAULT NULL,
-  PRIMARY KEY (`doctor_id`),
-  CONSTRAINT `fk_doctor_cursor_doctor` FOREIGN KEY (`doctor_id`) REFERENCES `doctors` (`doctor_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- Links a clinic-created walk-in patient to the doctor who registered them (doctor side).
-CREATE TABLE `doctor_patient_links` (
-  `doctor_id` int(11) NOT NULL,
-  `patient_id` int(11) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`doctor_id`, `patient_id`),
-  KEY `idx_doctor_patient_links_patient` (`patient_id`),
-  CONSTRAINT `fk_dpl_doctor` FOREIGN KEY (`doctor_id`) REFERENCES `doctors` (`doctor_id`) ON DELETE CASCADE,
-  CONSTRAINT `fk_dpl_patient` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`patient_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- =====================================================================
--- VaxAssist DEMO DATA for the patient side (local testing only)
---
--- This section is part of vaxassist_db.sql and is imported together with everything above it.
--- It adds demo doctors, demo patients with children, vaccination records,
--- appointments, payments, reviews and notifications so every patient page has
--- something to show. Nothing the team already has is deleted or renamed.
---
--- Logins (all local testing only):
---     demo@example.com     /  DemoPass123   (Demo Patient: child Aiden, records, history)
---     michael@example.com  /  Michael123    (the team's sample patient Michael Wong)
---     sarah@example.com    /  Sarah1234     (the team's sample patient Sarah Jenkins)
---     ahmad@example.com    /  Ahmad1234     (the team's sample patient Ahmad Razak)
--- Doctors (local testing only): all 9 doctors log in with the password Try12345.
---     try1@gmail.com (Alex Taylor) and the 8 demo doctors at @vaxassist.demo (e.g. aisha.rahman@vaxassist.demo).
--- Remove or change these demo passwords before the site is deployed.
--- =====================================================================
-
-USE `vaxassist_db`;
-
-INSERT IGNORE INTO `doctors` (`first_name`, `last_name`, `email`, `phone`, `dob`, `password_hash`, `specialization`, `consultation_room`, `bio`, `years_experience`, `languages`, `keywords`) VALUES
-('Aisha', 'Rahman', 'aisha.rahman@vaxassist.demo', '+60 3-0000 1000', '1985-01-01', '$2y$10$t/.s0bFo0JG0UrDJTeq0ZexfzsPzxDPWruYUeYx.QwvL6Z3c7H42G', 'Travel Medicine', 'Room 101', 'Advises travellers on vaccines, malaria prevention and health planning for overseas trips.', 12, 'English, Malay', 'travel, yellow fever, typhoid, hepatitis a, rabies, malaria'),
-('Daniel', 'Lim', 'daniel.lim@vaxassist.demo', '+60 3-0000 1001', '1985-01-01', '$2y$10$hjUMz9rSrMLj8f5caEALaeRdg3ZOyLDMlkRpr/bYMJd2b3GTbbuzy', 'Paediatrics', 'Room 102', 'Looks after babies and children, including growth checks and the childhood vaccination schedule.', 9, 'English, Mandarin', 'child, baby, fever, mmr, booster, rotavirus, bcg'),
-('Priya', 'Nair', 'priya.nair@vaxassist.demo', '+60 3-0000 1002', '1985-01-01', '$2y$10$sQR1sK4CIstfazX/0yzobuX3oEdMsXDMs.jhLpfEuUY2KPV0a.9IG', 'General Practice', 'Room 103', 'Family doctor for everyday health concerns, check-ups and vaccine advice for all ages.', 15, 'English, Tamil, Malay', 'cough, cold, fever, flu, influenza, check-up, vaccine, tetanus'),
-('Ahmad', 'Farid', 'ahmad.farid@vaxassist.demo', '+60 3-0000 1003', '1985-01-01', '$2y$10$IMYyEdfLn.kk0wr5KictBOXHTERIwdKBgGsN35BmDspRgWA0ZoJy2', 'Internal Medicine', 'Room 104', 'Manages long-term conditions such as diabetes, blood pressure and liver health.', 18, 'English, Malay', 'diabetes, blood pressure, hepatitis b, liver, fatigue'),
-('Mei', 'Ling Tan', 'mei.ling.tan@vaxassist.demo', '+60 3-0000 1004', '1985-01-01', '$2y$10$x3Hki7b7hX/3oGnN3XmqzeqFGqTwdCwNYhKzi/ZL1R6GB87FJeJaG', 'Infectious Diseases', 'Room 105', 'Treats infections and advises on vaccine-preventable diseases, outbreaks and post-exposure care.', 8, 'English, Mandarin', 'infection, hepatitis b, rabies, post-exposure, measles, dengue, allergy, vaccine reaction'),
-('Rajesh', 'Kumar', 'rajesh.kumar@vaxassist.demo', '+60 3-0000 1005', '1985-01-01', '$2y$10$phHF2/12zpdDfwQxOrXuQOp2HhcjscR8iVta9ksTmPuJ8m96k./XS', 'Preventive Medicine', 'Room 106', 'Plans adult immunisation, health screening and workplace or community vaccination programmes.', 14, 'English, Hindi', 'adult vaccine, screening, influenza, tetanus, workplace, pneumococcal, booster'),
-('Siti', 'Aminah', 'siti.aminah@vaxassist.demo', '+60 3-0000 1006', '1985-01-01', '$2y$10$dIGmjQ9fUboJfWk5c5mm3uSRnPdEe7ZUhPmcrEbjulPaC4TV3nV3u', 'Paediatrics', 'Room 107', 'Child health and development, with a special interest in newborn care and immunisation.', 6, 'English, Malay', 'newborn, baby, child, hepatitis b, dtap, pneumococcal, vaccine'),
-('Jason', 'Wong', 'jason.wong@vaxassist.demo', '+60 3-0000 1007', '1985-01-01', '$2y$10$cdBGWJl3DkAXRepUW4Djq.s47EI5LHykBoLOApQjlTXO7MJqt3N2e', 'General Practice', 'Room 108', 'Walk-in friendly family doctor offering vaccinations, travel health letters and minor procedures.', 10, 'English, Mandarin, Cantonese', 'vaccine, travel, typhoid, hepatitis a, cough, fever, headache');
-
-INSERT IGNORE INTO `doctor_availability` (`doctor_id`, `weekday`) VALUES
-((SELECT doctor_id FROM doctors WHERE email = 'aisha.rahman@vaxassist.demo'), 1),
-((SELECT doctor_id FROM doctors WHERE email = 'aisha.rahman@vaxassist.demo'), 3),
-((SELECT doctor_id FROM doctors WHERE email = 'aisha.rahman@vaxassist.demo'), 5),
-((SELECT doctor_id FROM doctors WHERE email = 'daniel.lim@vaxassist.demo'), 1),
-((SELECT doctor_id FROM doctors WHERE email = 'daniel.lim@vaxassist.demo'), 2),
-((SELECT doctor_id FROM doctors WHERE email = 'daniel.lim@vaxassist.demo'), 4),
-((SELECT doctor_id FROM doctors WHERE email = 'priya.nair@vaxassist.demo'), 1),
-((SELECT doctor_id FROM doctors WHERE email = 'priya.nair@vaxassist.demo'), 2),
-((SELECT doctor_id FROM doctors WHERE email = 'priya.nair@vaxassist.demo'), 3),
-((SELECT doctor_id FROM doctors WHERE email = 'priya.nair@vaxassist.demo'), 4),
-((SELECT doctor_id FROM doctors WHERE email = 'priya.nair@vaxassist.demo'), 5),
-((SELECT doctor_id FROM doctors WHERE email = 'ahmad.farid@vaxassist.demo'), 2),
-((SELECT doctor_id FROM doctors WHERE email = 'ahmad.farid@vaxassist.demo'), 3),
-((SELECT doctor_id FROM doctors WHERE email = 'ahmad.farid@vaxassist.demo'), 5),
-((SELECT doctor_id FROM doctors WHERE email = 'mei.ling.tan@vaxassist.demo'), 2),
-((SELECT doctor_id FROM doctors WHERE email = 'mei.ling.tan@vaxassist.demo'), 4),
-((SELECT doctor_id FROM doctors WHERE email = 'rajesh.kumar@vaxassist.demo'), 1),
-((SELECT doctor_id FROM doctors WHERE email = 'rajesh.kumar@vaxassist.demo'), 3),
-((SELECT doctor_id FROM doctors WHERE email = 'siti.aminah@vaxassist.demo'), 3),
-((SELECT doctor_id FROM doctors WHERE email = 'siti.aminah@vaxassist.demo'), 4),
-((SELECT doctor_id FROM doctors WHERE email = 'siti.aminah@vaxassist.demo'), 5),
-((SELECT doctor_id FROM doctors WHERE email = 'jason.wong@vaxassist.demo'), 1),
-((SELECT doctor_id FROM doctors WHERE email = 'jason.wong@vaxassist.demo'), 2),
-((SELECT doctor_id FROM doctors WHERE email = 'jason.wong@vaxassist.demo'), 3),
-((SELECT doctor_id FROM doctors WHERE email = 'jason.wong@vaxassist.demo'), 4),
-((SELECT doctor_id FROM doctors WHERE email = 'jason.wong@vaxassist.demo'), 5);
-
-INSERT IGNORE INTO `patients` (`full_name`, `email`, `password_hash`, `phone`, `dob`, `gender`, `blood_type`, `allergies`, `height_cm`, `weight_kg`) VALUES
-('Demo Patient', 'demo@example.com', '$2y$10$nVyjH6mh7qwLVmsX1rVc4eibjDKCNBMCeyiiW48s0Lx.Aw8iOMGyi', '+60 12-345 6789', '1998-05-14', 'Female', 'O+', NULL, 165, 58.0);
-
-UPDATE `patients` SET `email` = 'michael@example.com', `password_hash` = '$2y$10$kYVmuR.B4vEXGw6L6i8CGuN0TzuT9zmWe2YpWYo8SrPLdecU6Uswm' WHERE `full_name` = 'Michael Wong' AND `email` IS NULL;
-UPDATE `patients` SET `email` = 'sarah@example.com', `password_hash` = '$2y$10$6vGcJSEjmZ6ObZ60i3UHNe7Z/NOHebH50mKDTXE1v1YpMV/HO1Jb2' WHERE `full_name` = 'Sarah Jenkins' AND `email` IS NULL;
-UPDATE `patients` SET `email` = 'ahmad@example.com', `password_hash` = '$2y$10$oDqglPVErvmxxp6R2b4wJOQLbsS2de9SMSifjAwb2wXVhEaPTfr32' WHERE `full_name` = 'Ahmad Razak' AND `email` IS NULL;
-
-INSERT IGNORE INTO `notification_preferences` (`patient_id`) SELECT patient_id FROM patients WHERE email IN ('demo@example.com', 'michael@example.com', 'sarah@example.com', 'ahmad@example.com');
-
-INSERT INTO `patient_health_items` (`patient_id`, `item_type`, `name`) VALUES
-((SELECT patient_id FROM patients WHERE email = 'demo@example.com'), 'Allergy', 'Penicillin'), ((SELECT patient_id FROM patients WHERE email = 'demo@example.com'), 'Allergy', 'Egg'), ((SELECT patient_id FROM patients WHERE email = 'demo@example.com'), 'Condition', 'Asthma'), ((SELECT patient_id FROM patients WHERE email = 'demo@example.com'), 'Medication', 'Salbutamol inhaler'),
-((SELECT patient_id FROM patients WHERE email = 'michael@example.com'), 'Allergy', 'Latex'), ((SELECT patient_id FROM patients WHERE email = 'sarah@example.com'), 'Condition', 'Hay fever');
-
-INSERT INTO `children` (`patient_id`, `first_name`, `dob`, `gender`) VALUES
-((SELECT patient_id FROM patients WHERE email = 'demo@example.com'), 'Aiden', CURDATE() - INTERVAL 430 DAY, 'Male'),
-((SELECT patient_id FROM patients WHERE email = 'michael@example.com'), 'Noah', CURDATE() - INTERVAL 900 DAY, 'Male');
-
-INSERT IGNORE INTO `vaccine_batches` (`vaccine_id`, `batch_number`, `manufacturer`, `expiry_date`, `quantity_in_stock`) VALUES
-((SELECT vaccine_id FROM vaccines WHERE name = 'Typhoid'), 'TY-22914B', 'Demo Pharma', CURDATE() + INTERVAL 18 MONTH, 100),
-((SELECT vaccine_id FROM vaccines WHERE name = 'Hepatitis A'), 'HA-80731C', 'Demo Pharma', CURDATE() + INTERVAL 18 MONTH, 100),
-((SELECT vaccine_id FROM vaccines WHERE name = 'Influenza'), 'FLU-5519A', 'Demo Pharma', CURDATE() + INTERVAL 18 MONTH, 100),
-((SELECT vaccine_id FROM vaccines WHERE name = 'Td Booster'), 'TD-30276D', 'Demo Pharma', CURDATE() + INTERVAL 18 MONTH, 100),
-((SELECT vaccine_id FROM vaccines WHERE name = 'BCG'), 'BCG-1102', 'Demo Pharma', CURDATE() + INTERVAL 18 MONTH, 100),
-((SELECT vaccine_id FROM vaccines WHERE name = 'Hepatitis B'), 'HB-77410', 'Demo Pharma', CURDATE() + INTERVAL 18 MONTH, 100),
-((SELECT vaccine_id FROM vaccines WHERE name = 'Rotavirus'), 'RV-4408', 'Demo Pharma', CURDATE() + INTERVAL 18 MONTH, 100),
-((SELECT vaccine_id FROM vaccines WHERE name = 'Pneumococcal (PCV)'), 'PCV-9912', 'Demo Pharma', CURDATE() + INTERVAL 18 MONTH, 100),
-((SELECT vaccine_id FROM vaccines WHERE name = 'DTaP-IPV-Hib'), 'DTP-6063', 'Demo Pharma', CURDATE() + INTERVAL 18 MONTH, 100),
-((SELECT vaccine_id FROM vaccines WHERE name = 'Hepatitis B'), 'HB-5521', 'Demo Pharma', CURDATE() + INTERVAL 18 MONTH, 100),
-((SELECT vaccine_id FROM vaccines WHERE name = 'DTaP-IPV-Hib'), 'DTP-5110', 'Demo Pharma', CURDATE() + INTERVAL 18 MONTH, 100),
-((SELECT vaccine_id FROM vaccines WHERE name = 'BCG'), 'BCG-0991', 'Demo Pharma', CURDATE() + INTERVAL 18 MONTH, 100),
-((SELECT vaccine_id FROM vaccines WHERE name = 'Hepatitis A'), 'HA-9902', 'Demo Pharma', CURDATE() + INTERVAL 18 MONTH, 100),
-((SELECT vaccine_id FROM vaccines WHERE name = 'Typhoid'), 'TY-30011', 'Demo Pharma', CURDATE() + INTERVAL 18 MONTH, 100);
-
-INSERT INTO `vaccination_records` (`patient_id`, `child_id`, `vaccine_id`, `batch_id`, `doctor_id`, `dose_number`, `date_given`, `next_dose_date`, `notes`) VALUES
-((SELECT patient_id FROM patients WHERE email = 'demo@example.com'), NULL, (SELECT vaccine_id FROM vaccines WHERE name = 'Typhoid'), (SELECT batch_id FROM vaccine_batches WHERE batch_number = 'TY-22914B'), (SELECT doctor_id FROM doctors WHERE email = 'aisha.rahman@vaxassist.demo'), 1, CURDATE() - INTERVAL 12 DAY, NULL, 'Booster needed after 3 years if still travelling.'),
-((SELECT patient_id FROM patients WHERE email = 'demo@example.com'), NULL, (SELECT vaccine_id FROM vaccines WHERE name = 'Hepatitis A'), (SELECT batch_id FROM vaccine_batches WHERE batch_number = 'HA-80731C'), (SELECT doctor_id FROM doctors WHERE email = 'jason.wong@vaxassist.demo'), 1, CURDATE() - INTERVAL 41 DAY, CURDATE() + INTERVAL 40 DAY, 'Second dose 6 to 12 months after the first.'),
-((SELECT patient_id FROM patients WHERE email = 'demo@example.com'), NULL, (SELECT vaccine_id FROM vaccines WHERE name = 'Influenza'), (SELECT batch_id FROM vaccine_batches WHERE batch_number = 'FLU-5519A'), (SELECT doctor_id FROM doctors WHERE email = 'priya.nair@vaxassist.demo'), 1, CURDATE() - INTERVAL 210 DAY, CURDATE() + INTERVAL 155 DAY, NULL),
-((SELECT patient_id FROM patients WHERE email = 'demo@example.com'), NULL, (SELECT vaccine_id FROM vaccines WHERE name = 'Td Booster'), (SELECT batch_id FROM vaccine_batches WHERE batch_number = 'TD-30276D'), (SELECT doctor_id FROM doctors WHERE email = 'priya.nair@vaxassist.demo'), 1, CURDATE() - INTERVAL 1100 DAY, CURDATE() + INTERVAL 2550 DAY, 'Repeat every 10 years.'),
-((SELECT patient_id FROM patients WHERE email = 'demo@example.com'), (SELECT child_id FROM children WHERE first_name = 'Aiden' AND patient_id = (SELECT patient_id FROM patients WHERE email = 'demo@example.com') LIMIT 1), (SELECT vaccine_id FROM vaccines WHERE name = 'BCG'), (SELECT batch_id FROM vaccine_batches WHERE batch_number = 'BCG-1102'), (SELECT doctor_id FROM doctors WHERE email = 'siti.aminah@vaxassist.demo'), 1, CURDATE() - INTERVAL 430 DAY, NULL, NULL),
-((SELECT patient_id FROM patients WHERE email = 'demo@example.com'), (SELECT child_id FROM children WHERE first_name = 'Aiden' AND patient_id = (SELECT patient_id FROM patients WHERE email = 'demo@example.com') LIMIT 1), (SELECT vaccine_id FROM vaccines WHERE name = 'Hepatitis B'), (SELECT batch_id FROM vaccine_batches WHERE batch_number = 'HB-77410'), (SELECT doctor_id FROM doctors WHERE email = 'daniel.lim@vaxassist.demo'), 3, CURDATE() - INTERVAL 250 DAY, NULL, 'Course complete.'),
-((SELECT patient_id FROM patients WHERE email = 'demo@example.com'), (SELECT child_id FROM children WHERE first_name = 'Aiden' AND patient_id = (SELECT patient_id FROM patients WHERE email = 'demo@example.com') LIMIT 1), (SELECT vaccine_id FROM vaccines WHERE name = 'Rotavirus'), (SELECT batch_id FROM vaccine_batches WHERE batch_number = 'RV-4408'), (SELECT doctor_id FROM doctors WHERE email = 'daniel.lim@vaxassist.demo'), 2, CURDATE() - INTERVAL 305 DAY, NULL, 'Course complete.'),
-((SELECT patient_id FROM patients WHERE email = 'demo@example.com'), (SELECT child_id FROM children WHERE first_name = 'Aiden' AND patient_id = (SELECT patient_id FROM patients WHERE email = 'demo@example.com') LIMIT 1), (SELECT vaccine_id FROM vaccines WHERE name = 'Pneumococcal (PCV)'), (SELECT batch_id FROM vaccine_batches WHERE batch_number = 'PCV-9912'), (SELECT doctor_id FROM doctors WHERE email = 'daniel.lim@vaxassist.demo'), 2, CURDATE() - INTERVAL 300 DAY, CURDATE() - INTERVAL 10 DAY, 'Booster dose at 12 months.'),
-((SELECT patient_id FROM patients WHERE email = 'demo@example.com'), (SELECT child_id FROM children WHERE first_name = 'Aiden' AND patient_id = (SELECT patient_id FROM patients WHERE email = 'demo@example.com') LIMIT 1), (SELECT vaccine_id FROM vaccines WHERE name = 'DTaP-IPV-Hib'), (SELECT batch_id FROM vaccine_batches WHERE batch_number = 'DTP-6063'), (SELECT doctor_id FROM doctors WHERE email = 'siti.aminah@vaxassist.demo'), 3, CURDATE() - INTERVAL 30 DAY, CURDATE() + INTERVAL 105 DAY, 'Booster due at 18 months.'),
-((SELECT patient_id FROM patients WHERE email = 'michael@example.com'), (SELECT child_id FROM children WHERE first_name = 'Noah' AND patient_id = (SELECT patient_id FROM patients WHERE email = 'michael@example.com') LIMIT 1), (SELECT vaccine_id FROM vaccines WHERE name = 'BCG'), (SELECT batch_id FROM vaccine_batches WHERE batch_number = 'BCG-0991'), (SELECT doctor_id FROM doctors WHERE email = 'siti.aminah@vaxassist.demo'), 1, CURDATE() - INTERVAL 880 DAY, NULL, NULL),
-((SELECT patient_id FROM patients WHERE email = 'michael@example.com'), (SELECT child_id FROM children WHERE first_name = 'Noah' AND patient_id = (SELECT patient_id FROM patients WHERE email = 'michael@example.com') LIMIT 1), (SELECT vaccine_id FROM vaccines WHERE name = 'Hepatitis B'), (SELECT batch_id FROM vaccine_batches WHERE batch_number = 'HB-5521'), (SELECT doctor_id FROM doctors WHERE email = 'siti.aminah@vaxassist.demo'), 1, CURDATE() - INTERVAL 880 DAY, NULL, NULL),
-((SELECT patient_id FROM patients WHERE email = 'michael@example.com'), (SELECT child_id FROM children WHERE first_name = 'Noah' AND patient_id = (SELECT patient_id FROM patients WHERE email = 'michael@example.com') LIMIT 1), (SELECT vaccine_id FROM vaccines WHERE name = 'Hepatitis B'), (SELECT batch_id FROM vaccine_batches WHERE batch_number = 'HB-5521'), (SELECT doctor_id FROM doctors WHERE email = 'daniel.lim@vaxassist.demo'), 2, CURDATE() - INTERVAL 850 DAY, NULL, NULL),
-((SELECT patient_id FROM patients WHERE email = 'michael@example.com'), (SELECT child_id FROM children WHERE first_name = 'Noah' AND patient_id = (SELECT patient_id FROM patients WHERE email = 'michael@example.com') LIMIT 1), (SELECT vaccine_id FROM vaccines WHERE name = 'DTaP-IPV-Hib'), (SELECT batch_id FROM vaccine_batches WHERE batch_number = 'DTP-5110'), (SELECT doctor_id FROM doctors WHERE email = 'daniel.lim@vaxassist.demo'), 1, CURDATE() - INTERVAL 820 DAY, CURDATE() - INTERVAL 700 DAY, 'Dose 2 was due about two months later.'),
-((SELECT patient_id FROM patients WHERE email = 'sarah@example.com'), NULL, (SELECT vaccine_id FROM vaccines WHERE name = 'Hepatitis A'), (SELECT batch_id FROM vaccine_batches WHERE batch_number = 'HA-9902'), (SELECT doctor_id FROM doctors WHERE email = 'aisha.rahman@vaxassist.demo'), 1, CURDATE() - INTERVAL 20 DAY, CURDATE() + INTERVAL 160 DAY, 'Second dose 6 months after the first.'),
-((SELECT patient_id FROM patients WHERE email = 'sarah@example.com'), NULL, (SELECT vaccine_id FROM vaccines WHERE name = 'Typhoid'), (SELECT batch_id FROM vaccine_batches WHERE batch_number = 'TY-30011'), (SELECT doctor_id FROM doctors WHERE email = 'aisha.rahman@vaxassist.demo'), 1, CURDATE() - INTERVAL 20 DAY, NULL, NULL);
-
--- Demo appointments are tagged with the seed marker in symptoms_notes only where needed; ids are looked up by patient/doctor/date below.
-INSERT INTO `appointments` (`doctor_id`, `patient_id`, `child_id`, `vaccine_id`, `appointment_date`, `appointment_time`, `time_slot`, `status`, `symptoms_notes`, `cancel_reason`) VALUES
-((SELECT doctor_id FROM doctors WHERE email = 'aisha.rahman@vaxassist.demo'), (SELECT patient_id FROM patients WHERE email = 'demo@example.com'), NULL, (SELECT vaccine_id FROM vaccines WHERE name = 'Yellow Fever'), ((CURDATE() + INTERVAL 3 DAY) + INTERVAL MOD(0 - WEEKDAY((CURDATE() + INTERVAL 3 DAY)) + 7, 7) DAY), '10:00:00', '10:00 AM - 12:00 PM', 'Scheduled', 'Travelling to Ghana next month.', NULL),
-((SELECT doctor_id FROM doctors WHERE email = 'daniel.lim@vaxassist.demo'), (SELECT patient_id FROM patients WHERE email = 'demo@example.com'), (SELECT child_id FROM children WHERE first_name = 'Aiden' AND patient_id = (SELECT patient_id FROM patients WHERE email = 'demo@example.com') LIMIT 1), (SELECT vaccine_id FROM vaccines WHERE name = 'MMR'), ((CURDATE() + INTERVAL 9 DAY) + INTERVAL MOD(0 - WEEKDAY((CURDATE() + INTERVAL 9 DAY)) + 7, 7) DAY), '14:30:00', '01:00 PM - 03:00 PM', 'Scheduled', NULL, NULL),
-((SELECT doctor_id FROM doctors WHERE email = 'priya.nair@vaxassist.demo'), (SELECT patient_id FROM patients WHERE email = 'demo@example.com'), NULL, (SELECT vaccine_id FROM vaccines WHERE name = 'Influenza'), ((CURDATE() + INTERVAL 20 DAY) + INTERVAL MOD(0 - WEEKDAY((CURDATE() + INTERVAL 20 DAY)) + 7, 7) DAY), '09:30:00', '08:00 AM - 10:00 AM', 'Scheduled', NULL, NULL),
-((SELECT doctor_id FROM doctors WHERE email = 'aisha.rahman@vaxassist.demo'), (SELECT patient_id FROM patients WHERE email = 'demo@example.com'), NULL, (SELECT vaccine_id FROM vaccines WHERE name = 'Typhoid'), CURDATE() - INTERVAL 12 DAY, '11:00:00', '10:00 AM - 12:00 PM', 'Completed', NULL, NULL),
-((SELECT doctor_id FROM doctors WHERE email = 'siti.aminah@vaxassist.demo'), (SELECT patient_id FROM patients WHERE email = 'demo@example.com'), (SELECT child_id FROM children WHERE first_name = 'Aiden' AND patient_id = (SELECT patient_id FROM patients WHERE email = 'demo@example.com') LIMIT 1), (SELECT vaccine_id FROM vaccines WHERE name = 'DTaP-IPV-Hib'), CURDATE() - INTERVAL 30 DAY, '15:00:00', '03:00 PM - 05:00 PM', 'Completed', NULL, NULL),
-((SELECT doctor_id FROM doctors WHERE email = 'jason.wong@vaxassist.demo'), (SELECT patient_id FROM patients WHERE email = 'demo@example.com'), NULL, (SELECT vaccine_id FROM vaccines WHERE name = 'Hepatitis A'), CURDATE() - INTERVAL 41 DAY, '10:30:00', '10:00 AM - 12:00 PM', 'Completed', NULL, NULL),
-((SELECT doctor_id FROM doctors WHERE email = 'jason.wong@vaxassist.demo'), (SELECT patient_id FROM patients WHERE email = 'demo@example.com'), NULL, (SELECT vaccine_id FROM vaccines WHERE name = 'Hepatitis A'), CURDATE() - INTERVAL 18 DAY, '11:30:00', '10:00 AM - 12:00 PM', 'Cancelled', NULL, 'Change of plans.'),
-((SELECT doctor_id FROM doctors WHERE email = 'priya.nair@vaxassist.demo'), (SELECT patient_id FROM patients WHERE email = 'demo@example.com'), NULL, (SELECT vaccine_id FROM vaccines WHERE name = 'Td Booster'), CURDATE() - INTERVAL 60 DAY, '16:00:00', '03:00 PM - 05:00 PM', 'Missed', NULL, NULL),
-((SELECT doctor_id FROM doctors WHERE email = 'priya.nair@vaxassist.demo'), (SELECT patient_id FROM patients WHERE email = 'demo@example.com'), NULL, (SELECT vaccine_id FROM vaccines WHERE name = 'Influenza'), CURDATE() - INTERVAL 210 DAY, '09:00:00', '08:00 AM - 10:00 AM', 'Completed', NULL, NULL),
-((SELECT doctor_id FROM doctors WHERE email = 'priya.nair@vaxassist.demo'), (SELECT patient_id FROM patients WHERE email = 'michael@example.com'), NULL, (SELECT vaccine_id FROM vaccines WHERE name = 'Influenza'), ((CURDATE() + INTERVAL 5 DAY) + INTERVAL MOD(0 - WEEKDAY((CURDATE() + INTERVAL 5 DAY)) + 7, 7) DAY), '10:30:00', '10:00 AM - 12:00 PM', 'Scheduled', NULL, NULL),
-((SELECT doctor_id FROM doctors WHERE email = 'daniel.lim@vaxassist.demo'), (SELECT patient_id FROM patients WHERE email = 'michael@example.com'), (SELECT child_id FROM children WHERE first_name = 'Noah' AND patient_id = (SELECT patient_id FROM patients WHERE email = 'michael@example.com') LIMIT 1), (SELECT vaccine_id FROM vaccines WHERE name = 'MMR'), CURDATE() - INTERVAL 60 DAY, '14:00:00', '01:00 PM - 03:00 PM', 'Completed', NULL, NULL),
-((SELECT doctor_id FROM doctors WHERE email = 'aisha.rahman@vaxassist.demo'), (SELECT patient_id FROM patients WHERE email = 'sarah@example.com'), NULL, (SELECT vaccine_id FROM vaccines WHERE name = 'Yellow Fever'), ((CURDATE() + INTERVAL 7 DAY) + INTERVAL MOD(0 - WEEKDAY((CURDATE() + INTERVAL 7 DAY)) + 7, 7) DAY), '09:00:00', '08:00 AM - 10:00 AM', 'Scheduled', 'Trip to Kenya in six weeks.', NULL),
-((SELECT doctor_id FROM doctors WHERE email = 'jason.wong@vaxassist.demo'), (SELECT patient_id FROM patients WHERE email = 'ahmad@example.com'), NULL, (SELECT vaccine_id FROM vaccines WHERE name = 'Td Booster'), ((CURDATE() + INTERVAL 2 DAY) + INTERVAL MOD(0 - WEEKDAY((CURDATE() + INTERVAL 2 DAY)) + 7, 7) DAY), '15:30:00', '03:00 PM - 05:00 PM', 'Scheduled', NULL, NULL),
-((SELECT doctor_id FROM doctors WHERE email = 'aisha.rahman@vaxassist.demo'), (SELECT patient_id FROM patients WHERE email = 'michael@example.com'), NULL, (SELECT vaccine_id FROM vaccines WHERE name = 'Typhoid'), CURDATE() - INTERVAL 90 DAY, '09:00:00', '08:00 AM - 10:00 AM', 'Completed', NULL, NULL),
-((SELECT doctor_id FROM doctors WHERE email = 'aisha.rahman@vaxassist.demo'), (SELECT patient_id FROM patients WHERE email = 'sarah@example.com'), NULL, (SELECT vaccine_id FROM vaccines WHERE name = 'Typhoid'), CURDATE() - INTERVAL 120 DAY, '10:00:00', '10:00 AM - 12:00 PM', 'Completed', NULL, NULL),
-((SELECT doctor_id FROM doctors WHERE email = 'aisha.rahman@vaxassist.demo'), (SELECT patient_id FROM patients WHERE email = 'ahmad@example.com'), NULL, (SELECT vaccine_id FROM vaccines WHERE name = 'Typhoid'), CURDATE() - INTERVAL 150 DAY, '11:00:00', '10:00 AM - 12:00 PM', 'Completed', NULL, NULL),
-((SELECT doctor_id FROM doctors WHERE email = 'daniel.lim@vaxassist.demo'), (SELECT patient_id FROM patients WHERE email = 'michael@example.com'), NULL, (SELECT vaccine_id FROM vaccines WHERE name = 'MMR'), CURDATE() - INTERVAL 97 DAY, '09:00:00', '08:00 AM - 10:00 AM', 'Completed', NULL, NULL),
-((SELECT doctor_id FROM doctors WHERE email = 'daniel.lim@vaxassist.demo'), (SELECT patient_id FROM patients WHERE email = 'sarah@example.com'), NULL, (SELECT vaccine_id FROM vaccines WHERE name = 'MMR'), CURDATE() - INTERVAL 127 DAY, '10:00:00', '10:00 AM - 12:00 PM', 'Completed', NULL, NULL),
-((SELECT doctor_id FROM doctors WHERE email = 'daniel.lim@vaxassist.demo'), (SELECT patient_id FROM patients WHERE email = 'ahmad@example.com'), NULL, (SELECT vaccine_id FROM vaccines WHERE name = 'MMR'), CURDATE() - INTERVAL 157 DAY, '11:00:00', '10:00 AM - 12:00 PM', 'Completed', NULL, NULL),
-((SELECT doctor_id FROM doctors WHERE email = 'priya.nair@vaxassist.demo'), (SELECT patient_id FROM patients WHERE email = 'michael@example.com'), NULL, (SELECT vaccine_id FROM vaccines WHERE name = 'Influenza'), CURDATE() - INTERVAL 104 DAY, '09:00:00', '08:00 AM - 10:00 AM', 'Completed', NULL, NULL),
-((SELECT doctor_id FROM doctors WHERE email = 'priya.nair@vaxassist.demo'), (SELECT patient_id FROM patients WHERE email = 'sarah@example.com'), NULL, (SELECT vaccine_id FROM vaccines WHERE name = 'Influenza'), CURDATE() - INTERVAL 134 DAY, '10:00:00', '10:00 AM - 12:00 PM', 'Completed', NULL, NULL),
-((SELECT doctor_id FROM doctors WHERE email = 'priya.nair@vaxassist.demo'), (SELECT patient_id FROM patients WHERE email = 'ahmad@example.com'), NULL, (SELECT vaccine_id FROM vaccines WHERE name = 'Influenza'), CURDATE() - INTERVAL 164 DAY, '11:00:00', '10:00 AM - 12:00 PM', 'Completed', NULL, NULL),
-((SELECT doctor_id FROM doctors WHERE email = 'ahmad.farid@vaxassist.demo'), (SELECT patient_id FROM patients WHERE email = 'michael@example.com'), NULL, (SELECT vaccine_id FROM vaccines WHERE name = 'Td Booster'), CURDATE() - INTERVAL 111 DAY, '09:00:00', '08:00 AM - 10:00 AM', 'Completed', NULL, NULL),
-((SELECT doctor_id FROM doctors WHERE email = 'ahmad.farid@vaxassist.demo'), (SELECT patient_id FROM patients WHERE email = 'sarah@example.com'), NULL, (SELECT vaccine_id FROM vaccines WHERE name = 'Td Booster'), CURDATE() - INTERVAL 141 DAY, '10:00:00', '10:00 AM - 12:00 PM', 'Completed', NULL, NULL),
-((SELECT doctor_id FROM doctors WHERE email = 'ahmad.farid@vaxassist.demo'), (SELECT patient_id FROM patients WHERE email = 'ahmad@example.com'), NULL, (SELECT vaccine_id FROM vaccines WHERE name = 'Td Booster'), CURDATE() - INTERVAL 171 DAY, '11:00:00', '10:00 AM - 12:00 PM', 'Completed', NULL, NULL),
-((SELECT doctor_id FROM doctors WHERE email = 'mei.ling.tan@vaxassist.demo'), (SELECT patient_id FROM patients WHERE email = 'michael@example.com'), NULL, (SELECT vaccine_id FROM vaccines WHERE name = 'Hepatitis B'), CURDATE() - INTERVAL 118 DAY, '09:00:00', '08:00 AM - 10:00 AM', 'Completed', NULL, NULL),
-((SELECT doctor_id FROM doctors WHERE email = 'mei.ling.tan@vaxassist.demo'), (SELECT patient_id FROM patients WHERE email = 'sarah@example.com'), NULL, (SELECT vaccine_id FROM vaccines WHERE name = 'Hepatitis B'), CURDATE() - INTERVAL 148 DAY, '10:00:00', '10:00 AM - 12:00 PM', 'Completed', NULL, NULL),
-((SELECT doctor_id FROM doctors WHERE email = 'mei.ling.tan@vaxassist.demo'), (SELECT patient_id FROM patients WHERE email = 'ahmad@example.com'), NULL, (SELECT vaccine_id FROM vaccines WHERE name = 'Hepatitis B'), CURDATE() - INTERVAL 178 DAY, '11:00:00', '10:00 AM - 12:00 PM', 'Completed', NULL, NULL),
-((SELECT doctor_id FROM doctors WHERE email = 'rajesh.kumar@vaxassist.demo'), (SELECT patient_id FROM patients WHERE email = 'michael@example.com'), NULL, (SELECT vaccine_id FROM vaccines WHERE name = 'Td Booster'), CURDATE() - INTERVAL 125 DAY, '09:00:00', '08:00 AM - 10:00 AM', 'Completed', NULL, NULL),
-((SELECT doctor_id FROM doctors WHERE email = 'rajesh.kumar@vaxassist.demo'), (SELECT patient_id FROM patients WHERE email = 'sarah@example.com'), NULL, (SELECT vaccine_id FROM vaccines WHERE name = 'Td Booster'), CURDATE() - INTERVAL 155 DAY, '10:00:00', '10:00 AM - 12:00 PM', 'Completed', NULL, NULL),
-((SELECT doctor_id FROM doctors WHERE email = 'rajesh.kumar@vaxassist.demo'), (SELECT patient_id FROM patients WHERE email = 'ahmad@example.com'), NULL, (SELECT vaccine_id FROM vaccines WHERE name = 'Td Booster'), CURDATE() - INTERVAL 185 DAY, '11:00:00', '10:00 AM - 12:00 PM', 'Completed', NULL, NULL),
-((SELECT doctor_id FROM doctors WHERE email = 'siti.aminah@vaxassist.demo'), (SELECT patient_id FROM patients WHERE email = 'michael@example.com'), NULL, (SELECT vaccine_id FROM vaccines WHERE name = 'MMR'), CURDATE() - INTERVAL 132 DAY, '09:00:00', '08:00 AM - 10:00 AM', 'Completed', NULL, NULL),
-((SELECT doctor_id FROM doctors WHERE email = 'siti.aminah@vaxassist.demo'), (SELECT patient_id FROM patients WHERE email = 'sarah@example.com'), NULL, (SELECT vaccine_id FROM vaccines WHERE name = 'MMR'), CURDATE() - INTERVAL 162 DAY, '10:00:00', '10:00 AM - 12:00 PM', 'Completed', NULL, NULL),
-((SELECT doctor_id FROM doctors WHERE email = 'siti.aminah@vaxassist.demo'), (SELECT patient_id FROM patients WHERE email = 'ahmad@example.com'), NULL, (SELECT vaccine_id FROM vaccines WHERE name = 'MMR'), CURDATE() - INTERVAL 192 DAY, '11:00:00', '10:00 AM - 12:00 PM', 'Completed', NULL, NULL),
-((SELECT doctor_id FROM doctors WHERE email = 'jason.wong@vaxassist.demo'), (SELECT patient_id FROM patients WHERE email = 'michael@example.com'), NULL, (SELECT vaccine_id FROM vaccines WHERE name = 'Influenza'), CURDATE() - INTERVAL 139 DAY, '09:00:00', '08:00 AM - 10:00 AM', 'Completed', NULL, NULL),
-((SELECT doctor_id FROM doctors WHERE email = 'jason.wong@vaxassist.demo'), (SELECT patient_id FROM patients WHERE email = 'sarah@example.com'), NULL, (SELECT vaccine_id FROM vaccines WHERE name = 'Influenza'), CURDATE() - INTERVAL 169 DAY, '10:00:00', '10:00 AM - 12:00 PM', 'Completed', NULL, NULL),
-((SELECT doctor_id FROM doctors WHERE email = 'jason.wong@vaxassist.demo'), (SELECT patient_id FROM patients WHERE email = 'ahmad@example.com'), NULL, (SELECT vaccine_id FROM vaccines WHERE name = 'Influenza'), CURDATE() - INTERVAL 199 DAY, '11:00:00', '10:00 AM - 12:00 PM', 'Completed', NULL, NULL);
-
-INSERT INTO `payments` (`patient_id`, `appointment_id`, `receipt_no`, `status`, `method`, `insurance_covered`, `created_at`, `paid_at`) VALUES ((SELECT patient_id FROM patients WHERE email = 'demo@example.com'), (SELECT appointment_id FROM appointments WHERE patient_id = (SELECT patient_id FROM patients WHERE email = 'demo@example.com') AND doctor_id = (SELECT doctor_id FROM doctors WHERE email = 'aisha.rahman@vaxassist.demo') AND vaccine_id = (SELECT vaccine_id FROM vaccines WHERE name = 'Typhoid') AND appointment_date = CURDATE() - INTERVAL 12 DAY AND appointment_time = '11:00:00' LIMIT 1), CONCAT('T', LEFT(REPLACE(UUID(), '-', ''), 15)), 'Paid', 'Credit card', 0, CURDATE() - INTERVAL 12 DAY + INTERVAL 0 DAY, CURDATE() - INTERVAL 12 DAY + INTERVAL 10 HOUR);
-SET @pay = LAST_INSERT_ID();
-UPDATE `payments` SET `receipt_no` = CONCAT('VA-', YEAR(CURDATE()), '-', LPAD(@pay, 4, '0')) WHERE `payment_id` = @pay;
-INSERT INTO `payment_items` (`payment_id`, `label`, `amount`) VALUES (@pay, 'Typhoid vaccine', 95), (@pay, 'Consultation fee', 40);
-INSERT INTO `payments` (`patient_id`, `appointment_id`, `receipt_no`, `status`, `method`, `insurance_covered`, `created_at`, `paid_at`) VALUES ((SELECT patient_id FROM patients WHERE email = 'demo@example.com'), (SELECT appointment_id FROM appointments WHERE patient_id = (SELECT patient_id FROM patients WHERE email = 'demo@example.com') AND doctor_id = (SELECT doctor_id FROM doctors WHERE email = 'jason.wong@vaxassist.demo') AND vaccine_id = (SELECT vaccine_id FROM vaccines WHERE name = 'Hepatitis A') AND appointment_date = CURDATE() - INTERVAL 41 DAY AND appointment_time = '10:30:00' LIMIT 1), CONCAT('T', LEFT(REPLACE(UUID(), '-', ''), 15)), 'Paid', 'Insurance + e-wallet', 100, CURDATE() - INTERVAL 41 DAY + INTERVAL 0 DAY, CURDATE() - INTERVAL 41 DAY + INTERVAL 10 HOUR);
-SET @pay = LAST_INSERT_ID();
-UPDATE `payments` SET `receipt_no` = CONCAT('VA-', YEAR(CURDATE()), '-', LPAD(@pay, 4, '0')) WHERE `payment_id` = @pay;
-INSERT INTO `payment_items` (`payment_id`, `label`, `amount`) VALUES (@pay, 'Hepatitis A vaccine (dose 1)', 120), (@pay, 'Consultation fee', 40);
-INSERT INTO `payments` (`patient_id`, `appointment_id`, `receipt_no`, `status`, `method`, `insurance_covered`, `created_at`, `paid_at`) VALUES ((SELECT patient_id FROM patients WHERE email = 'demo@example.com'), (SELECT appointment_id FROM appointments WHERE patient_id = (SELECT patient_id FROM patients WHERE email = 'demo@example.com') AND doctor_id = (SELECT doctor_id FROM doctors WHERE email = 'siti.aminah@vaxassist.demo') AND vaccine_id = (SELECT vaccine_id FROM vaccines WHERE name = 'DTaP-IPV-Hib') AND appointment_date = CURDATE() - INTERVAL 30 DAY AND appointment_time = '15:00:00' LIMIT 1), CONCAT('T', LEFT(REPLACE(UUID(), '-', ''), 15)), 'Paid', 'E-wallet', 0, CURDATE() - INTERVAL 30 DAY + INTERVAL 0 DAY, CURDATE() - INTERVAL 30 DAY + INTERVAL 10 HOUR);
-SET @pay = LAST_INSERT_ID();
-UPDATE `payments` SET `receipt_no` = CONCAT('VA-', YEAR(CURDATE()), '-', LPAD(@pay, 4, '0')) WHERE `payment_id` = @pay;
-INSERT INTO `payment_items` (`payment_id`, `label`, `amount`) VALUES (@pay, 'DTaP-IPV-Hib (dose 3)', 180), (@pay, 'Consultation fee', 40);
-INSERT INTO `payments` (`patient_id`, `appointment_id`, `receipt_no`, `status`, `method`, `insurance_covered`, `created_at`, `paid_at`) VALUES ((SELECT patient_id FROM patients WHERE email = 'demo@example.com'), (SELECT appointment_id FROM appointments WHERE patient_id = (SELECT patient_id FROM patients WHERE email = 'demo@example.com') AND doctor_id = (SELECT doctor_id FROM doctors WHERE email = 'priya.nair@vaxassist.demo') AND vaccine_id = (SELECT vaccine_id FROM vaccines WHERE name = 'Influenza') AND appointment_date = CURDATE() - INTERVAL 210 DAY AND appointment_time = '09:00:00' LIMIT 1), CONCAT('T', LEFT(REPLACE(UUID(), '-', ''), 15)), 'Paid', 'Credit card', 0, CURDATE() - INTERVAL 210 DAY + INTERVAL 0 DAY, CURDATE() - INTERVAL 210 DAY + INTERVAL 10 HOUR);
-SET @pay = LAST_INSERT_ID();
-UPDATE `payments` SET `receipt_no` = CONCAT('VA-', YEAR(CURDATE()), '-', LPAD(@pay, 4, '0')) WHERE `payment_id` = @pay;
-INSERT INTO `payment_items` (`payment_id`, `label`, `amount`) VALUES (@pay, 'Influenza vaccine', 70), (@pay, 'Consultation fee', 40);
-INSERT INTO `payments` (`patient_id`, `appointment_id`, `receipt_no`, `status`, `method`, `insurance_covered`, `created_at`, `paid_at`) VALUES ((SELECT patient_id FROM patients WHERE email = 'demo@example.com'), (SELECT appointment_id FROM appointments WHERE patient_id = (SELECT patient_id FROM patients WHERE email = 'demo@example.com') AND doctor_id = (SELECT doctor_id FROM doctors WHERE email = 'aisha.rahman@vaxassist.demo') AND vaccine_id = (SELECT vaccine_id FROM vaccines WHERE name = 'Yellow Fever') AND appointment_date = ((CURDATE() + INTERVAL 3 DAY) + INTERVAL MOD(0 - WEEKDAY((CURDATE() + INTERVAL 3 DAY)) + 7, 7) DAY) AND appointment_time = '10:00:00' LIMIT 1), CONCAT('T', LEFT(REPLACE(UUID(), '-', ''), 15)), 'Pending', NULL, 0, NOW(), NULL);
-SET @pay = LAST_INSERT_ID();
-UPDATE `payments` SET `receipt_no` = CONCAT('VA-', YEAR(CURDATE()), '-', LPAD(@pay, 4, '0')) WHERE `payment_id` = @pay;
-INSERT INTO `payment_items` (`payment_id`, `label`, `amount`) VALUES (@pay, 'Yellow Fever vaccine', 130), (@pay, 'Consultation fee', 40);
-INSERT INTO `payments` (`patient_id`, `appointment_id`, `receipt_no`, `status`, `method`, `insurance_covered`, `created_at`, `paid_at`) VALUES ((SELECT patient_id FROM patients WHERE email = 'demo@example.com'), (SELECT appointment_id FROM appointments WHERE patient_id = (SELECT patient_id FROM patients WHERE email = 'demo@example.com') AND doctor_id = (SELECT doctor_id FROM doctors WHERE email = 'priya.nair@vaxassist.demo') AND vaccine_id = (SELECT vaccine_id FROM vaccines WHERE name = 'Influenza') AND appointment_date = ((CURDATE() + INTERVAL 20 DAY) + INTERVAL MOD(0 - WEEKDAY((CURDATE() + INTERVAL 20 DAY)) + 7, 7) DAY) AND appointment_time = '09:30:00' LIMIT 1), CONCAT('T', LEFT(REPLACE(UUID(), '-', ''), 15)), 'Pending', NULL, 0, NOW(), NULL);
-SET @pay = LAST_INSERT_ID();
-UPDATE `payments` SET `receipt_no` = CONCAT('VA-', YEAR(CURDATE()), '-', LPAD(@pay, 4, '0')) WHERE `payment_id` = @pay;
-INSERT INTO `payment_items` (`payment_id`, `label`, `amount`) VALUES (@pay, 'Influenza vaccine', 70), (@pay, 'Consultation fee', 40);
-INSERT INTO `payments` (`patient_id`, `appointment_id`, `receipt_no`, `status`, `method`, `insurance_covered`, `created_at`, `paid_at`) VALUES ((SELECT patient_id FROM patients WHERE email = 'demo@example.com'), (SELECT appointment_id FROM appointments WHERE patient_id = (SELECT patient_id FROM patients WHERE email = 'demo@example.com') AND doctor_id = (SELECT doctor_id FROM doctors WHERE email = 'jason.wong@vaxassist.demo') AND vaccine_id = (SELECT vaccine_id FROM vaccines WHERE name = 'Hepatitis A') AND appointment_date = CURDATE() - INTERVAL 18 DAY AND appointment_time = '11:30:00' LIMIT 1), CONCAT('T', LEFT(REPLACE(UUID(), '-', ''), 15)), 'Refunded', 'Credit card', 0, CURDATE() - INTERVAL 18 DAY + INTERVAL 0 DAY, CURDATE() - INTERVAL 18 DAY + INTERVAL 10 HOUR);
-SET @pay = LAST_INSERT_ID();
-UPDATE `payments` SET `receipt_no` = CONCAT('VA-', YEAR(CURDATE()), '-', LPAD(@pay, 4, '0')) WHERE `payment_id` = @pay;
-INSERT INTO `payment_items` (`payment_id`, `label`, `amount`) VALUES (@pay, 'Booking deposit (refunded)', 20);
-INSERT INTO `payments` (`patient_id`, `appointment_id`, `receipt_no`, `status`, `method`, `insurance_covered`, `created_at`, `paid_at`) VALUES ((SELECT patient_id FROM patients WHERE email = 'michael@example.com'), (SELECT appointment_id FROM appointments WHERE patient_id = (SELECT patient_id FROM patients WHERE email = 'michael@example.com') AND doctor_id = (SELECT doctor_id FROM doctors WHERE email = 'priya.nair@vaxassist.demo') AND vaccine_id = (SELECT vaccine_id FROM vaccines WHERE name = 'Influenza') AND appointment_date = ((CURDATE() + INTERVAL 5 DAY) + INTERVAL MOD(0 - WEEKDAY((CURDATE() + INTERVAL 5 DAY)) + 7, 7) DAY) AND appointment_time = '10:30:00' LIMIT 1), CONCAT('T', LEFT(REPLACE(UUID(), '-', ''), 15)), 'Pending', NULL, 0, NOW(), NULL);
-SET @pay = LAST_INSERT_ID();
-UPDATE `payments` SET `receipt_no` = CONCAT('VA-', YEAR(CURDATE()), '-', LPAD(@pay, 4, '0')) WHERE `payment_id` = @pay;
-INSERT INTO `payment_items` (`payment_id`, `label`, `amount`) VALUES (@pay, 'Influenza vaccine', 70), (@pay, 'Consultation fee', 40);
-INSERT INTO `payments` (`patient_id`, `appointment_id`, `receipt_no`, `status`, `method`, `insurance_covered`, `created_at`, `paid_at`) VALUES ((SELECT patient_id FROM patients WHERE email = 'sarah@example.com'), (SELECT appointment_id FROM appointments WHERE patient_id = (SELECT patient_id FROM patients WHERE email = 'sarah@example.com') AND doctor_id = (SELECT doctor_id FROM doctors WHERE email = 'aisha.rahman@vaxassist.demo') AND vaccine_id = (SELECT vaccine_id FROM vaccines WHERE name = 'Yellow Fever') AND appointment_date = ((CURDATE() + INTERVAL 7 DAY) + INTERVAL MOD(0 - WEEKDAY((CURDATE() + INTERVAL 7 DAY)) + 7, 7) DAY) AND appointment_time = '09:00:00' LIMIT 1), CONCAT('T', LEFT(REPLACE(UUID(), '-', ''), 15)), 'Paid', 'Online banking', 0, CURDATE() - INTERVAL 1 DAY + INTERVAL 0 DAY, CURDATE() - INTERVAL 1 DAY + INTERVAL 10 HOUR);
-SET @pay = LAST_INSERT_ID();
-UPDATE `payments` SET `receipt_no` = CONCAT('VA-', YEAR(CURDATE()), '-', LPAD(@pay, 4, '0')) WHERE `payment_id` = @pay;
-INSERT INTO `payment_items` (`payment_id`, `label`, `amount`) VALUES (@pay, 'Yellow Fever vaccine', 130), (@pay, 'Consultation fee', 40);
-
-INSERT INTO `reviews` (`appointment_id`, `patient_id`, `rating`, `comment`) VALUES
-((SELECT appointment_id FROM appointments WHERE patient_id = (SELECT patient_id FROM patients WHERE email = 'michael@example.com') AND doctor_id = (SELECT doctor_id FROM doctors WHERE email = 'aisha.rahman@vaxassist.demo') AND vaccine_id = (SELECT vaccine_id FROM vaccines WHERE name = 'Typhoid') AND appointment_date = CURDATE() - INTERVAL 90 DAY AND appointment_time = '09:00:00' LIMIT 1), (SELECT patient_id FROM patients WHERE email = 'michael@example.com'), 5, 'Very gentle and clear.'),
-((SELECT appointment_id FROM appointments WHERE patient_id = (SELECT patient_id FROM patients WHERE email = 'sarah@example.com') AND doctor_id = (SELECT doctor_id FROM doctors WHERE email = 'aisha.rahman@vaxassist.demo') AND vaccine_id = (SELECT vaccine_id FROM vaccines WHERE name = 'Typhoid') AND appointment_date = CURDATE() - INTERVAL 120 DAY AND appointment_time = '10:00:00' LIMIT 1), (SELECT patient_id FROM patients WHERE email = 'sarah@example.com'), 5, 'Explained everything well.'),
-((SELECT appointment_id FROM appointments WHERE patient_id = (SELECT patient_id FROM patients WHERE email = 'ahmad@example.com') AND doctor_id = (SELECT doctor_id FROM doctors WHERE email = 'aisha.rahman@vaxassist.demo') AND vaccine_id = (SELECT vaccine_id FROM vaccines WHERE name = 'Typhoid') AND appointment_date = CURDATE() - INTERVAL 150 DAY AND appointment_time = '11:00:00' LIMIT 1), (SELECT patient_id FROM patients WHERE email = 'ahmad@example.com'), 5, 'Quick and friendly.'),
-((SELECT appointment_id FROM appointments WHERE patient_id = (SELECT patient_id FROM patients WHERE email = 'michael@example.com') AND doctor_id = (SELECT doctor_id FROM doctors WHERE email = 'daniel.lim@vaxassist.demo') AND vaccine_id = (SELECT vaccine_id FROM vaccines WHERE name = 'MMR') AND appointment_date = CURDATE() - INTERVAL 97 DAY AND appointment_time = '09:00:00' LIMIT 1), (SELECT patient_id FROM patients WHERE email = 'michael@example.com'), 5, 'Explained everything well.'),
-((SELECT appointment_id FROM appointments WHERE patient_id = (SELECT patient_id FROM patients WHERE email = 'sarah@example.com') AND doctor_id = (SELECT doctor_id FROM doctors WHERE email = 'daniel.lim@vaxassist.demo') AND vaccine_id = (SELECT vaccine_id FROM vaccines WHERE name = 'MMR') AND appointment_date = CURDATE() - INTERVAL 127 DAY AND appointment_time = '10:00:00' LIMIT 1), (SELECT patient_id FROM patients WHERE email = 'sarah@example.com'), 5, 'Quick and friendly.'),
-((SELECT appointment_id FROM appointments WHERE patient_id = (SELECT patient_id FROM patients WHERE email = 'ahmad@example.com') AND doctor_id = (SELECT doctor_id FROM doctors WHERE email = 'daniel.lim@vaxassist.demo') AND vaccine_id = (SELECT vaccine_id FROM vaccines WHERE name = 'MMR') AND appointment_date = CURDATE() - INTERVAL 157 DAY AND appointment_time = '11:00:00' LIMIT 1), (SELECT patient_id FROM patients WHERE email = 'ahmad@example.com'), 4, 'Felt looked after.'),
-((SELECT appointment_id FROM appointments WHERE patient_id = (SELECT patient_id FROM patients WHERE email = 'michael@example.com') AND doctor_id = (SELECT doctor_id FROM doctors WHERE email = 'priya.nair@vaxassist.demo') AND vaccine_id = (SELECT vaccine_id FROM vaccines WHERE name = 'Influenza') AND appointment_date = CURDATE() - INTERVAL 104 DAY AND appointment_time = '09:00:00' LIMIT 1), (SELECT patient_id FROM patients WHERE email = 'michael@example.com'), 5, 'Quick and friendly.'),
-((SELECT appointment_id FROM appointments WHERE patient_id = (SELECT patient_id FROM patients WHERE email = 'sarah@example.com') AND doctor_id = (SELECT doctor_id FROM doctors WHERE email = 'priya.nair@vaxassist.demo') AND vaccine_id = (SELECT vaccine_id FROM vaccines WHERE name = 'Influenza') AND appointment_date = CURDATE() - INTERVAL 134 DAY AND appointment_time = '10:00:00' LIMIT 1), (SELECT patient_id FROM patients WHERE email = 'sarah@example.com'), 4, 'Felt looked after.'),
-((SELECT appointment_id FROM appointments WHERE patient_id = (SELECT patient_id FROM patients WHERE email = 'ahmad@example.com') AND doctor_id = (SELECT doctor_id FROM doctors WHERE email = 'priya.nair@vaxassist.demo') AND vaccine_id = (SELECT vaccine_id FROM vaccines WHERE name = 'Influenza') AND appointment_date = CURDATE() - INTERVAL 164 DAY AND appointment_time = '11:00:00' LIMIT 1), (SELECT patient_id FROM patients WHERE email = 'ahmad@example.com'), 5, 'Good advice, short wait.'),
-((SELECT appointment_id FROM appointments WHERE patient_id = (SELECT patient_id FROM patients WHERE email = 'michael@example.com') AND doctor_id = (SELECT doctor_id FROM doctors WHERE email = 'ahmad.farid@vaxassist.demo') AND vaccine_id = (SELECT vaccine_id FROM vaccines WHERE name = 'Td Booster') AND appointment_date = CURDATE() - INTERVAL 111 DAY AND appointment_time = '09:00:00' LIMIT 1), (SELECT patient_id FROM patients WHERE email = 'michael@example.com'), 5, 'Felt looked after.'),
-((SELECT appointment_id FROM appointments WHERE patient_id = (SELECT patient_id FROM patients WHERE email = 'sarah@example.com') AND doctor_id = (SELECT doctor_id FROM doctors WHERE email = 'ahmad.farid@vaxassist.demo') AND vaccine_id = (SELECT vaccine_id FROM vaccines WHERE name = 'Td Booster') AND appointment_date = CURDATE() - INTERVAL 141 DAY AND appointment_time = '10:00:00' LIMIT 1), (SELECT patient_id FROM patients WHERE email = 'sarah@example.com'), 4, 'Good advice, short wait.'),
-((SELECT appointment_id FROM appointments WHERE patient_id = (SELECT patient_id FROM patients WHERE email = 'ahmad@example.com') AND doctor_id = (SELECT doctor_id FROM doctors WHERE email = 'ahmad.farid@vaxassist.demo') AND vaccine_id = (SELECT vaccine_id FROM vaccines WHERE name = 'Td Booster') AND appointment_date = CURDATE() - INTERVAL 171 DAY AND appointment_time = '11:00:00' LIMIT 1), (SELECT patient_id FROM patients WHERE email = 'ahmad@example.com'), 4, NULL),
-((SELECT appointment_id FROM appointments WHERE patient_id = (SELECT patient_id FROM patients WHERE email = 'michael@example.com') AND doctor_id = (SELECT doctor_id FROM doctors WHERE email = 'mei.ling.tan@vaxassist.demo') AND vaccine_id = (SELECT vaccine_id FROM vaccines WHERE name = 'Hepatitis B') AND appointment_date = CURDATE() - INTERVAL 118 DAY AND appointment_time = '09:00:00' LIMIT 1), (SELECT patient_id FROM patients WHERE email = 'michael@example.com'), 4, 'Good advice, short wait.'),
-((SELECT appointment_id FROM appointments WHERE patient_id = (SELECT patient_id FROM patients WHERE email = 'sarah@example.com') AND doctor_id = (SELECT doctor_id FROM doctors WHERE email = 'mei.ling.tan@vaxassist.demo') AND vaccine_id = (SELECT vaccine_id FROM vaccines WHERE name = 'Hepatitis B') AND appointment_date = CURDATE() - INTERVAL 148 DAY AND appointment_time = '10:00:00' LIMIT 1), (SELECT patient_id FROM patients WHERE email = 'sarah@example.com'), 5, NULL),
-((SELECT appointment_id FROM appointments WHERE patient_id = (SELECT patient_id FROM patients WHERE email = 'ahmad@example.com') AND doctor_id = (SELECT doctor_id FROM doctors WHERE email = 'mei.ling.tan@vaxassist.demo') AND vaccine_id = (SELECT vaccine_id FROM vaccines WHERE name = 'Hepatitis B') AND appointment_date = CURDATE() - INTERVAL 178 DAY AND appointment_time = '11:00:00' LIMIT 1), (SELECT patient_id FROM patients WHERE email = 'ahmad@example.com'), 5, 'Very gentle and clear.'),
-((SELECT appointment_id FROM appointments WHERE patient_id = (SELECT patient_id FROM patients WHERE email = 'michael@example.com') AND doctor_id = (SELECT doctor_id FROM doctors WHERE email = 'rajesh.kumar@vaxassist.demo') AND vaccine_id = (SELECT vaccine_id FROM vaccines WHERE name = 'Td Booster') AND appointment_date = CURDATE() - INTERVAL 125 DAY AND appointment_time = '09:00:00' LIMIT 1), (SELECT patient_id FROM patients WHERE email = 'michael@example.com'), 5, NULL),
-((SELECT appointment_id FROM appointments WHERE patient_id = (SELECT patient_id FROM patients WHERE email = 'sarah@example.com') AND doctor_id = (SELECT doctor_id FROM doctors WHERE email = 'rajesh.kumar@vaxassist.demo') AND vaccine_id = (SELECT vaccine_id FROM vaccines WHERE name = 'Td Booster') AND appointment_date = CURDATE() - INTERVAL 155 DAY AND appointment_time = '10:00:00' LIMIT 1), (SELECT patient_id FROM patients WHERE email = 'sarah@example.com'), 5, 'Very gentle and clear.'),
-((SELECT appointment_id FROM appointments WHERE patient_id = (SELECT patient_id FROM patients WHERE email = 'ahmad@example.com') AND doctor_id = (SELECT doctor_id FROM doctors WHERE email = 'rajesh.kumar@vaxassist.demo') AND vaccine_id = (SELECT vaccine_id FROM vaccines WHERE name = 'Td Booster') AND appointment_date = CURDATE() - INTERVAL 185 DAY AND appointment_time = '11:00:00' LIMIT 1), (SELECT patient_id FROM patients WHERE email = 'ahmad@example.com'), 4, 'Explained everything well.'),
-((SELECT appointment_id FROM appointments WHERE patient_id = (SELECT patient_id FROM patients WHERE email = 'michael@example.com') AND doctor_id = (SELECT doctor_id FROM doctors WHERE email = 'siti.aminah@vaxassist.demo') AND vaccine_id = (SELECT vaccine_id FROM vaccines WHERE name = 'MMR') AND appointment_date = CURDATE() - INTERVAL 132 DAY AND appointment_time = '09:00:00' LIMIT 1), (SELECT patient_id FROM patients WHERE email = 'michael@example.com'), 4, 'Very gentle and clear.'),
-((SELECT appointment_id FROM appointments WHERE patient_id = (SELECT patient_id FROM patients WHERE email = 'sarah@example.com') AND doctor_id = (SELECT doctor_id FROM doctors WHERE email = 'siti.aminah@vaxassist.demo') AND vaccine_id = (SELECT vaccine_id FROM vaccines WHERE name = 'MMR') AND appointment_date = CURDATE() - INTERVAL 162 DAY AND appointment_time = '10:00:00' LIMIT 1), (SELECT patient_id FROM patients WHERE email = 'sarah@example.com'), 5, 'Explained everything well.'),
-((SELECT appointment_id FROM appointments WHERE patient_id = (SELECT patient_id FROM patients WHERE email = 'ahmad@example.com') AND doctor_id = (SELECT doctor_id FROM doctors WHERE email = 'siti.aminah@vaxassist.demo') AND vaccine_id = (SELECT vaccine_id FROM vaccines WHERE name = 'MMR') AND appointment_date = CURDATE() - INTERVAL 192 DAY AND appointment_time = '11:00:00' LIMIT 1), (SELECT patient_id FROM patients WHERE email = 'ahmad@example.com'), 4, 'Quick and friendly.'),
-((SELECT appointment_id FROM appointments WHERE patient_id = (SELECT patient_id FROM patients WHERE email = 'michael@example.com') AND doctor_id = (SELECT doctor_id FROM doctors WHERE email = 'jason.wong@vaxassist.demo') AND vaccine_id = (SELECT vaccine_id FROM vaccines WHERE name = 'Influenza') AND appointment_date = CURDATE() - INTERVAL 139 DAY AND appointment_time = '09:00:00' LIMIT 1), (SELECT patient_id FROM patients WHERE email = 'michael@example.com'), 5, 'Explained everything well.'),
-((SELECT appointment_id FROM appointments WHERE patient_id = (SELECT patient_id FROM patients WHERE email = 'sarah@example.com') AND doctor_id = (SELECT doctor_id FROM doctors WHERE email = 'jason.wong@vaxassist.demo') AND vaccine_id = (SELECT vaccine_id FROM vaccines WHERE name = 'Influenza') AND appointment_date = CURDATE() - INTERVAL 169 DAY AND appointment_time = '10:00:00' LIMIT 1), (SELECT patient_id FROM patients WHERE email = 'sarah@example.com'), 5, 'Quick and friendly.'),
-((SELECT appointment_id FROM appointments WHERE patient_id = (SELECT patient_id FROM patients WHERE email = 'ahmad@example.com') AND doctor_id = (SELECT doctor_id FROM doctors WHERE email = 'jason.wong@vaxassist.demo') AND vaccine_id = (SELECT vaccine_id FROM vaccines WHERE name = 'Influenza') AND appointment_date = CURDATE() - INTERVAL 199 DAY AND appointment_time = '11:00:00' LIMIT 1), (SELECT patient_id FROM patients WHERE email = 'ahmad@example.com'), 5, 'Felt looked after.'),
-((SELECT appointment_id FROM appointments WHERE patient_id = (SELECT patient_id FROM patients WHERE email = 'demo@example.com') AND doctor_id = (SELECT doctor_id FROM doctors WHERE email = 'priya.nair@vaxassist.demo') AND vaccine_id = (SELECT vaccine_id FROM vaccines WHERE name = 'Influenza') AND appointment_date = CURDATE() - INTERVAL 210 DAY AND appointment_time = '09:00:00' LIMIT 1), (SELECT patient_id FROM patients WHERE email = 'demo@example.com'), 5, 'Quick and painless.');
-
-INSERT INTO `notifications` (`patient_id`, `type`, `title`, `body`, `action_url`, `action_label`, `is_read`, `created_at`) VALUES
-((SELECT patient_id FROM patients WHERE email = 'demo@example.com'), 'Late', 'Doctor running late', 'Dr. Aisha Rahman is running about 15 minutes behind. Your Yellow Fever appointment is still on, with a slightly later start.', 'appointments.html', 'View appointment', 0, NOW() - INTERVAL 12 MINUTE),
-((SELECT patient_id FROM patients WHERE email = 'demo@example.com'), 'Reminder', 'Appointment tomorrow', 'Reminder: Yellow Fever vaccine with Dr. Aisha Rahman at 10:00 AM. Please bring your ID and travel details.', 'appointments.html', 'View appointment', 0, NOW() - INTERVAL 180 MINUTE),
-((SELECT patient_id FROM patients WHERE email = 'demo@example.com'), 'Booster', 'Aiden''s pneumococcal booster is overdue', 'Aiden is due for his Pneumococcal (PCV) booster. Book a visit to keep his schedule on track.', 'booking.html?vaccine=Pneumococcal%20(PCV)', 'Book now', 0, NOW() - INTERVAL 1200 MINUTE),
-((SELECT patient_id FROM patients WHERE email = 'demo@example.com'), 'Appointment', 'Booking confirmed', 'Your MMR appointment for Aiden with Dr. Daniel Lim has been confirmed.', 'appointments.html', 'View appointment', 1, NOW() - INTERVAL 1680 MINUTE),
-((SELECT patient_id FROM patients WHERE email = 'demo@example.com'), 'Booster', 'Hepatitis A second dose coming up', 'Your second Hepatitis A dose is due in about 40 days. You can book a slot any time before then.', 'vaccinations.html', 'See my records', 0, NOW() - INTERVAL 4320 MINUTE),
-((SELECT patient_id FROM patients WHERE email = 'demo@example.com'), 'Announcement', 'Discounted flu booster slots', 'Selected influenza booster slots this month are available at a reduced price while stocks last.', 'booking.html?vaccine=Influenza', 'Book a slot', 1, NOW() - INTERVAL 7200 MINUTE),
-((SELECT patient_id FROM patients WHERE email = 'demo@example.com'), 'Appointment', 'Appointment rescheduled', 'Your Typhoid appointment was moved to a new time at your request.', 'appointments.html?tab=history', 'View history', 1, NOW() - INTERVAL 23040 MINUTE),
-((SELECT patient_id FROM patients WHERE email = 'demo@example.com'), 'Announcement', 'Welcome to VaxAssist', 'Thanks for joining. Complete your health profile so your doctor has what they need before each vaccine.', 'profile.html?tab=health', 'Open profile', 1, NOW() - INTERVAL 57600 MINUTE),
-((SELECT patient_id FROM patients WHERE email = 'michael@example.com'), 'Reminder', 'Influenza booking confirmed', 'Your influenza appointment with Dr. Priya Nair is booked. Please complete the pre-consultation form beforehand.', 'precheck.html?vaccine=Influenza', 'Fill in the form', 0, NOW() - INTERVAL 90 MINUTE),
-((SELECT patient_id FROM patients WHERE email = 'michael@example.com'), 'Booster', 'Noah''s DTaP-IPV-Hib dose 2 is overdue', 'Noah is due for the next dose in his DTaP-IPV-Hib course. Book a visit to catch up.', 'booking.html?vaccine=DTaP-IPV-Hib', 'Book now', 0, NOW() - INTERVAL 3000 MINUTE),
-((SELECT patient_id FROM patients WHERE email = 'michael@example.com'), 'Announcement', 'Welcome to VaxAssist', 'Thanks for joining. Complete your health profile so your doctor has what they need before each vaccine.', 'profile.html?tab=health', 'Open profile', 1, NOW() - INTERVAL 40000 MINUTE),
-((SELECT patient_id FROM patients WHERE email = 'sarah@example.com'), 'Reminder', 'Yellow Fever appointment booked', 'Your Yellow Fever appointment is booked. Bring your passport and travel details.', 'appointments.html', 'View appointment', 0, NOW() - INTERVAL 60 MINUTE),
-((SELECT patient_id FROM patients WHERE email = 'sarah@example.com'), 'Booster', 'Hepatitis A second dose coming up', 'Your second Hepatitis A dose is due in about five months.', 'vaccinations.html', 'See my records', 1, NOW() - INTERVAL 5000 MINUTE),
-((SELECT patient_id FROM patients WHERE email = 'ahmad@example.com'), 'Announcement', 'Welcome to VaxAssist', 'Thanks for joining. Complete your health profile so your doctor has what they need before each vaccine.', 'profile.html?tab=health', 'Open profile', 0, NOW() - INTERVAL 200 MINUTE);
-
-INSERT INTO `messages` (`doctor_id`, `patient_id`, `sender_type`, `message_text`, `is_read`, `created_at`) VALUES
-((SELECT doctor_id FROM doctors WHERE email = 'aisha.rahman@vaxassist.demo'), (SELECT patient_id FROM patients WHERE email = 'demo@example.com'), 'patient', 'Hi Dr. Rahman, I''m travelling to Ghana next month. Besides yellow fever, is there anything else I should have?', 1, NOW() - INTERVAL 2900 MINUTE),
-((SELECT doctor_id FROM doctors WHERE email = 'aisha.rahman@vaxassist.demo'), (SELECT patient_id FROM patients WHERE email = 'demo@example.com'), 'doctor', 'Hello! Typhoid and hepatitis A are both advised for Ghana, and we should talk about malaria tablets. Bring your itinerary to your appointment and we will go through it.', 1, NOW() - INTERVAL 2880 MINUTE),
-((SELECT doctor_id FROM doctors WHERE email = 'aisha.rahman@vaxassist.demo'), (SELECT patient_id FROM patients WHERE email = 'demo@example.com'), 'patient', 'Thank you, I will bring it along.', 1, NOW() - INTERVAL 2870 MINUTE),
-((SELECT doctor_id FROM doctors WHERE email = 'daniel.lim@vaxassist.demo'), (SELECT patient_id FROM patients WHERE email = 'demo@example.com'), 'doctor', 'Hi, this is a reminder that Aiden''s MMR appointment is coming up. Please let us know if he has a fever on the day.', 0, NOW() - INTERVAL 35 MINUTE),
-((SELECT doctor_id FROM doctors WHERE email = 'priya.nair@vaxassist.demo'), (SELECT patient_id FROM patients WHERE email = 'michael@example.com'), 'patient', 'Is it fine to have my flu shot if I have a mild cold?', 1, NOW() - INTERVAL 600 MINUTE),
-((SELECT doctor_id FROM doctors WHERE email = 'priya.nair@vaxassist.demo'), (SELECT patient_id FROM patients WHERE email = 'michael@example.com'), 'doctor', 'A mild cold is usually fine, but if you have a fever we should move it. Please complete the pre-consultation form so I can check.', 0, NOW() - INTERVAL 420 MINUTE);
-
--- Working days for Alex Taylor, the doctor-portal test account. Without them the patient site never lists him,
--- so patients cannot book a doctor who can log in. Change the weekdays (1 = Monday ... 5 = Friday) to suit.
-INSERT IGNORE INTO `doctor_availability` (`doctor_id`, `weekday`)
-SELECT `doctor_id`, `d`.`weekday` FROM `doctors`
-JOIN (SELECT 1 AS weekday UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5) d
-WHERE `email` = 'try1@gmail.com';
-
----- Missing admin side -----
-CREATE TABLE `users` (
-  `id` int(11) NOT NULL,
-  `first_name` varchar(100) NOT NULL,
-  `last_name` varchar(100) NOT NULL,
-  `email` varchar(255) NOT NULL,
-  `phone` varchar(30) NOT NULL,
-  `dob` date NOT NULL,
-  `password_hash` varchar(255) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `terms_accepted` tinyint(1) NOT NULL DEFAULT 0,
-  `role` varchar(30) NOT NULL DEFAULT 'Administrator'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
-INSERT INTO `users` (`id`, `first_name`, `last_name`, `email`, `phone`, `dob`, `password_hash`, `created_at`, `terms_accepted`, `role`) VALUES
-(5, 'Chng', 'Zhe Han', 'hanzhechng001@gmail.com', '011 111 1111', '2020-03-11', '$2y$10$rBiSluongP1x.OYBfB4eqOxZZyZa0nTriUvIk4qGrpA3MOkO.L8zC', '2026-10-14 05:57:51', 1, 'Administrator'),
-(9, 'Victor', 'Lai', 'victor1996@gmail.com', '016-558-9572', '1996-02-22', '$2y$10$w94kZXHg.tK7/NIyYmLsOOqhSlxHo9rpVjVAs7vBbzIEbg/G71YJu', '2026-10-26 05:04:19', 1, 'Administrator');
-
-
-ALTER TABLE `users`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `email` (`email`);
+-- --------------------------------------------------------
 
 --
--- AUTO_INCREMENT for dumped tables
+-- Table structure for table `vaccine_batches`
 --
 
---
--- AUTO_INCREMENT for table `users`
---
-ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
-COMMIT;
-
-CREATE TABLE `staff` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `first_name` varchar(100) NOT NULL,
-  `last_name` varchar(100) NOT NULL,
-  `email` varchar(255) NOT NULL,
-  `phone` varchar(30) DEFAULT NULL,
-  `role` enum('Administrator','Doctor','Nurse','Receptionist') NOT NULL,
-  `department` varchar(100) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+CREATE TABLE `vaccine_batches` (
+  `batch_id` int(11) NOT NULL,
+  `vaccine_id` int(11) NOT NULL,
+  `batch_number` varchar(50) NOT NULL,
+  `manufacturer` varchar(100) DEFAULT NULL,
+  `expiry_date` date DEFAULT NULL,
+  `quantity_in_stock` int(11) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `staff`
+-- Dumping data for table `vaccine_batches`
 --
 
-INSERT INTO `staff` (`id`, `first_name`, `last_name`, `email`, `phone`, `role`, `department`, `created_at`, `updated_at`) VALUES
-(2, 'Jason', '', 'jason001@gmail.com', '011-222-3344', 'Administrator', 'Vaccination', '2026-10-19 04:11:08', '2026-10-19 04:11:08'),
-(3, 'Alex', '', 'alextan2001@gmail.com', '012- 567- 0962', 'Doctor', 'X-Ray', '2026-10-19 04:18:29', '2026-10-19 04:18:29'),
-(5, 'Alex', '', 'test1@gmail.com', '011-222-3344', 'Doctor', 'Vaccination', '2026-10-20 02:45:52', '2026-10-20 02:45:52');
+INSERT INTO `vaccine_batches` (`batch_id`, `vaccine_id`, `batch_number`, `manufacturer`, `expiry_date`, `quantity_in_stock`) VALUES
+(1, 2, 'TY-22914B', 'Demo Pharma', '2028-05-10', 100),
+(2, 3, 'HA-80731C', 'Demo Pharma', '2028-05-10', 100),
+(3, 17, 'FLU-5519A', 'Demo Pharma', '2028-05-10', 100),
+(4, 16, 'TD-30276D', 'Demo Pharma', '2028-05-10', 100),
+(5, 9, 'BCG-1102', 'Demo Pharma', '2028-05-10', 100),
+(6, 10, 'HB-77410', 'Demo Pharma', '2028-05-10', 100),
+(7, 13, 'RV-4408', 'Demo Pharma', '2028-05-10', 100),
+(8, 12, 'PCV-9912', 'Demo Pharma', '2028-05-10', 100),
+(9, 11, 'DTP-6063', 'Demo Pharma', '2028-05-10', 100),
+(10, 10, 'HB-5521', 'Demo Pharma', '2028-05-10', 100),
+(11, 11, 'DTP-5110', 'Demo Pharma', '2028-05-10', 100),
+(12, 9, 'BCG-0991', 'Demo Pharma', '2028-05-10', 100),
+(13, 3, 'HA-9902', 'Demo Pharma', '2028-05-10', 100),
+(14, 2, 'TY-30011', 'Demo Pharma', '2028-05-10', 100);
 
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `appointments`
+--
+ALTER TABLE `appointments`
+  ADD PRIMARY KEY (`appointment_id`),
+  ADD KEY `doctor_id` (`doctor_id`),
+  ADD KEY `patient_id` (`patient_id`),
+  ADD KEY `idx_appt_child` (`child_id`),
+  ADD KEY `idx_appt_vaccine` (`vaccine_id`),
+  ADD KEY `idx_appt_doctor_date` (`doctor_id`,`appointment_date`);
+
+--
+-- Indexes for table `children`
+--
+ALTER TABLE `children`
+  ADD PRIMARY KEY (`child_id`),
+  ADD KEY `idx_children_patient` (`patient_id`);
+
+--
+-- Indexes for table `child_schedule`
+--
+ALTER TABLE `child_schedule`
+  ADD PRIMARY KEY (`schedule_id`),
+  ADD KEY `idx_schedule_age` (`age_months`),
+  ADD KEY `fk_schedule_vaccine` (`vaccine_id`);
+
+--
+-- Indexes for table `consultation_records`
+--
+ALTER TABLE `consultation_records`
+  ADD PRIMARY KEY (`record_id`),
+  ADD KEY `doctor_id` (`doctor_id`),
+  ADD KEY `patient_id` (`patient_id`);
+
+--
+-- Indexes for table `contact_messages`
+--
+ALTER TABLE `contact_messages`
+  ADD PRIMARY KEY (`message_id`),
+  ADD KEY `idx_contact_ip_time` (`ip_address`,`created_at`),
+  ADD KEY `fk_contact_patient` (`patient_id`);
+
+--
+-- Indexes for table `destinations`
+--
+ALTER TABLE `destinations`
+  ADD PRIMARY KEY (`destination_id`),
+  ADD UNIQUE KEY `uq_country_code` (`country_code`),
+  ADD UNIQUE KEY `uq_country` (`country`);
+
+--
+-- Indexes for table `destination_vaccines`
+--
+ALTER TABLE `destination_vaccines`
+  ADD PRIMARY KEY (`destination_id`,`vaccine_id`),
+  ADD KEY `fk_dv_vaccine` (`vaccine_id`);
+
+--
+-- Indexes for table `doctors`
+--
+ALTER TABLE `doctors`
+  ADD PRIMARY KEY (`doctor_id`),
+  ADD UNIQUE KEY `email` (`email`);
+
+--
+-- Indexes for table `doctor_availability`
+--
+ALTER TABLE `doctor_availability`
+  ADD PRIMARY KEY (`doctor_id`,`weekday`);
+
+--
+-- Indexes for table `doctor_notification_cursors`
+--
+ALTER TABLE `doctor_notification_cursors`
+  ADD PRIMARY KEY (`doctor_id`);
+
+--
+-- Indexes for table `doctor_password_resets`
+--
+ALTER TABLE `doctor_password_resets`
+  ADD PRIMARY KEY (`reset_id`),
+  ADD UNIQUE KEY `token_hash` (`token_hash`),
+  ADD KEY `idx_doctor_reset` (`doctor_id`,`used`);
+
+--
+-- Indexes for table `doctor_patient_links`
+--
+ALTER TABLE `doctor_patient_links`
+  ADD PRIMARY KEY (`doctor_id`,`patient_id`),
+  ADD KEY `idx_doctor_patient_links_patient` (`patient_id`);
+
+--
+-- Indexes for table `leave_requests`
+--
+ALTER TABLE `leave_requests`
+  ADD PRIMARY KEY (`leave_id`),
+  ADD KEY `doctor_id` (`doctor_id`);
+
+--
+-- Indexes for table `messages`
+--
+ALTER TABLE `messages`
+  ADD PRIMARY KEY (`message_id`),
+  ADD KEY `doctor_id` (`doctor_id`),
+  ADD KEY `patient_id` (`patient_id`);
+
+--
+-- Indexes for table `notifications`
+--
+ALTER TABLE `notifications`
+  ADD PRIMARY KEY (`notification_id`),
+  ADD KEY `idx_notif_patient_read` (`patient_id`,`is_read`),
+  ADD KEY `idx_notif_doctor_unread` (`doctor_id`,`is_read`),
+  ADD KEY `idx_notif_appointment` (`appointment_id`);
+
+--
+-- Indexes for table `notification_preferences`
+--
+ALTER TABLE `notification_preferences`
+  ADD PRIMARY KEY (`patient_id`);
+
+--
+-- Indexes for table `password_resets`
+--
+ALTER TABLE `password_resets`
+  ADD PRIMARY KEY (`reset_id`),
+  ADD UNIQUE KEY `uq_reset_token` (`token_hash`),
+  ADD KEY `fk_reset_patient` (`patient_id`);
+
+--
+-- Indexes for table `patients`
+--
+ALTER TABLE `patients`
+  ADD PRIMARY KEY (`patient_id`),
+  ADD UNIQUE KEY `ic_passport` (`ic_passport`),
+  ADD UNIQUE KEY `uq_patients_email` (`email`);
+
+--
+-- Indexes for table `patient_health_items`
+--
+ALTER TABLE `patient_health_items`
+  ADD PRIMARY KEY (`item_id`),
+  ADD UNIQUE KEY `uq_health_item` (`patient_id`,`item_type`,`name`);
+
+--
+-- Indexes for table `payments`
+--
+ALTER TABLE `payments`
+  ADD PRIMARY KEY (`payment_id`),
+  ADD UNIQUE KEY `uq_receipt_no` (`receipt_no`),
+  ADD KEY `idx_pay_patient_status` (`patient_id`,`status`),
+  ADD KEY `fk_pay_appointment` (`appointment_id`);
+
+--
+-- Indexes for table `payment_items`
+--
+ALTER TABLE `payment_items`
+  ADD PRIMARY KEY (`item_id`),
+  ADD KEY `idx_item_payment` (`payment_id`);
+
+--
+-- Indexes for table `precheck_forms`
+--
+ALTER TABLE `precheck_forms`
+  ADD PRIMARY KEY (`form_id`),
+  ADD KEY `idx_precheck_patient` (`patient_id`),
+  ADD KEY `fk_precheck_child` (`child_id`),
+  ADD KEY `fk_precheck_vaccine` (`vaccine_id`),
+  ADD KEY `idx_precheck_appointment` (`appointment_id`);
+
+--
+-- Indexes for table `reviews`
+--
+ALTER TABLE `reviews`
+  ADD PRIMARY KEY (`review_id`),
+  ADD UNIQUE KEY `uq_review_appointment` (`appointment_id`),
+  ADD KEY `idx_review_patient` (`patient_id`);
 
 --
 -- Indexes for table `staff`
@@ -1117,12 +1169,338 @@ ALTER TABLE `staff`
   ADD UNIQUE KEY `email` (`email`);
 
 --
+-- Indexes for table `users`
+--
+ALTER TABLE `users`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `email` (`email`);
+
+--
+-- Indexes for table `vaccination_records`
+--
+ALTER TABLE `vaccination_records`
+  ADD PRIMARY KEY (`record_id`),
+  ADD KEY `idx_vr_patient` (`patient_id`),
+  ADD KEY `idx_vr_child` (`child_id`),
+  ADD KEY `idx_vr_vaccine` (`vaccine_id`),
+  ADD KEY `idx_vr_batch` (`batch_id`),
+  ADD KEY `fk_vr_doctor` (`doctor_id`),
+  ADD KEY `fk_vr_appointment` (`appointment_id`);
+
+--
+-- Indexes for table `vaccines`
+--
+ALTER TABLE `vaccines`
+  ADD PRIMARY KEY (`vaccine_id`),
+  ADD UNIQUE KEY `uq_vaccine_name` (`name`);
+
+--
+-- Indexes for table `vaccine_batches`
+--
+ALTER TABLE `vaccine_batches`
+  ADD PRIMARY KEY (`batch_id`),
+  ADD UNIQUE KEY `uq_batch_number` (`batch_number`),
+  ADD KEY `idx_batch_expiry` (`expiry_date`),
+  ADD KEY `fk_batch_vaccine` (`vaccine_id`);
+
+--
 -- AUTO_INCREMENT for dumped tables
 --
+
+--
+-- AUTO_INCREMENT for table `appointments`
+--
+ALTER TABLE `appointments`
+  MODIFY `appointment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
+
+--
+-- AUTO_INCREMENT for table `children`
+--
+ALTER TABLE `children`
+  MODIFY `child_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `child_schedule`
+--
+ALTER TABLE `child_schedule`
+  MODIFY `schedule_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+
+--
+-- AUTO_INCREMENT for table `consultation_records`
+--
+ALTER TABLE `consultation_records`
+  MODIFY `record_id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `contact_messages`
+--
+ALTER TABLE `contact_messages`
+  MODIFY `message_id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `destinations`
+--
+ALTER TABLE `destinations`
+  MODIFY `destination_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+
+--
+-- AUTO_INCREMENT for table `doctors`
+--
+ALTER TABLE `doctors`
+  MODIFY `doctor_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+
+--
+-- AUTO_INCREMENT for table `doctor_password_resets`
+--
+ALTER TABLE `doctor_password_resets`
+  MODIFY `reset_id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `leave_requests`
+--
+ALTER TABLE `leave_requests`
+  MODIFY `leave_id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `messages`
+--
+ALTER TABLE `messages`
+  MODIFY `message_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+
+--
+-- AUTO_INCREMENT for table `notifications`
+--
+ALTER TABLE `notifications`
+  MODIFY `notification_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+
+--
+-- AUTO_INCREMENT for table `password_resets`
+--
+ALTER TABLE `password_resets`
+  MODIFY `reset_id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `patients`
+--
+ALTER TABLE `patients`
+  MODIFY `patient_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT for table `patient_health_items`
+--
+ALTER TABLE `patient_health_items`
+  MODIFY `item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- AUTO_INCREMENT for table `payments`
+--
+ALTER TABLE `payments`
+  MODIFY `payment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+
+--
+-- AUTO_INCREMENT for table `payment_items`
+--
+ALTER TABLE `payment_items`
+  MODIFY `item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+
+--
+-- AUTO_INCREMENT for table `precheck_forms`
+--
+ALTER TABLE `precheck_forms`
+  MODIFY `form_id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `reviews`
+--
+ALTER TABLE `reviews`
+  MODIFY `review_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `staff`
 --
 ALTER TABLE `staff`
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT for table `users`
+--
+ALTER TABLE `users`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+
+--
+-- AUTO_INCREMENT for table `vaccination_records`
+--
+ALTER TABLE `vaccination_records`
+  MODIFY `record_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+
+--
+-- AUTO_INCREMENT for table `vaccines`
+--
+ALTER TABLE `vaccines`
+  MODIFY `vaccine_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+
+--
+-- AUTO_INCREMENT for table `vaccine_batches`
+--
+ALTER TABLE `vaccine_batches`
+  MODIFY `batch_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `appointments`
+--
+ALTER TABLE `appointments`
+  ADD CONSTRAINT `appointments_ibfk_1` FOREIGN KEY (`doctor_id`) REFERENCES `doctors` (`doctor_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `appointments_ibfk_2` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`patient_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_appt_child` FOREIGN KEY (`child_id`) REFERENCES `children` (`child_id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `fk_appt_vaccine` FOREIGN KEY (`vaccine_id`) REFERENCES `vaccines` (`vaccine_id`) ON DELETE SET NULL;
+
+--
+-- Constraints for table `children`
+--
+ALTER TABLE `children`
+  ADD CONSTRAINT `fk_children_patient` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`patient_id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `child_schedule`
+--
+ALTER TABLE `child_schedule`
+  ADD CONSTRAINT `fk_schedule_vaccine` FOREIGN KEY (`vaccine_id`) REFERENCES `vaccines` (`vaccine_id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `consultation_records`
+--
+ALTER TABLE `consultation_records`
+  ADD CONSTRAINT `consultation_records_ibfk_1` FOREIGN KEY (`doctor_id`) REFERENCES `doctors` (`doctor_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `consultation_records_ibfk_2` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`patient_id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `contact_messages`
+--
+ALTER TABLE `contact_messages`
+  ADD CONSTRAINT `fk_contact_patient` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`patient_id`) ON DELETE SET NULL;
+
+--
+-- Constraints for table `destination_vaccines`
+--
+ALTER TABLE `destination_vaccines`
+  ADD CONSTRAINT `fk_dv_destination` FOREIGN KEY (`destination_id`) REFERENCES `destinations` (`destination_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_dv_vaccine` FOREIGN KEY (`vaccine_id`) REFERENCES `vaccines` (`vaccine_id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `doctor_availability`
+--
+ALTER TABLE `doctor_availability`
+  ADD CONSTRAINT `fk_avail_doctor` FOREIGN KEY (`doctor_id`) REFERENCES `doctors` (`doctor_id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `doctor_notification_cursors`
+--
+ALTER TABLE `doctor_notification_cursors`
+  ADD CONSTRAINT `fk_doctor_cursor_doctor` FOREIGN KEY (`doctor_id`) REFERENCES `doctors` (`doctor_id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `doctor_password_resets`
+--
+ALTER TABLE `doctor_password_resets`
+  ADD CONSTRAINT `fk_doctor_reset_doctor` FOREIGN KEY (`doctor_id`) REFERENCES `doctors` (`doctor_id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `doctor_patient_links`
+--
+ALTER TABLE `doctor_patient_links`
+  ADD CONSTRAINT `fk_dpl_doctor` FOREIGN KEY (`doctor_id`) REFERENCES `doctors` (`doctor_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_dpl_patient` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`patient_id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `leave_requests`
+--
+ALTER TABLE `leave_requests`
+  ADD CONSTRAINT `leave_requests_ibfk_1` FOREIGN KEY (`doctor_id`) REFERENCES `doctors` (`doctor_id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `messages`
+--
+ALTER TABLE `messages`
+  ADD CONSTRAINT `messages_ibfk_1` FOREIGN KEY (`doctor_id`) REFERENCES `doctors` (`doctor_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `messages_ibfk_2` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`patient_id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `notifications`
+--
+ALTER TABLE `notifications`
+  ADD CONSTRAINT `fk_notif_appointment` FOREIGN KEY (`appointment_id`) REFERENCES `appointments` (`appointment_id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `fk_notif_doctor` FOREIGN KEY (`doctor_id`) REFERENCES `doctors` (`doctor_id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `fk_notif_patient` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`patient_id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `notification_preferences`
+--
+ALTER TABLE `notification_preferences`
+  ADD CONSTRAINT `fk_pref_patient` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`patient_id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `password_resets`
+--
+ALTER TABLE `password_resets`
+  ADD CONSTRAINT `fk_reset_patient` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`patient_id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `patient_health_items`
+--
+ALTER TABLE `patient_health_items`
+  ADD CONSTRAINT `fk_health_patient` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`patient_id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `payments`
+--
+ALTER TABLE `payments`
+  ADD CONSTRAINT `fk_pay_appointment` FOREIGN KEY (`appointment_id`) REFERENCES `appointments` (`appointment_id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `fk_pay_patient` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`patient_id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `payment_items`
+--
+ALTER TABLE `payment_items`
+  ADD CONSTRAINT `fk_item_payment` FOREIGN KEY (`payment_id`) REFERENCES `payments` (`payment_id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `precheck_forms`
+--
+ALTER TABLE `precheck_forms`
+  ADD CONSTRAINT `fk_precheck_appointment` FOREIGN KEY (`appointment_id`) REFERENCES `appointments` (`appointment_id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `fk_precheck_child` FOREIGN KEY (`child_id`) REFERENCES `children` (`child_id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `fk_precheck_patient` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`patient_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_precheck_vaccine` FOREIGN KEY (`vaccine_id`) REFERENCES `vaccines` (`vaccine_id`) ON DELETE SET NULL;
+
+--
+-- Constraints for table `reviews`
+--
+ALTER TABLE `reviews`
+  ADD CONSTRAINT `fk_review_appointment` FOREIGN KEY (`appointment_id`) REFERENCES `appointments` (`appointment_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_review_patient` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`patient_id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `vaccination_records`
+--
+ALTER TABLE `vaccination_records`
+  ADD CONSTRAINT `fk_vr_appointment` FOREIGN KEY (`appointment_id`) REFERENCES `appointments` (`appointment_id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `fk_vr_batch` FOREIGN KEY (`batch_id`) REFERENCES `vaccine_batches` (`batch_id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `fk_vr_child` FOREIGN KEY (`child_id`) REFERENCES `children` (`child_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_vr_doctor` FOREIGN KEY (`doctor_id`) REFERENCES `doctors` (`doctor_id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `fk_vr_patient` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`patient_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_vr_vaccine` FOREIGN KEY (`vaccine_id`) REFERENCES `vaccines` (`vaccine_id`);
+
+--
+-- Constraints for table `vaccine_batches`
+--
+ALTER TABLE `vaccine_batches`
+  ADD CONSTRAINT `fk_batch_vaccine` FOREIGN KEY (`vaccine_id`) REFERENCES `vaccines` (`vaccine_id`) ON DELETE CASCADE;
 COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

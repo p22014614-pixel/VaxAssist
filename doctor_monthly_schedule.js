@@ -259,10 +259,12 @@
             dayStatus.classList.add('is-success');
             dayStatus.hidden = false;
         } catch (error) {
-            actionStatus.textContent = error.message || 'Could not complete appointment. Please try again.';
+            const message = error.message || 'Could not complete appointment. Please try again.';
+            window.alert(message);
+            actionStatus.textContent = message;
             actionStatus.classList.add('is-error');
             actionStatus.hidden = false;
-            dayStatus.textContent = error.message || 'Could not complete appointment. Please try again.';
+            dayStatus.textContent = message;
             dayStatus.classList.add('is-error');
             dayStatus.hidden = false;
             button.disabled = false;
