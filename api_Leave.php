@@ -14,7 +14,7 @@ function respond(int $status, array $data): void
 
 try {
     $pdo = new PDO(
-        'mysql:host=localhost;dbname=vaxassist;charset=utf8mb4',
+        'mysql:host=localhost;dbname=vaxassist_db;charset=utf8mb4',
         'root',
         '',
         [
