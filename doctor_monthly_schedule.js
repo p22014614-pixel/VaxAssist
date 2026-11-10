@@ -260,7 +260,6 @@
             dayStatus.hidden = false;
         } catch (error) {
             const message = error.message || 'Could not complete appointment. Please try again.';
-            window.alert(message);
             actionStatus.textContent = message;
             actionStatus.classList.add('is-error');
             actionStatus.hidden = false;

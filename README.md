@@ -25,3 +25,4 @@ Rules so the database stays the same for everyone:
 1. Start MySQL in XAMPP.
 2. In this folder run `./start-server.command` (or `php -S 127.0.0.1:8000 router.php`).
 3. Open http://127.0.0.1:8000/
+

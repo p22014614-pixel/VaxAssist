@@ -9,8 +9,6 @@
         patients: document.getElementById('stat-patients'),
         notifications: document.getElementById('stat-notifications')
     };
-    let recentUpdates = [];
-    let dashboardRequestRunning = false;
 
     if (reducedMotion || !('IntersectionObserver' in window)) {
         targets.forEach((item) => item.classList.add('doctor-animate-in'));
@@ -27,15 +25,9 @@
         });
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-        loadDashboard();
-        // Keep doctor updates current while the dashboard remains open.
-        window.setInterval(loadDashboard, 30000);
-    });
+    document.addEventListener('DOMContentLoaded', loadDashboard);
     // Fetches dashboard metrics and updates, then refreshes the cards, chart, and login pop-up.
     async function loadDashboard() {
-        if (dashboardRequestRunning) return;
-        dashboardRequestRunning = true;
         try {
             const data = await window.VaxApi.get('doctor_dashboard_backend.php');
             if (data.status !== 'success' || !data.metrics) throw new Error(data.message || 'Dashboard analytics are unavailable.');
@@ -43,18 +35,9 @@
             metricNodes.upcoming.textContent = data.metrics.nextSevenDays;
             metricNodes.completed.textContent = data.metrics.completedMonth;
             metricNodes.patients.textContent = data.metrics.activePatients;
+            metricNodes.notifications.textContent = data.metrics.patientUpdates;
             renderTrend(data.trend || []);
-            const known = new Set(recentUpdates.map((update) => `${update.kind}|${update.title}|${update.patient}|${update.created_at}|${update.detail}`));
-            (data.patientUpdates || []).forEach((update) => {
-                const key = `${update.kind}|${update.title}|${update.patient}|${update.created_at}|${update.detail}`;
-                if (!known.has(key)) {
-                    recentUpdates.push(update);
-                    known.add(key);
-                }
-            });
-            recentUpdates = recentUpdates.slice(-100);
-            metricNodes.notifications.textContent = String(recentUpdates.length);
-            renderPatientUpdates(recentUpdates);
+            renderPatientUpdates(data.patientUpdates || []);
             document.getElementById('dashboardError').hidden = true;
             if (data.showLoginUpdates && window.bootstrap?.Modal) {
                 window.bootstrap.Modal.getOrCreateInstance(document.getElementById('patientUpdatesModal')).show();
@@ -65,8 +48,6 @@
             alert.textContent = error.message || 'We couldn’t load your dashboard data. Please sign in again or try refreshing.';
             alert.hidden = false;
             document.getElementById('appointmentTrend').innerHTML = '<p class="trend-empty">Clinic trends are unavailable right now.</p>';
-        } finally {
-            dashboardRequestRunning = false;
         }
     }
 
@@ -77,7 +58,7 @@
         if (!updates.length) {
             const empty = document.createElement('p');
             empty.className = 'patient-updates-empty';
-            empty.textContent = 'You’re all caught up. New patient updates will appear here.';
+            empty.textContent = 'You’re all caught up. There are no new patient updates since your last login.';
             container.append(empty);
             return;
         }
