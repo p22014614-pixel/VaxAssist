@@ -4,13 +4,19 @@
 function notifications_list(array $p, array $in): void
 {
     $patient = require_login();
-    $stmt = db()->prepare('SELECT notification_id, type, title, body, action_url, action_label, is_read, created_at FROM notifications WHERE patient_id = ? ORDER BY created_at DESC, notification_id DESC');
+    $stmt = db()->prepare('SELECT notification_id, type, title, body, action_url, action_label, is_read, 
+        created_at FROM notifications WHERE patient_id = ? ORDER BY created_at DESC, notification_id DESC');
     $stmt->execute([$patient['patient_id']]);
     out(['notifications' => array_map(function ($n) {
         return [
-            'id' => (int) $n['notification_id'], 'type' => strtolower($n['type']), 'title' => $n['title'], 'message' => (string) $n['body'],
-            'action_url' => (string) $n['action_url'], 'action_label' => (string) $n['action_label'],
-            'is_read' => (int) $n['is_read'], 'created_at' => iso_time($n['created_at']),
+            'id' => (int) $n['notification_id'], 
+            'type' => strtolower($n['type']), 
+            'title' => $n['title'], 
+            'message' => (string) $n['body'],
+            'action_url' => (string) $n['action_url'], 
+            'action_label' => (string) $n['action_label'],
+            'is_read' => (int) $n['is_read'], 
+            'created_at' => iso_time($n['created_at']),
         ];
     }, $stmt->fetchAll())]);
 }

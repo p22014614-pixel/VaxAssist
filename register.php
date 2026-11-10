@@ -81,8 +81,8 @@ try {
     ]);
 
     header('Location: login.html');
-    exit;
-    
+    exit; 
+
 } catch (PDOException $exception) {
     if ($exception->getCode() === '23000') {
         http_response_code(409);

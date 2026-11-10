@@ -5,7 +5,7 @@
 // never changes the files the doctor/admin side relies on.
 
 const DB_HOST = '127.0.0.1';
-const DB_NAME = 'vaxassist';
+const DB_NAME = 'vaxassist_db';
 const DB_USER = 'root';
 const DB_PASS = '';
 

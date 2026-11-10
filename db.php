@@ -32,7 +32,7 @@ function connectPdo(string $host, string $user, string $password, string $databa
 }
 
 // Keep this for existing doctor portal files that expect $conn.
-$database = 'vaxassist';
+$database = 'vaxassist_db';
 $conn = connectMysqli($host, $user, $password, $database);
 
 // PDO connection for login.php, using the same database.

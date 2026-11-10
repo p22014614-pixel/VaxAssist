@@ -4,7 +4,7 @@
 require_once __DIR__ . '/api/lib.php';
 // Connect doctor endpoints directly to the shared clinic database. db.php also
 // opens optional legacy databases (doctors/patients), which may not exist.
-$conn = new mysqli('localhost', 'root', '', 'vaxassist');
+$conn = new mysqli('localhost', 'root', '', 'vaxassist_db');
 if ($conn->connect_error) {
     http_response_code(503);
     header('Content-Type: application/json; charset=utf-8');

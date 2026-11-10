@@ -155,7 +155,7 @@ try {
     );
     $doctorCheck->execute([$doctorId]);
 
-    if (!$doctorCheck->fetchColumn()) {
+    if (!$doctorCheck->fetchColumn())   {
         respond(422, ['error' => 'Select a doctor registered in the database.']);
     }
 

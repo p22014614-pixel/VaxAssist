@@ -7,9 +7,9 @@ $password = $_POST["password"] ?? "";
 
 require_once __DIR__ . '/db.php';
 
-$result = $doctorDb->query('SELECT doctors FROM vaxassist'); // Doctor database
-$result = $patientDb->query('SELECT patients FROM vaxassist'); // Patient database
-$result = $adminDb->query('SELECT users FROM vaxassist'); // Admin database
+$result = $doctorDb->query('SELECT doctors FROM vaxassist_db'); // Doctor database
+$result = $patientDb->query('SELECT patients FROM vaxassist_db'); // Patient database
+$result = $adminDb->query('SELECT users FROM vaxassist_db'); // Admin database
 
 $stmt = $pdo->prepare(
     "SELECT id, password_hash, role FROM users WHERE email = ?"
