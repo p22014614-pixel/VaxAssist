@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vaccination Records - VaxAssist</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="doctor_layout.css?v=7">
+    <link rel="stylesheet" href="doctor_layout.css?v=8">
     <link rel="stylesheet" href="login.css">
     <link rel="stylesheet" href="styles.css?v=4">
     <link rel="stylesheet" href="doctor_theme.css?v=1">
@@ -15,7 +15,7 @@
     <script src="nav_bar.js?v=2" defer></script>
     <script src="doctor_nav.js?v=2" defer></script>
     <script src="motion.js?v=3" defer></script>
-    <script src="doctor_vaccinations.js?v=4" defer></script>
+    <script src="doctor_vaccinations.js?v=5" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
@@ -31,19 +31,36 @@
 
     <main class="doctor-vaccination-layout">
         <section class="form-card vaccination-patient-panel" aria-labelledby="vaccination-patients-heading">
-            <div class="vaccination-panel-heading"><div><h2 id="vaccination-patients-heading">Scheduled patients</h2><p>Patients with a scheduled appointment assigned to you.</p></div><button class="btn secondary-btn doctor-icon-button" id="refreshVaccinationList" type="button" aria-label="Refresh scheduled patients" title="Refresh scheduled patients"><i class="bi bi-arrow-clockwise" aria-hidden="true"></i></button></div>
+            <div class="vaccination-panel-heading"><div><h2 id="vaccination-patients-heading">Patient appointments</h2><p>Choose a scheduled visit to review screening and record a dose.</p></div><button class="btn secondary-btn doctor-icon-button" id="refreshVaccinationList" type="button" aria-label="Refresh patient appointments" title="Refresh patient appointments"><i class="bi bi-arrow-clockwise" aria-hidden="true"></i></button></div>
             <div id="vaccinationLoadStatus" class="doctor-alert" role="status" aria-live="polite" hidden></div>
-            <div id="vaccinationPatientList" class="vaccination-patient-list"><p class="text-muted">Loading scheduled patients…</p></div>
+            <div class="vaccination-roster-columns">
+                <section class="vaccination-roster-section" aria-labelledby="scheduled-patients-heading">
+                    <h3 id="scheduled-patients-heading">Scheduled <span id="scheduledPatientCount" class="vaccination-count">0</span></h3>
+                    <div id="scheduledVaccinationList" class="vaccination-patient-list"><p class="text-muted">Loading scheduled patients…</p></div>
+                </section>
+                <section class="vaccination-roster-section completed-roster-section" aria-labelledby="completed-patients-heading">
+                    <h3 id="completed-patients-heading">Completed <span id="completedPatientCount" class="vaccination-count">0</span></h3>
+                    <div id="completedVaccinationList" class="vaccination-patient-list"><p class="text-muted">Loading completed patients…</p></div>
+                </section>
+            </div>
         </section>
+    </main>
 
-        <section class="form-card vaccination-detail-panel" id="vaccinationDetailPanel" aria-labelledby="vaccination-detail-heading">
-            <div class="vaccination-panel-heading"><div><h2 id="vaccination-detail-heading">Patient and pre-check form</h2><p id="vaccinationDetailHint">Select a scheduled patient to review their pre-check and vaccination.</p></div></div>
-            <div id="vaccinationPatientDetails" class="vaccination-patient-details"><p class="text-muted">No patient selected.</p></div>
-            <div id="precheckDetails" class="precheck-details"><p class="text-muted">Pre-check form details will appear here.</p></div>
-            <section class="vaccination-history" aria-label="Vaccination history">
-                <button class="btn secondary-btn" id="toggleVaccinationHistory" type="button" disabled>View vaccination history</button>
-            </section>
-            <form id="vaccinationRecordForm" class="vaccination-record-form" hidden>
+    <div class="modal fade patient-history-modal vaccination-patient-modal" id="vaccinationPatientModal" tabindex="-1" aria-labelledby="vaccination-detail-heading" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div><h2 class="modal-title fs-5" id="vaccination-detail-heading">Patient and pre-check form</h2><p id="vaccinationDetailHint" class="vaccination-modal-hint mb-0">Review the patient and screening responses.</p></div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="vaccinationPatientDetails" class="vaccination-patient-details"><p class="text-muted">Select a scheduled patient.</p></div>
+                    <div id="precheckDetails" class="precheck-details"><p class="text-muted">Pre-check form details will appear here.</p></div>
+                    <section class="vaccination-history" aria-label="Vaccination history">
+                        <button class="btn secondary-btn" id="toggleVaccinationHistory" type="button" disabled aria-expanded="false">View vaccination history</button>
+                        <div id="vaccinationHistory" class="vaccination-modal-history" hidden></div>
+                    </section>
+                    <form id="vaccinationRecordForm" class="vaccination-record-form" hidden>
                 <h3>Record vaccination</h3>
                 <input type="hidden" id="recordAppointmentId">
                 <div class="vaccination-form-grid">
@@ -57,17 +74,7 @@
                 <p class="vaccination-form-note">Saving records the dose, reduces selected batch stock by one, marks the appointment completed, and creates a patient notification.</p>
                 <button class="btn primary-btn" id="saveVaccinationRecord" type="submit">Save vaccination record</button>
             </form>
-        </section>
-    </main>
-
-    <div class="modal fade patient-history-modal" id="vaccinationHistoryModal" tabindex="-1" aria-labelledby="vaccination-history-heading" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2 class="modal-title fs-5" id="vaccination-history-heading">Vaccination history and next dose</h2>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body" id="vaccinationHistory"><p class="text-muted">Select a patient to view recorded doses.</p></div>
             </div>
         </div>
     </div>

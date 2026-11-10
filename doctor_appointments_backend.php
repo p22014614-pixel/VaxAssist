@@ -22,8 +22,15 @@ if ($action === 'get_day') {
     $stmt = $conn->prepare("SELECT a.appointment_id, a.time_slot, a.appointment_time, a.symptoms_notes, p.full_name, p.patient_id FROM appointments a JOIN patients p ON p.patient_id=a.patient_id WHERE a.doctor_id=? AND a.appointment_date=? AND a.status='Scheduled' ORDER BY a.appointment_time, a.appointment_id");
     $stmt->bind_param('is', $doctor_id, $date); $stmt->execute(); $res = $stmt->get_result(); $items = [];
     while ($row = $res->fetch_assoc()) {
-        $key = $row['time_slot'];
-        $items[$key][] = ['appointment_id'=>(int)$row['appointment_id'], 'name'=>$row['full_name'], 'reason'=>$row['symptoms_notes'], 'patient_id'=>(int)$row['patient_id']];
+        $time = $row['appointment_time'] ? substr((string) $row['appointment_time'], 0, 5) : '';
+        if ($time !== '') {
+            $key = substr($time, 0, 2) . ':00';
+        } else {
+            $slotStart = DateTime::createFromFormat('h:i A', substr((string) $row['time_slot'], 0, 8));
+            $key = $slotStart ? $slotStart->format('H:00') : 'other';
+            $time = $slotStart ? $slotStart->format('H:i') : '';
+        }
+        $items[$key][] = ['appointment_id'=>(int)$row['appointment_id'], 'name'=>$row['full_name'], 'reason'=>$row['symptoms_notes'], 'patient_id'=>(int)$row['patient_id'], 'appointment_time'=>$time];
     }
     echo json_encode(['status'=>'success','data'=>$items]); exit;
 }
