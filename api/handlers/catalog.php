@@ -16,7 +16,8 @@ function doctors_list(array $p, array $in): void
 
     $days = [];
     foreach (db()->query('SELECT doctor_id, weekday FROM doctor_availability ORDER BY weekday')->fetchAll() as $r) {
-        $days[$r['doctor_id']][] = (int) $r['weekday'];
+        // The database counts Monday=1 to Sunday=7; the pages use JavaScript days (Sunday=0).
+        $days[$r['doctor_id']][] = (int) $r['weekday'] % 7;
     }
 
     out(['doctors' => array_map(function ($r) use ($days) {

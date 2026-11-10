@@ -6,7 +6,7 @@ const confirmPassword = document.getElementById("confirmPassword");
 const dob = document.getElementById("dob");
 const registerError = document.getElementById("registerError");
 
-dob.max = new Date().toISOString().split("T")[0];
+dob.max = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().split("T")[0]; // local date, not UTC
 
 document.getElementById("togglePw").addEventListener("click", function () {
     const hidden = password.type === "password";

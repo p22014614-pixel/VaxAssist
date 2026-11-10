@@ -181,6 +181,15 @@ function window_start(?string $window): string
     return sprintf('%02d:%s', $h, $m[2]);
 }
 
+// The visit's real start time. The admin page edits only the 2-hour window (time_slot), which can leave
+// the exact appointment_time behind, so the exact time counts only while it still sits inside that window.
+function visit_time(array $row): string
+{
+    $exact = !empty($row['appointment_time']) ? hm($row['appointment_time']) : '';
+    if ($exact !== '' && time_window($exact) === ($row['time_slot'] ?? '')) return $exact;
+    return window_start($row['time_slot'] ?? null);
+}
+
 function slot_times(): array
 {
     $times = [];
@@ -218,7 +227,8 @@ function available_slots(int $doctorId, string $date, ?int $ignoreAppointment = 
     $windows = [];
     foreach ($stmt->fetchAll() as $row) {
         if ($ignoreAppointment !== null && (int) $row['appointment_id'] === $ignoreAppointment) continue;
-        if ($row['appointment_time']) $taken[hm($row['appointment_time'])] = true;
+        $exact = !empty($row['appointment_time']) && time_window(hm($row['appointment_time'])) === $row['time_slot'];
+        if ($exact) $taken[hm($row['appointment_time'])] = true;
         else $windows[$row['time_slot']] = true;
     }
 
@@ -230,6 +240,19 @@ function available_slots(int $doctorId, string $date, ?int $ignoreAppointment = 
         $slots[] = ['time' => $t, 'available' => $free];
     }
     return $slots;
+}
+
+// True when the patient already has a scheduled visit (with any doctor) at this date and time.
+function patient_busy(int $patientId, string $date, string $time, ?int $ignoreAppointment = null): bool
+{
+    $stmt = db()->prepare("SELECT appointment_id, appointment_time, time_slot FROM appointments WHERE patient_id = ? AND appointment_date = ? AND status = 'Scheduled'");
+    $stmt->execute([$patientId, $date]);
+    foreach ($stmt->fetchAll() as $row) {
+        if ($ignoreAppointment !== null && (int) $row['appointment_id'] === $ignoreAppointment) continue;
+        $exact = !empty($row['appointment_time']) && time_window(hm($row['appointment_time'])) === $row['time_slot'];
+        if ($exact ? hm($row['appointment_time']) === $time : $row['time_slot'] === time_window($time)) return true;
+    }
+    return false;
 }
 
 function add_notification(int $patientId, string $type, string $title, string $body, ?string $url = null, ?string $label = null): void

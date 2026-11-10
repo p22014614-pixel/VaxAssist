@@ -5,7 +5,7 @@ const childField = document.getElementById("childField");
 const destination = document.getElementById("destination");
 const childDob = document.getElementById("childDob");
 
-childDob.max = new Date().toISOString().split("T")[0];
+childDob.max = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().split("T")[0]; // local date, not UTC
 
 tabs.forEach(function (tab) {
     tab.addEventListener("click", function () {

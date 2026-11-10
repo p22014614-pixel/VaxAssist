@@ -285,6 +285,15 @@ confirmCancelBtn.addEventListener('click', async function () {
     }
 });
 
+// A doctor or admin changed a visit while this page is open: show the new details.
+window.addEventListener('vax:refresh', async function (e) {
+    if (!e.detail || !e.detail.data) return;
+    try {
+        appointments = await getAppointments();
+        render();
+    } catch (err) { /* the next refresh will try again */ }
+});
+
 (async function init() {
     const user = await getCurrentUser();
     if (!user) {

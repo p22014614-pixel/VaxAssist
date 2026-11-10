@@ -20,6 +20,7 @@ const SOON_DAYS = 60;
 const reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
 let records = [];
+let latestIds = {};            // ids of the newest dose of each vaccine for each person
 let patientFilter = 'all';     // 'all' or a patient_name
 
 function pad(n) { return String(n).padStart(2, '0'); }
@@ -53,8 +54,27 @@ function niceDate(s) {
     return parseISO(s).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
+// Only the newest dose of each vaccine, for each person, can be due or overdue.
+// Earlier doses of the same course are finished once a later dose has been given.
+function latestDoseIds() {
+    const latest = {};
+    records.forEach(function (r) {
+        const key = r.patient_name + '|' + r.vaccine_name;
+        const best = latest[key];
+        if (!best || r.dose_number > best.dose_number ||
+            (r.dose_number === best.dose_number && r.date_given > best.date_given)) latest[key] = r;
+    });
+    const ids = {};
+    Object.keys(latest).forEach(function (k) { ids[latest[k].id] = true; });
+    return ids;
+}
+
 function dueState(r) {
-    if (!r.next_dose_date) return { cls: 'none', text: 'No further doses', days: null };
+    if (!latestIds[r.id]) return { cls: 'none', text: 'Dose completed', days: null };
+    if (!r.next_dose_date) {
+        if (r.dose_number < r.total_doses) return { cls: 'unscheduled', text: 'Next dose not scheduled yet', days: null };
+        return { cls: 'none', text: 'No further doses', days: null };
+    }
     const d = daysUntil(r.next_dose_date);
     if (d < 0) return { cls: 'overdue', text: 'Overdue by ' + Math.abs(d) + (Math.abs(d) === 1 ? ' day' : ' days'), days: d };
     if (d === 0) return { cls: 'soon', text: 'Next dose due today', days: d };
@@ -128,7 +148,7 @@ function pips(r) {
 
 function recordCard(r, index) {
     const due = dueState(r);
-    const showBook = due.cls === 'overdue' || due.cls === 'soon';
+    const showBook = due.cls === 'overdue' || due.cls === 'soon' || due.cls === 'unscheduled';
     const catClass = 'cat-' + String(r.category).toLowerCase();
     const detailId = 'details' + r.id;
 
@@ -161,7 +181,7 @@ function recordCard(r, index) {
                         '<div><div class="k">Manufacturer</div><div class="v">' + esc(r.manufacturer || 'Not recorded') + '</div></div>' +
                         '<div><div class="k">Given by</div><div class="v">' + esc(r.doctor_name) + '</div></div>' +
                         '<div><div class="k">Clinic</div><div class="v">' + esc(r.clinic) + '</div></div>' +
-                        '<div><div class="k">Next dose</div><div class="v">' + esc(r.next_dose_date ? niceDate(r.next_dose_date) : 'None needed') + '</div></div>' +
+                        '<div><div class="k">Next dose</div><div class="v">' + esc(r.next_dose_date ? niceDate(r.next_dose_date) : (latestIds[r.id] && r.dose_number < r.total_doses ? 'Not scheduled yet' : 'None needed')) + '</div></div>' +
                         (r.notes ? '<div style="grid-column: 1 / -1"><div class="k">Notes</div><div class="v">' + esc(r.notes) + '</div></div>' : '') +
                     '</div>' +
                 '</div>' +
@@ -186,7 +206,7 @@ function renderStats(list) {
 }
 
 function renderBanner(list) {
-    const withNext = list.filter(function (r) { return r.next_dose_date; });
+    const withNext = list.filter(function (r) { return r.next_dose_date && latestIds[r.id]; });
     if (!withNext.length) { nextBanner.innerHTML = ''; return; }
     withNext.sort(function (a, b) { return a.next_dose_date < b.next_dose_date ? -1 : 1; });
     const r = withNext[0];
@@ -196,7 +216,7 @@ function renderBanner(list) {
     nextBanner.innerHTML = '<div class="next-banner fade-in">' +
         '<div>' +
             '<div class="small-label">' + (due.cls === 'overdue' ? 'Needs attention' : 'Coming up next') + '</div>' +
-            '<div class="big">' + esc(who + r.vaccine_name + ' (dose ' + (r.dose_number + 1) + ') ' + when) + '</div>' +
+            '<div class="big">' + esc(who + r.vaccine_name + (r.dose_number < r.total_doses ? ' (dose ' + (r.dose_number + 1) + ')' : ' (booster)') + ' ' + when) + '</div>' +
         '</div>' +
         '<a class="btn-light-teal" href="' + bookLink(r) + '">Book now</a>' +
     '</div>';
@@ -271,6 +291,17 @@ document.getElementById('printBtn').addEventListener('click', function () {
     window.print();
 });
 
+// A doctor recorded a new dose while this page is open: show it straight away.
+window.addEventListener('vax:refresh', async function (e) {
+    if (!e.detail || !e.detail.data) return;
+    try {
+        records = await getVaccinations();
+        latestIds = latestDoseIds();
+        renderChips();
+        render();
+    } catch (err) { /* the next refresh will try again */ }
+});
+
 (async function init() {
     const user = await getCurrentUser();
     if (!user) {
@@ -279,6 +310,7 @@ document.getElementById('printBtn').addEventListener('click', function () {
     }
     try {
         records = await getVaccinations();
+        latestIds = latestDoseIds();
         const who = new URLSearchParams(window.location.search).get('patient');
         if (who && records.some(function (r) { return r.patient_name === who; })) patientFilter = who;
         renderChips();

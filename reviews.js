@@ -74,6 +74,15 @@ function render() {
     }).join('');
 }
 
+// Keep what has been typed, so choosing stars on another card does not wipe it.
+visitList.addEventListener('input', function (e) {
+    const box = e.target.closest('[data-comment]');
+    if (!box) return;
+    const id = Number(box.dataset.comment);
+    const current = draft[id] || reviews[id] || { rating: 0 };
+    draft[id] = { rating: current.rating, comment: box.value };
+});
+
 visitList.addEventListener('click', async function (e) {
     const star = e.target.closest('[data-star]');
     if (star) {
@@ -98,7 +107,16 @@ visitList.addEventListener('click', async function (e) {
             visitList.querySelector('[data-error="' + id + '"]').classList.remove('d-none');
             return;
         }
-        reviews[id] = await saveReview(id, { rating: rating, comment: box.value.trim() });
+        const errorBox = visitList.querySelector('[data-error="' + id + '"]');
+        submit.disabled = true;
+        try {
+            reviews[id] = await saveReview(id, { rating: rating, comment: box.value.trim() });
+        } catch (err) {
+            errorBox.textContent = err.status && err.status < 500 ? err.message : 'Sorry, your review could not be saved. Please try again.';
+            errorBox.classList.remove('d-none');
+            submit.disabled = false;
+            return;
+        }
         delete draft[id];
         delete editing[id];
         render();
