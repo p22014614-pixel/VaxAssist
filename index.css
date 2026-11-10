@@ -225,3 +225,6 @@ footer span {
         padding: 30px 22px;
     }
 }
+
+/* The wide column gutter would push the hero 12px past the screen on phones. */
+.hero { overflow-x: clip; }

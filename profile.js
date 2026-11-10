@@ -73,6 +73,13 @@ function showError(id, message) {
     box.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
+// Shows the server's own field message (for example a bad phone number) when it sent one.
+function apiMessage(err, fallback) {
+    if (!err.status || err.status >= 500) return fallback;
+    const fields = err.fields ? Object.values(err.fields) : [];
+    return fields.length ? fields[0] : err.message;
+}
+
 function hideError(id) { document.getElementById(id).classList.add('d-none'); }
 
 let toastTimer = null;
@@ -167,7 +174,7 @@ document.getElementById('personalForm').addEventListener('submit', async functio
         dob: val('dob'), gender: val('gender'), address: val('address'),
         emergency_contact_name: val('emergency_contact_name'), emergency_contact_phone: val('emergency_contact_phone')
     };
-    const phoneOk = /^[+0-9\s()-]{8,20}$/;
+    const phoneOk = /^[0-9+\s-]{8,15}$/;   // same rule the server uses
 
     if (!data.first_name || !data.last_name) return showError('personalError', 'Please enter your first and last name.');
     if (!phoneOk.test(data.phone)) return showError('personalError', 'Please enter a valid phone number.');
@@ -186,7 +193,7 @@ document.getElementById('personalForm').addEventListener('submit', async functio
         updateHeader();
         toast('Personal details saved');
     } catch (err) {
-        showError('personalError', err.status && err.status < 500 ? err.message : 'Sorry, we could not save your details. Please try again.');
+        showError('personalError', apiMessage(err, 'Sorry, we could not save your details. Please try again.'));
     }
     btn.disabled = false; btn.textContent = 'Save changes';
 });
@@ -297,7 +304,7 @@ document.getElementById('healthForm').addEventListener('submit', async function 
         updateHeader();
         toast('Health profile saved');
     } catch (err) {
-        showError('healthError', err.status && err.status < 500 ? err.message : 'Sorry, we could not save your health profile. Please try again.');
+        showError('healthError', apiMessage(err, 'Sorry, we could not save your health profile. Please try again.'));
     }
     btn.disabled = false; btn.textContent = 'Save health profile';
 });
@@ -333,7 +340,7 @@ document.getElementById('childList').addEventListener('click', async function (e
             toast(child.first_name + ' was removed');
         }, reduceMotion ? 0 : 350);
     } catch (err) {
-        showError('childError', 'Sorry, we could not remove this child. Please try again.');
+        showError('childError', apiMessage(err, 'Sorry, we could not remove this child. Please try again.'));
     }
 });
 
@@ -357,7 +364,7 @@ document.getElementById('childForm').addEventListener('submit', async function (
         document.getElementById('childForm').reset();
         toast(data.first_name + ' was added');
     } catch (err) {
-        showError('childError', err.status && err.status < 500 ? err.message : 'Sorry, we could not add your child. Please try again.');
+        showError('childError', apiMessage(err, 'Sorry, we could not add your child. Please try again.'));
     }
     btn.disabled = false; btn.textContent = 'Add child';
 });

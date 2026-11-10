@@ -1,6 +1,37 @@
 <?php
 // Sessions and accounts: log in, log out, register, reset a password.
 
+// What the pages poll to show new notifications and to notice changes made by a doctor or admin:
+// the unread notification count, the newest unread one, and a fingerprint of the patient's visits and records.
+function live_state(int $patientId): array
+{
+    $pdo = db();
+    $count = $pdo->prepare("SELECT COUNT(*) FROM notifications WHERE patient_id = ? AND recipient_type = 'patient' AND is_read = 0");
+    $count->execute([$patientId]);
+
+    $latest = $pdo->prepare("SELECT notification_id, title, body, action_url FROM notifications
+                              WHERE patient_id = ? AND recipient_type = 'patient' AND is_read = 0
+                              ORDER BY notification_id DESC LIMIT 1");
+    $latest->execute([$patientId]);
+    $note = $latest->fetch() ?: null;
+
+    $visits = $pdo->prepare("SELECT CONCAT_WS('|', appointment_id, doctor_id, status, appointment_date, COALESCE(appointment_time, ''), time_slot)
+                               FROM appointments WHERE patient_id = ? ORDER BY appointment_id");
+    $visits->execute([$patientId]);
+    $records = $pdo->prepare('SELECT record_id FROM vaccination_records WHERE patient_id = ? ORDER BY record_id');
+    $records->execute([$patientId]);
+    $stamp = md5(implode(';', $visits->fetchAll(PDO::FETCH_COLUMN)) . '#' . implode(',', $records->fetchAll(PDO::FETCH_COLUMN)));
+
+    return [
+        'unread_notifications' => (int) $count->fetchColumn(),
+        'latest_notification'  => $note ? [
+            'id' => (int) $note['notification_id'], 'title' => $note['title'],
+            'message' => (string) $note['body'], 'url' => (string) $note['action_url'],
+        ] : null,
+        'stamp' => $stamp,
+    ];
+}
+
 // Returns the current signed-in user, role, and CSRF token to the browser.
 function session_show(array $p, array $in): void
 {
@@ -19,14 +50,16 @@ function session_show(array $p, array $in): void
     }
     $patient = current_patient();
     $unread = 0;
+    $live = [];
     if ($patient) {
         $stmt = db()->prepare("SELECT COUNT(*) FROM messages WHERE patient_id = ? AND sender_type = 'doctor' AND is_read = 0");
         $stmt->execute([$patient['patient_id']]);
         $unread = (int) $stmt->fetchColumn();
+        $live = live_state((int) $patient['patient_id']);
     }
     $user = $patient ? user_payload($patient) : null;
     if ($user) $user['role'] = 'patient';
-    out(['user' => $user, 'csrf' => csrf_token(), 'unread_messages' => $unread]);
+    out(['user' => $user, 'csrf' => csrf_token(), 'unread_messages' => $unread] + $live);
 }
 
 // POST /session = log in
@@ -85,7 +118,7 @@ function session_create(array $p, array $in): void
 
     session_regenerate_id(true);
     unset($_SESSION['login_failures'], $_SESSION['login_locked_until']);
-    unset($_SESSION['doctor_id']);
+    unset($_SESSION['doctor_id'], $_SESSION['admin_id']);
     $_SESSION['patient_id'] = (int) $patient['patient_id'];
 
     if (password_needs_rehash($patient['password_hash'], PASSWORD_DEFAULT)) {
@@ -128,7 +161,7 @@ function patient_create(array $p, array $in): void
     if (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 100) $errors['email'] = 'Enter a valid email address.';
     if (!preg_match('/^[0-9+\s\-]{8,15}$/', $phone)) $errors['phone'] = 'Enter a valid phone number.';
     if (!valid_date($dob) || $dob > date('Y-m-d')) $errors['dob'] = 'Enter a valid date of birth.';
-    if (strlen($password) < 8) $errors['password'] = 'Password must be at least 8 characters.';
+    if (!strong_password($password)) $errors['password'] = 'Password must be at least 8 characters, with letters and numbers.';
     if ($errors) fail(422, 'Please check the highlighted fields.', $errors);
 
     $pdo = db();

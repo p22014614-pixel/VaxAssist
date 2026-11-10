@@ -277,7 +277,9 @@ function renderChild(dobIso, childName) {
         : [];
     const items = childSchedule.map(function (v) {
         const n = doseNumber(v);
-        const rec = n ? childRecords.find(function (r) { return r.vaccine_name === v.name && r.dose_number >= n; }) : null;
+        // Prefer the record for exactly this dose, so dose 1 shows dose 1's date and not dose 2's.
+        const rec = n ? childRecords.filter(function (r) { return r.vaccine_name === v.name && r.dose_number >= n; })
+            .sort(function (a, b) { return (a.dose_number - b.dose_number) || (a.date_given < b.date_given ? -1 : 1); })[0] : null;
         return { v: v, due: addMonths(dob, v.months), rec: rec || null };
     });
     const todo = items.filter(function (x) { return !x.rec; });
@@ -334,7 +336,7 @@ travelForm.addEventListener('submit', function (e) {
     const pastDate = !!departure && departure < startOfToday();
     departDate.classList.toggle('is-invalid', pastDate);
 
-    if (!dest || pastDate) return;
+    if (!dest || pastDate) { clearResults(); return; }
     renderTravel(dest, departure);
 });
 

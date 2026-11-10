@@ -439,6 +439,7 @@ body {
 .due.soon    { color: #b8741a; }
 .due.overdue { color: #b83a3a; }
 .due.none    { color: #8a9ca1; font-weight: 600; }
+.due.unscheduled { color: #8a9ca1; font-weight: 600; }
 
 .due.overdue,
 .due.soon {

@@ -171,8 +171,11 @@ async function pollThread() {
         const data = await getThread(active.id, lastId);
         if (data.messages.length) {
             const nearBottom = threadBody.scrollHeight - threadBody.scrollTop - threadBody.clientHeight < 80;
-            messages = messages.concat(data.messages);
-            if (data.messages.some(function (m) { return m.sender === 'doctor'; })) markThreadRead(active.id).catch(function () {});
+            // A message we just sent may already be in the list; never show it twice.
+            const fresh = data.messages.filter(function (m) { return !messages.some(function (x) { return x.id === m.id; }); });
+            if (!fresh.length) return;
+            messages = messages.concat(fresh);
+            if (fresh.some(function (m) { return m.sender === 'doctor'; })) markThreadRead(active.id).catch(function () {});
             renderMessages(nearBottom);
             refreshList();
         }

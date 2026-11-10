@@ -235,6 +235,15 @@ document.getElementById('prefForm').addEventListener('submit', async function (e
     btn.disabled = false; btn.textContent = 'Save preferences';
 });
 
+// A new notification arrived while this page is open: show it straight away.
+window.addEventListener('vax:refresh', async function (e) {
+    if (!e.detail || !e.detail.notifications) return;
+    try {
+        notifications = await getNotifications();
+        render();
+    } catch (err) { /* the next refresh will try again */ }
+});
+
 (async function init() {
     const user = await getCurrentUser();
     if (!user) {
