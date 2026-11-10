@@ -316,12 +316,17 @@ body {
 .patient-updates-modal .modal-title { color: var(--primary-dark); font-weight: 700; }
 .patient-updates-list { display: grid; gap: 12px; }
 .patient-update-item { padding: 14px 16px; border: 1px solid #e4ecee; border-left: 4px solid var(--primary-color); border-radius: 12px; background: #fff; }
+.patient-update-item.is-read { background: #f7f9fa; border-left-color: #a8b5b8; }
 .patient-update-message { border-left-color: #7c61a8; }
 .patient-update-patient-notification { border-left-color: #dc9b36; }
 .patient-update-precheck { border-left-color: #418b6f; }
 .patient-update-appointment { border-left-color: var(--primary-color); }
+.patient-update-vaccination { border-left-color: #4f79b8; }
 .patient-update-heading { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; color: var(--primary-dark); }
 .patient-update-heading time { color: var(--text-muted); font-size: .78rem; }
+.notification-read-state { padding: 2px 8px; border-radius: 999px; font-size: .72rem; font-weight: 700; }
+.notification-read-state.is-unread { background: #e6f4ef; color: #24684e; }
+.notification-read-state.is-read { background: #edf0f1; color: #657276; }
 .patient-update-name { margin: 7px 0 2px; font-weight: 600; }
 .patient-update-detail { margin: 0; color: var(--text-muted); white-space: pre-wrap; overflow-wrap: anywhere; }
 .patient-updates-empty { margin: 0; padding: 26px; border-radius: 12px; background: #f4f9fa; color: var(--text-muted); text-align: center; }

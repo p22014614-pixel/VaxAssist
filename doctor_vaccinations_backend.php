@@ -144,11 +144,15 @@ try {
     $body = $nextDoseDate !== ''
         ? $vaccineName . ' dose ' . $doseNumber . ' was recorded for ' . $patientName . '. Next dose due ' . $nextDoseDate . '.'
         : $vaccineName . ' dose ' . $doseNumber . ' was recorded for ' . $patientName . '.';
-    $notify = $conn->prepare('INSERT INTO notifications (patient_id, doctor_id, appointment_id, type, title, body, action_url, action_label) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
+    $notify = $conn->prepare("INSERT INTO notifications (patient_id, recipient_type, doctor_id, appointment_id, type, title, body, action_url, action_label) VALUES (?, 'patient', ?, ?, ?, ?, ?, ?, ?)");
     $url = 'appointments.html';
     $label = 'View appointment';
     $notify->bind_param('iiisssss', $patientId, $doctor_id, $appointmentId, $notificationType, $title, $body, $url, $label);
     $notify->execute();
+
+    $doctorNotice = $conn->prepare("INSERT INTO notifications (patient_id, recipient_type, doctor_id, appointment_id, type, title, body, action_url, action_label) VALUES (?, 'doctor', ?, ?, 'Announcement', 'Vaccination recorded', ?, 'doctor_dashboard.html', 'View notification')");
+    $doctorNotice->bind_param('iiis', $patientId, $doctor_id, $appointmentId, $body);
+    $doctorNotice->execute();
 
     $conn->commit();
     vaccine_json(['status' => 'success', 'message' => 'Vaccination recorded, appointment completed, and patient notification created.']);

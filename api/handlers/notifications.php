@@ -4,8 +4,8 @@
 function notifications_list(array $p, array $in): void
 {
     $patient = require_login();
-    $stmt = db()->prepare('SELECT notification_id, type, title, body, action_url, action_label, is_read, 
-        created_at FROM notifications WHERE patient_id = ? ORDER BY created_at DESC, notification_id DESC');
+    $stmt = db()->prepare("SELECT notification_id, type, title, body, action_url, action_label, is_read,
+        created_at FROM notifications WHERE patient_id = ? AND recipient_type = 'patient' ORDER BY created_at DESC, notification_id DESC");
     $stmt->execute([$patient['patient_id']]);
     out(['notifications' => array_map(function ($n) {
         return [
@@ -26,7 +26,7 @@ function notifications_update_all(array $p, array $in): void
 {
     $patient = require_login();
     if (empty($in['is_read'])) fail(422, 'The only change allowed is marking notifications as read.');
-    db()->prepare('UPDATE notifications SET is_read = 1 WHERE patient_id = ?')->execute([$patient['patient_id']]);
+    db()->prepare("UPDATE notifications SET is_read = 1 WHERE patient_id = ? AND recipient_type = 'patient'")->execute([$patient['patient_id']]);
     out(null, 204);
 }
 
@@ -35,7 +35,7 @@ function notifications_update(array $p, array $in): void
 {
     $patient = require_login();
     if (empty($in['is_read'])) fail(422, 'The only change allowed is marking a notification as read.');
-    $stmt = db()->prepare('UPDATE notifications SET is_read = 1 WHERE notification_id = ? AND patient_id = ?');
+    $stmt = db()->prepare("UPDATE notifications SET is_read = 1 WHERE notification_id = ? AND patient_id = ? AND recipient_type = 'patient'");
     $stmt->execute([(int) $p['id'], $patient['patient_id']]);
     out(null, 204);
 }
@@ -43,7 +43,7 @@ function notifications_update(array $p, array $in): void
 function notifications_delete(array $p, array $in): void
 {
     $patient = require_login();
-    $stmt = db()->prepare('DELETE FROM notifications WHERE notification_id = ? AND patient_id = ?');
+    $stmt = db()->prepare("DELETE FROM notifications WHERE notification_id = ? AND patient_id = ? AND recipient_type = 'patient'");
     $stmt->execute([(int) $p['id'], $patient['patient_id']]);
     if ($stmt->rowCount() === 0) fail(404, 'Notification not found.');
     out(null, 204);
@@ -117,15 +117,17 @@ function precheck_create(array $p, array $in): void
 
     // If this person already has an upcoming visit, attach the form to it so the doctor sees it.
     $visit = $pdo->prepare(
-        "SELECT appointment_id FROM appointments
+        "SELECT appointment_id, doctor_id, appointment_date, appointment_time FROM appointments
           WHERE patient_id = ? AND child_id <=> ? AND status = 'Scheduled' AND appointment_date >= CURDATE()
             AND (? IS NULL OR vaccine_id = ?)
           ORDER BY appointment_date, appointment_time LIMIT 1"
     );
     $visit->execute([$pid, $childId ?: null, $vaccineId, $vaccineId]);
-    $appointmentId = $visit->fetchColumn() ?: null;
+    $visitRow = $visit->fetch() ?: null;
+    $appointmentId = $visitRow['appointment_id'] ?? null;
 
     $yn = function ($k) use ($answers) { return ($answers[$k] ?? '') === 'yes' ? 1 : 0; };
+    $pdo->beginTransaction();
     $pdo->prepare(
         'INSERT INTO precheck_forms (patient_id, appointment_id, child_id, vaccine_id, has_fever, severe_reaction, weak_immune_system,
                 pregnant_or_breastfeeding, recent_vaccine, bleeding_disorder, allergies, medications, notes)
@@ -134,5 +136,17 @@ function precheck_create(array $p, array $in): void
         $childId === null ? $yn('pregnant') : null, $yn('recent'), $yn('bleeding'),
         text_in($in['allergies'] ?? '', 300) ?: null, text_in($in['medications'] ?? '', 300) ?: null, text_in($in['notes'] ?? '', 500) ?: null]);
     $formId = (int) $pdo->lastInsertId();
+    if ($visitRow) {
+        $vaccineName = 'vaccination';
+        if ($vaccineId) {
+            $vaccineQuery = $pdo->prepare('SELECT name FROM vaccines WHERE vaccine_id = ?');
+            $vaccineQuery->execute([$vaccineId]);
+            $vaccineName = (string) $vaccineQuery->fetchColumn();
+        }
+        $visitTime = $visitRow['appointment_time'] ? ' at ' . hm($visitRow['appointment_time']) : '';
+        add_doctor_notification($pdo, (int) $visitRow['doctor_id'], $pid, (int) $appointmentId, 'Announcement', 'Patient submitted a pre-check form',
+            'A pre-check form is ready for review before the ' . $vaccineName . ' appointment on ' . date('j M Y', strtotime($visitRow['appointment_date'])) . $visitTime . '.');
+    }
+    $pdo->commit();
     created('/api/precheck-forms/' . $formId, ['id' => $formId]);
 }

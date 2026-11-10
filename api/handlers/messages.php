@@ -81,6 +81,7 @@ function messages_create(array $p, array $in): void
     $pdo->prepare("INSERT INTO messages (doctor_id, patient_id, sender_type, message_text, is_read) VALUES (?, ?, 'patient', ?, 0)")
         ->execute([$doctorId, $pid, $text]);
     $id = (int) $pdo->lastInsertId();
+    add_doctor_notification($pdo, $doctorId, $pid, null, 'Announcement', 'New patient message', $text);
 
     $row = $pdo->prepare('SELECT created_at FROM messages WHERE message_id = ?');
     $row->execute([$id]);

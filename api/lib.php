@@ -253,8 +253,16 @@ function available_slots(int $doctorId, string $date, ?int $ignoreAppointment = 
 // Saves a patient notification and, when supplied, links it to its responsible doctor visit.
 function add_notification(int $patientId, string $type, string $title, string $body, ?string $url = null, ?string $label = null, ?int $doctorId = null, ?int $appointmentId = null): void
 {
-    db()->prepare('INSERT INTO notifications (patient_id, doctor_id, appointment_id, type, title, body, action_url, action_label) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
+    db()->prepare("INSERT INTO notifications (patient_id, recipient_type, doctor_id, appointment_id, type, title, body, action_url, action_label) VALUES (?, 'patient', ?, ?, ?, ?, ?, ?, ?)")
         ->execute([$patientId, $doctorId, $appointmentId, $type, $title, $body, $url, $label]);
+}
+
+// Stores a doctor alert in the shared notification table without exposing it in the patient's feed.
+function add_doctor_notification(PDO $pdo, int $doctorId, int $patientId, ?int $appointmentId, string $type, string $title, string $body): void
+{
+    $pdo->prepare("INSERT INTO notifications (patient_id, recipient_type, doctor_id, appointment_id, type, title, body, action_url, action_label)
+        VALUES (?, 'doctor', ?, ?, ?, ?, ?, 'doctor_dashboard.html', 'View notification')")
+        ->execute([$patientId, $doctorId, $appointmentId, $type, $title, $body]);
 }
 
 // Formats a database time value as an ISO-compatible timestamp.

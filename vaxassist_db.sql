@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 10, 2026 at 09:33 AM
+-- Generation Time: Nov 10, 2026 at 01:51 PM
 -- Server version: 10.11.16-MariaDB
 -- PHP Version: 8.5.12
 
@@ -47,9 +47,9 @@ CREATE TABLE `appointments` (
 --
 
 INSERT INTO `appointments` (`appointment_id`, `doctor_id`, `patient_id`, `child_id`, `vaccine_id`, `appointment_date`, `appointment_time`, `time_slot`, `status`, `symptoms_notes`, `created_at`, `cancel_reason`) VALUES
-(1, 1, 1, NULL, NULL, '2026-10-18', NULL, '08:00 AM - 10:00 AM', 'Scheduled', 'Cardiology Routine Review & ECG', '2026-10-18 06:58:13', NULL),
+(1, 1, 1, NULL, NULL, '2026-10-18', NULL, '08:00 AM - 10:00 AM', 'Completed', 'Cardiology Routine Review & ECG', '2026-10-18 06:58:13', NULL),
 (2, 1, 2, NULL, NULL, '2026-10-18', NULL, '10:00 AM - 12:00 PM', 'Scheduled', 'Influenza Vaccine Consultation', '2026-10-18 06:58:13', NULL),
-(3, 1, 3, NULL, NULL, '2026-10-18', NULL, '01:00 PM - 03:00 PM', 'Scheduled', 'Orthopedic Joint Checkup', '2026-10-18 06:58:13', NULL),
+(3, 1, 3, NULL, NULL, '2026-10-18', NULL, '01:00 PM - 03:00 PM', 'Completed', 'Orthopedic Joint Checkup', '2026-10-18 06:58:13', NULL),
 (4, 2, 4, NULL, 1, '2026-11-16', '10:00:00', '10:00 AM - 12:00 PM', 'Scheduled', 'Travelling to Ghana next month.', '2026-11-10 08:31:38', NULL),
 (5, 3, 4, 1, 14, '2026-11-23', '14:30:00', '01:00 PM - 03:00 PM', 'Scheduled', NULL, '2026-11-10 08:31:38', NULL),
 (6, 4, 4, NULL, 17, '2026-11-30', '09:30:00', '08:00 AM - 10:00 AM', 'Scheduled', NULL, '2026-11-10 08:31:38', NULL),
@@ -86,7 +86,12 @@ INSERT INTO `appointments` (`appointment_id`, `doctor_id`, `patient_id`, `child_
 (37, 8, 3, NULL, 14, '2026-05-02', '11:00:00', '10:00 AM - 12:00 PM', 'Completed', NULL, '2026-11-10 08:31:38', NULL),
 (38, 9, 1, NULL, 17, '2026-06-24', '09:00:00', '08:00 AM - 10:00 AM', 'Completed', NULL, '2026-11-10 08:31:38', NULL),
 (39, 9, 2, NULL, 17, '2026-05-25', '10:00:00', '10:00 AM - 12:00 PM', 'Completed', NULL, '2026-11-10 08:31:38', NULL),
-(40, 9, 3, NULL, 17, '2026-04-25', '11:00:00', '10:00 AM - 12:00 PM', 'Completed', NULL, '2026-11-10 08:31:38', NULL);
+(40, 9, 3, NULL, 17, '2026-04-25', '11:00:00', '10:00 AM - 12:00 PM', 'Completed', NULL, '2026-11-10 08:31:38', NULL),
+(41, 1, 1, NULL, 1, '2026-11-11', '10:00:00', '10:00 AM - 12:00 PM', 'Cancelled', NULL, '2026-11-10 09:01:32', NULL),
+(42, 1, 1, NULL, 1, '2026-11-26', '10:00:00', '10:00 AM - 12:00 PM', 'Cancelled', NULL, '2026-11-10 09:10:26', NULL),
+(43, 1, 1, NULL, 4, '2026-11-11', '14:00:00', '01:00 PM - 03:00 PM', 'Cancelled', NULL, '2026-11-10 10:04:31', NULL),
+(44, 1, 1, NULL, 16, '2026-11-12', '10:00:00', '10:00 AM - 12:00 PM', 'Scheduled', NULL, '2026-11-10 12:28:53', NULL),
+(45, 1, 1, NULL, 12, '2026-11-13', '10:00:00', '10:00 AM - 12:00 PM', 'Scheduled', NULL, '2026-11-10 12:33:27', NULL);
 
 -- --------------------------------------------------------
 
@@ -168,6 +173,13 @@ CREATE TABLE `consultation_records` (
   `plan` text DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `consultation_records`
+--
+
+INSERT INTO `consultation_records` (`record_id`, `doctor_id`, `patient_id`, `subjective_notes`, `objective_notes`, `assessment`, `plan`, `created_at`) VALUES
+(1, 1, 1, 'try', 'try', 'try', 'try', '2026-11-10 08:51:24');
 
 -- --------------------------------------------------------
 
@@ -459,6 +471,13 @@ CREATE TABLE `doctor_notification_cursors` (
   `last_seen_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `doctor_notification_cursors`
+--
+
+INSERT INTO `doctor_notification_cursors` (`doctor_id`, `last_seen_at`) VALUES
+(1, '2026-11-10 20:41:16');
+
 -- --------------------------------------------------------
 
 --
@@ -522,7 +541,7 @@ CREATE TABLE `messages` (
 --
 
 INSERT INTO `messages` (`message_id`, `doctor_id`, `patient_id`, `sender_type`, `message_text`, `is_read`, `created_at`) VALUES
-(1, 1, 2, 'patient', 'Hello Dr. Alex, I received my flu vaccine yesterday. My arm feels slightly warm and sore. Is this normal?', 0, '2026-10-18 06:58:13'),
+(1, 1, 2, 'patient', 'Hello Dr. Alex, I received my flu vaccine yesterday. My arm feels slightly warm and sore. Is this normal?', 1, '2026-10-18 06:58:13'),
 (2, 1, 2, 'doctor', 'Hi Sarah, yes, mild soreness and warmth at the injection site are common post-vaccine reactions.', 1, '2026-10-18 06:58:13'),
 (3, 1, 2, 'doctor', 'test 1', 0, '2026-10-18 07:48:43'),
 (4, 2, 4, 'patient', 'Hi Dr. Rahman, I\'m travelling to Ghana next month. Besides yellow fever, is there anything else I should have?', 1, '2026-11-08 08:11:38'),
@@ -530,7 +549,7 @@ INSERT INTO `messages` (`message_id`, `doctor_id`, `patient_id`, `sender_type`, 
 (6, 2, 4, 'patient', 'Thank you, I will bring it along.', 1, '2026-11-08 08:41:38'),
 (7, 3, 4, 'doctor', 'Hi, this is a reminder that Aiden\'s MMR appointment is coming up. Please let us know if he has a fever on the day.', 0, '2026-11-10 07:56:38'),
 (8, 4, 1, 'patient', 'Is it fine to have my flu shot if I have a mild cold?', 1, '2026-11-09 22:31:38'),
-(9, 4, 1, 'doctor', 'A mild cold is usually fine, but if you have a fever we should move it. Please complete the pre-consultation form so I can check.', 0, '2026-11-10 01:31:38');
+(9, 4, 1, 'doctor', 'A mild cold is usually fine, but if you have a fever we should move it. Please complete the pre-consultation form so I can check.', 1, '2026-11-10 01:31:38');
 
 -- --------------------------------------------------------
 
@@ -541,9 +560,10 @@ INSERT INTO `messages` (`message_id`, `doctor_id`, `patient_id`, `sender_type`, 
 CREATE TABLE `notifications` (
   `notification_id` int(11) NOT NULL,
   `patient_id` int(11) NOT NULL,
+  `recipient_type` enum('patient','doctor') NOT NULL DEFAULT 'patient',
   `doctor_id` int(11) DEFAULT NULL,
   `appointment_id` int(11) DEFAULT NULL,
-  `type` enum('Appointment','Reminder','Booster','Late','Announcement') NOT NULL,
+  `type` enum('Appointment','Reminder','Booster','Late','Announcement','Precheck','Message','Vaccination') NOT NULL,
   `title` varchar(150) NOT NULL,
   `body` text DEFAULT NULL,
   `action_url` varchar(200) DEFAULT NULL,
@@ -556,21 +576,33 @@ CREATE TABLE `notifications` (
 -- Dumping data for table `notifications`
 --
 
-INSERT INTO `notifications` (`notification_id`, `patient_id`, `doctor_id`, `appointment_id`, `type`, `title`, `body`, `action_url`, `action_label`, `is_read`, `created_at`) VALUES
-(1, 4, NULL, NULL, 'Late', 'Doctor running late', 'Dr. Aisha Rahman is running about 15 minutes behind. Your Yellow Fever appointment is still on, with a slightly later start.', 'appointments.html', 'View appointment', 0, '2026-11-10 08:19:38'),
-(2, 4, NULL, NULL, 'Reminder', 'Appointment tomorrow', 'Reminder: Yellow Fever vaccine with Dr. Aisha Rahman at 10:00 AM. Please bring your ID and travel details.', 'appointments.html', 'View appointment', 0, '2026-11-10 05:31:38'),
-(3, 4, NULL, NULL, 'Booster', 'Aiden\'s pneumococcal booster is overdue', 'Aiden is due for his Pneumococcal (PCV) booster. Book a visit to keep his schedule on track.', 'booking.html?vaccine=Pneumococcal%20(PCV)', 'Book now', 0, '2026-11-09 12:31:38'),
-(4, 4, NULL, NULL, 'Appointment', 'Booking confirmed', 'Your MMR appointment for Aiden with Dr. Daniel Lim has been confirmed.', 'appointments.html', 'View appointment', 1, '2026-11-09 04:31:38'),
-(5, 4, NULL, NULL, 'Booster', 'Hepatitis A second dose coming up', 'Your second Hepatitis A dose is due in about 40 days. You can book a slot any time before then.', 'vaccinations.html', 'See my records', 0, '2026-11-07 08:31:38'),
-(6, 4, NULL, NULL, 'Announcement', 'Discounted flu booster slots', 'Selected influenza booster slots this month are available at a reduced price while stocks last.', 'booking.html?vaccine=Influenza', 'Book a slot', 1, '2026-11-05 08:31:38'),
-(7, 4, NULL, NULL, 'Appointment', 'Appointment rescheduled', 'Your Typhoid appointment was moved to a new time at your request.', 'appointments.html?tab=history', 'View history', 1, '2026-10-25 08:31:38'),
-(8, 4, NULL, NULL, 'Announcement', 'Welcome to VaxAssist', 'Thanks for joining. Complete your health profile so your doctor has what they need before each vaccine.', 'profile.html?tab=health', 'Open profile', 1, '2026-10-01 08:31:38'),
-(9, 1, NULL, NULL, 'Reminder', 'Influenza booking confirmed', 'Your influenza appointment with Dr. Priya Nair is booked. Please complete the pre-consultation form beforehand.', 'precheck.html?vaccine=Influenza', 'Fill in the form', 0, '2026-11-10 07:01:38'),
-(10, 1, NULL, NULL, 'Booster', 'Noah\'s DTaP-IPV-Hib dose 2 is overdue', 'Noah is due for the next dose in his DTaP-IPV-Hib course. Book a visit to catch up.', 'booking.html?vaccine=DTaP-IPV-Hib', 'Book now', 0, '2026-11-08 06:31:38'),
-(11, 1, NULL, NULL, 'Announcement', 'Welcome to VaxAssist', 'Thanks for joining. Complete your health profile so your doctor has what they need before each vaccine.', 'profile.html?tab=health', 'Open profile', 1, '2026-10-13 13:51:38'),
-(12, 2, NULL, NULL, 'Reminder', 'Yellow Fever appointment booked', 'Your Yellow Fever appointment is booked. Bring your passport and travel details.', 'appointments.html', 'View appointment', 0, '2026-11-10 07:31:38'),
-(13, 2, NULL, NULL, 'Booster', 'Hepatitis A second dose coming up', 'Your second Hepatitis A dose is due in about five months.', 'vaccinations.html', 'See my records', 1, '2026-11-06 21:11:38'),
-(14, 3, NULL, NULL, 'Announcement', 'Welcome to VaxAssist', 'Thanks for joining. Complete your health profile so your doctor has what they need before each vaccine.', 'profile.html?tab=health', 'Open profile', 0, '2026-11-10 05:11:38');
+INSERT INTO `notifications` (`notification_id`, `patient_id`, `recipient_type`, `doctor_id`, `appointment_id`, `type`, `title`, `body`, `action_url`, `action_label`, `is_read`, `created_at`) VALUES
+(1, 4, 'patient', NULL, NULL, 'Late', 'Doctor running late', 'Dr. Aisha Rahman is running about 15 minutes behind. Your Yellow Fever appointment is still on, with a slightly later start.', 'appointments.html', 'View appointment', 0, '2026-11-10 08:19:38'),
+(2, 4, 'patient', NULL, NULL, 'Reminder', 'Appointment tomorrow', 'Reminder: Yellow Fever vaccine with Dr. Aisha Rahman at 10:00 AM. Please bring your ID and travel details.', 'appointments.html', 'View appointment', 0, '2026-11-10 05:31:38'),
+(3, 4, 'patient', NULL, NULL, 'Booster', 'Aiden\'s pneumococcal booster is overdue', 'Aiden is due for his Pneumococcal (PCV) booster. Book a visit to keep his schedule on track.', 'booking.html?vaccine=Pneumococcal%20(PCV)', 'Book now', 0, '2026-11-09 12:31:38'),
+(4, 4, 'patient', NULL, NULL, 'Appointment', 'Booking confirmed', 'Your MMR appointment for Aiden with Dr. Daniel Lim has been confirmed.', 'appointments.html', 'View appointment', 1, '2026-11-09 04:31:38'),
+(5, 4, 'patient', NULL, NULL, 'Booster', 'Hepatitis A second dose coming up', 'Your second Hepatitis A dose is due in about 40 days. You can book a slot any time before then.', 'vaccinations.html', 'See my records', 0, '2026-11-07 08:31:38'),
+(6, 4, 'patient', NULL, NULL, 'Announcement', 'Discounted flu booster slots', 'Selected influenza booster slots this month are available at a reduced price while stocks last.', 'booking.html?vaccine=Influenza', 'Book a slot', 1, '2026-11-05 08:31:38'),
+(7, 4, 'patient', NULL, NULL, 'Appointment', 'Appointment rescheduled', 'Your Typhoid appointment was moved to a new time at your request.', 'appointments.html?tab=history', 'View history', 1, '2026-10-25 08:31:38'),
+(8, 4, 'patient', NULL, NULL, 'Announcement', 'Welcome to VaxAssist', 'Thanks for joining. Complete your health profile so your doctor has what they need before each vaccine.', 'profile.html?tab=health', 'Open profile', 1, '2026-10-01 08:31:38'),
+(9, 1, 'patient', NULL, NULL, 'Reminder', 'Influenza booking confirmed', 'Your influenza appointment with Dr. Priya Nair is booked. Please complete the pre-consultation form beforehand.', 'precheck.html?vaccine=Influenza', 'Fill in the form', 0, '2026-11-10 07:01:38'),
+(10, 1, 'patient', NULL, NULL, 'Booster', 'Noah\'s DTaP-IPV-Hib dose 2 is overdue', 'Noah is due for the next dose in his DTaP-IPV-Hib course. Book a visit to catch up.', 'booking.html?vaccine=DTaP-IPV-Hib', 'Book now', 0, '2026-11-08 06:31:38'),
+(11, 1, 'patient', NULL, NULL, 'Announcement', 'Welcome to VaxAssist', 'Thanks for joining. Complete your health profile so your doctor has what they need before each vaccine.', 'profile.html?tab=health', 'Open profile', 1, '2026-10-13 13:51:38'),
+(12, 2, 'patient', NULL, NULL, 'Reminder', 'Yellow Fever appointment booked', 'Your Yellow Fever appointment is booked. Bring your passport and travel details.', 'appointments.html', 'View appointment', 0, '2026-11-10 07:31:38'),
+(13, 2, 'patient', NULL, NULL, 'Booster', 'Hepatitis A second dose coming up', 'Your second Hepatitis A dose is due in about five months.', 'vaccinations.html', 'See my records', 1, '2026-11-06 21:11:38'),
+(14, 3, 'patient', NULL, NULL, 'Announcement', 'Welcome to VaxAssist', 'Thanks for joining. Complete your health profile so your doctor has what they need before each vaccine.', 'profile.html?tab=health', 'Open profile', 0, '2026-11-10 05:11:38'),
+(15, 1, 'patient', 1, 1, 'Booster', 'Next vaccine dose recorded', 'BCG dose 1 was recorded for Michael Wong. Next dose due 2026-11-26.', 'appointments.html', 'View appointment', 1, '2026-11-10 08:51:57'),
+(16, 1, 'patient', NULL, NULL, 'Appointment', 'Booking confirmed', 'Your Yellow Fever appointment on 11 Nov 2026 at 10:00 has been confirmed.', 'appointments.html', 'View appointment', 0, '2026-11-10 09:01:32'),
+(17, 3, 'patient', 1, 3, 'Booster', 'Next vaccine dose recorded', 'Td Booster dose 1 was recorded for Ahmad Razak. Next dose due 2026-11-13.', 'appointments.html', 'View appointment', 0, '2026-11-10 09:05:58'),
+(18, 1, 'patient', NULL, NULL, 'Appointment', 'Booking confirmed', 'Your Yellow Fever appointment on 26 Nov 2026 at 10:00 has been confirmed.', 'appointments.html', 'View appointment', 0, '2026-11-10 09:10:26'),
+(19, 1, 'patient', NULL, NULL, 'Appointment', 'Appointment cancelled', 'Your appointment has been cancelled.', 'appointments.html?tab=history', 'View history', 0, '2026-11-10 09:20:50'),
+(20, 1, 'patient', NULL, NULL, 'Appointment', 'Booking confirmed', 'Your Rabies appointment on 13 Nov 2026 at 10:00 has been confirmed.', 'appointments.html', 'View appointment', 0, '2026-11-10 10:04:31'),
+(21, 1, 'patient', NULL, NULL, 'Appointment', 'Appointment rescheduled', 'Your appointment was moved to 16 Nov 2026 at 10:00.', 'appointments.html', 'View appointment', 0, '2026-11-10 10:08:15'),
+(22, 1, 'patient', NULL, NULL, 'Appointment', 'Appointment rescheduled', 'Your appointment was moved to 11 Nov 2026 at 14:00.', 'appointments.html', 'View appointment', 0, '2026-11-10 10:09:11'),
+(23, 1, 'patient', NULL, NULL, 'Appointment', 'Appointment cancelled', 'Your appointment has been cancelled.', 'appointments.html?tab=history', 'View history', 0, '2026-11-10 10:09:58'),
+(24, 1, 'patient', NULL, NULL, 'Appointment', 'Appointment cancelled', 'Your appointment has been cancelled.', 'appointments.html?tab=history', 'View history', 0, '2026-11-10 10:10:00'),
+(25, 1, 'patient', NULL, NULL, 'Appointment', 'Booking confirmed', 'Your Td Booster appointment on 12 Nov 2026 at 10:00 has been confirmed.', 'appointments.html', 'View appointment', 0, '2026-11-10 12:28:53'),
+(26, 1, 'patient', NULL, NULL, 'Appointment', 'Booking confirmed', 'Your Pneumococcal (PCV) appointment on 13 Nov 2026 at 10:00 has been confirmed.', 'appointments.html', 'View appointment', 0, '2026-11-10 12:33:27');
 
 -- --------------------------------------------------------
 
@@ -641,7 +673,7 @@ CREATE TABLE `patients` (
 --
 
 INSERT INTO `patients` (`patient_id`, `full_name`, `email`, `password_hash`, `ic_passport`, `phone`, `dob`, `gender`, `blood_type`, `allergies`, `created_at`, `address`, `emergency_contact_name`, `emergency_contact_phone`, `height_cm`, `weight_kg`, `no_known_allergies`) VALUES
-(1, 'Michael Wong', 'michael@example.com', '$2y$10$kYVmuR.B4vEXGw6L6i8CGuN0TzuT9zmWe2YpWYo8SrPLdecU6Uswm', '800820-07-5531', '0191112222', '1980-08-20', 'Male', 'O+', 'Penicillin', '2026-10-18 06:58:13', NULL, NULL, NULL, NULL, NULL, 0),
+(1, 'Michael Wong', 'michael@example.com', '$2y$12$mCfdrPeY4FvBFKd5p38pKeC3YSQhBC.jl0ig1IXb4hpZGeLAPu2fS', '800820-07-5531', '0191112222', '1980-08-20', 'Male', 'O+', 'Penicillin', '2026-10-18 06:58:13', NULL, NULL, NULL, NULL, NULL, 0),
 (2, 'Sarah Jenkins', 'sarah@example.com', '$2y$10$6vGcJSEjmZ6ObZ60i3UHNe7Z/NOHebH50mKDTXE1v1YpMV/HO1Jb2', '920315-08-6622', '0183334444', '1992-03-15', 'Female', 'A+', 'None', '2026-10-18 06:58:13', NULL, NULL, NULL, NULL, NULL, 0),
 (3, 'Ahmad Razak', 'ahmad@example.com', '$2y$10$oDqglPVErvmxxp6R2b4wJOQLbsS2de9SMSifjAwb2wXVhEaPTfr32', '881105-10-7711', '0175556666', '1988-11-05', 'Male', 'B+', 'Aspirin', '2026-10-18 06:58:13', NULL, NULL, NULL, NULL, NULL, 0),
 (4, 'Demo Patient', 'demo@example.com', '$2y$10$nVyjH6mh7qwLVmsX1rVc4eibjDKCNBMCeyiiW48s0Lx.Aw8iOMGyi', NULL, '+60 12-345 6789', '1998-05-14', 'Female', 'O+', NULL, '2026-11-10 08:31:38', NULL, NULL, NULL, 165, 58.0, 0);
@@ -702,7 +734,9 @@ INSERT INTO `payments` (`payment_id`, `patient_id`, `appointment_id`, `receipt_n
 (6, 4, 6, 'VA-2026-0006', 'Pending', NULL, 0.00, '2026-11-10 08:31:38', NULL),
 (7, 4, 10, 'VA-2026-0007', 'Refunded', 'Credit card', 0.00, '2026-10-23 00:00:00', '2026-10-23 10:00:00'),
 (8, 1, 13, 'VA-2026-0008', 'Pending', NULL, 0.00, '2026-11-10 08:31:38', NULL),
-(9, 2, 15, 'VA-2026-0009', 'Paid', 'Online banking', 0.00, '2026-11-09 00:00:00', '2026-11-09 10:00:00');
+(9, 2, 15, 'VA-2026-0009', 'Paid', 'Online banking', 0.00, '2026-11-09 00:00:00', '2026-11-09 10:00:00'),
+(13, 1, 44, 'VA-2026-0013', 'Pending', NULL, 0.00, '2026-11-10 12:28:53', NULL),
+(14, 1, 45, 'VA-2026-0014', 'Pending', NULL, 0.00, '2026-11-10 12:33:27', NULL);
 
 -- --------------------------------------------------------
 
@@ -738,7 +772,11 @@ INSERT INTO `payment_items` (`item_id`, `payment_id`, `label`, `amount`) VALUES
 (14, 8, 'Influenza vaccine', 70.00),
 (15, 8, 'Consultation fee', 40.00),
 (16, 9, 'Yellow Fever vaccine', 130.00),
-(17, 9, 'Consultation fee', 40.00);
+(17, 9, 'Consultation fee', 40.00),
+(24, 13, 'Td Booster', 55.00),
+(25, 13, 'Consultation fee', 40.00),
+(26, 14, 'Pneumococcal (PCV)', 230.00),
+(27, 14, 'Consultation fee', 40.00);
 
 -- --------------------------------------------------------
 
@@ -763,6 +801,14 @@ CREATE TABLE `precheck_forms` (
   `notes` varchar(500) DEFAULT NULL,
   `submitted_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `precheck_forms`
+--
+
+INSERT INTO `precheck_forms` (`form_id`, `patient_id`, `appointment_id`, `child_id`, `vaccine_id`, `has_fever`, `severe_reaction`, `weak_immune_system`, `pregnant_or_breastfeeding`, `recent_vaccine`, `bleeding_disorder`, `allergies`, `medications`, `notes`, `submitted_at`) VALUES
+(1, 1, 41, NULL, 1, 1, 1, 1, 1, 1, 1, 'try', NULL, NULL, '2026-11-10 09:02:07'),
+(2, 1, 45, NULL, 12, 0, 1, 0, 1, 0, 1, NULL, NULL, NULL, '2026-11-10 12:33:16');
 
 -- --------------------------------------------------------
 
@@ -903,7 +949,9 @@ INSERT INTO `vaccination_records` (`record_id`, `patient_id`, `child_id`, `vacci
 (12, 1, 2, 10, 10, 3, NULL, 2, '2024-07-13', NULL, NULL),
 (13, 1, 2, 11, 11, 3, NULL, 1, '2024-08-12', '2024-12-10', 'Dose 2 was due about two months later.'),
 (14, 2, NULL, 3, 13, 2, NULL, 1, '2026-10-21', '2027-04-19', 'Second dose 6 months after the first.'),
-(15, 2, NULL, 2, 14, 2, NULL, 1, '2026-10-21', NULL, NULL);
+(15, 2, NULL, 2, 14, 2, NULL, 1, '2026-10-21', NULL, NULL),
+(16, 1, NULL, 9, 12, 1, 1, 1, '2026-11-10', '2026-11-26', 'try'),
+(17, 3, NULL, 16, 4, 1, 3, 1, '2026-11-10', '2026-11-13', '');
 
 -- --------------------------------------------------------
 
@@ -967,7 +1015,7 @@ INSERT INTO `vaccine_batches` (`batch_id`, `vaccine_id`, `batch_number`, `manufa
 (1, 2, 'TY-22914B', 'Demo Pharma', '2028-05-10', 100),
 (2, 3, 'HA-80731C', 'Demo Pharma', '2028-05-10', 100),
 (3, 17, 'FLU-5519A', 'Demo Pharma', '2028-05-10', 100),
-(4, 16, 'TD-30276D', 'Demo Pharma', '2028-05-10', 100),
+(4, 16, 'TD-30276D', 'Demo Pharma', '2028-05-10', 99),
 (5, 9, 'BCG-1102', 'Demo Pharma', '2028-05-10', 100),
 (6, 10, 'HB-77410', 'Demo Pharma', '2028-05-10', 100),
 (7, 13, 'RV-4408', 'Demo Pharma', '2028-05-10', 100),
@@ -975,7 +1023,7 @@ INSERT INTO `vaccine_batches` (`batch_id`, `vaccine_id`, `batch_number`, `manufa
 (9, 11, 'DTP-6063', 'Demo Pharma', '2028-05-10', 100),
 (10, 10, 'HB-5521', 'Demo Pharma', '2028-05-10', 100),
 (11, 11, 'DTP-5110', 'Demo Pharma', '2028-05-10', 100),
-(12, 9, 'BCG-0991', 'Demo Pharma', '2028-05-10', 100),
+(12, 9, 'BCG-0991', 'Demo Pharma', '2028-05-10', 99),
 (13, 3, 'HA-9902', 'Demo Pharma', '2028-05-10', 100),
 (14, 2, 'TY-30011', 'Demo Pharma', '2028-05-10', 100);
 
@@ -1096,7 +1144,8 @@ ALTER TABLE `notifications`
   ADD PRIMARY KEY (`notification_id`),
   ADD KEY `idx_notif_patient_read` (`patient_id`,`is_read`),
   ADD KEY `idx_notif_doctor_unread` (`doctor_id`,`is_read`),
-  ADD KEY `idx_notif_appointment` (`appointment_id`);
+  ADD KEY `idx_notif_appointment` (`appointment_id`),
+  ADD KEY `idx_notif_doctor_recipient_unread` (`doctor_id`,`recipient_type`,`is_read`);
 
 --
 -- Indexes for table `notification_preferences`
@@ -1211,7 +1260,7 @@ ALTER TABLE `vaccine_batches`
 -- AUTO_INCREMENT for table `appointments`
 --
 ALTER TABLE `appointments`
-  MODIFY `appointment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
+  MODIFY `appointment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=46;
 
 --
 -- AUTO_INCREMENT for table `children`
@@ -1229,7 +1278,7 @@ ALTER TABLE `child_schedule`
 -- AUTO_INCREMENT for table `consultation_records`
 --
 ALTER TABLE `consultation_records`
-  MODIFY `record_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `record_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `contact_messages`
@@ -1271,7 +1320,7 @@ ALTER TABLE `messages`
 -- AUTO_INCREMENT for table `notifications`
 --
 ALTER TABLE `notifications`
-  MODIFY `notification_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `notification_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
 -- AUTO_INCREMENT for table `password_resets`
@@ -1295,19 +1344,19 @@ ALTER TABLE `patient_health_items`
 -- AUTO_INCREMENT for table `payments`
 --
 ALTER TABLE `payments`
-  MODIFY `payment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `payment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `payment_items`
 --
 ALTER TABLE `payment_items`
-  MODIFY `item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
 --
 -- AUTO_INCREMENT for table `precheck_forms`
 --
 ALTER TABLE `precheck_forms`
-  MODIFY `form_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `form_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `reviews`
@@ -1331,7 +1380,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `vaccination_records`
 --
 ALTER TABLE `vaccination_records`
-  MODIFY `record_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `record_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT for table `vaccines`

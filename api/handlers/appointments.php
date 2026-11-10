@@ -120,6 +120,12 @@ function appointments_create(array $p, array $in): void
     add_notification($patientId, 'Appointment', 'Booking confirmed',
         'Your ' . $vaccine['name'] . ' appointment on ' . date('j M Y', strtotime($date)) . ' at ' . $time . ' has been confirmed.',
         'appointments.html', 'View appointment');
+    add_doctor_notification($pdo, $doctorId, $patientId, $appointmentId, 'Appointment', 'New vaccination appointment booked',
+        $vaccine['name'] . ' on ' . date('j M Y', strtotime($date)) . ' at ' . $time . '.');
+    if ($formId) {
+        add_doctor_notification($pdo, $doctorId, $patientId, $appointmentId, 'Announcement', 'Patient submitted a pre-check form',
+            'A pre-check form is ready for review before the ' . $vaccine['name'] . ' appointment.');
+    }
     $pdo->commit();
 
     created('/api/appointments/' . $appointmentId, ['id' => $appointmentId]);
@@ -132,7 +138,7 @@ function appointments_update(array $p, array $in): void
     $pdo = db();
     $id = (int) $p['id'];
 
-    $stmt = $pdo->prepare("SELECT doctor_id FROM appointments WHERE appointment_id = ? AND patient_id = ? AND status = 'Scheduled'");
+    $stmt = $pdo->prepare("SELECT doctor_id, appointment_date, appointment_time FROM appointments WHERE appointment_id = ? AND patient_id = ? AND status = 'Scheduled'");
     $stmt->execute([$id, $patient['patient_id']]);
     $appt = $stmt->fetch();
     if (!$appt) fail(404, 'That appointment cannot be changed.');
@@ -144,6 +150,8 @@ function appointments_update(array $p, array $in): void
         $pdo->prepare("DELETE FROM payments WHERE appointment_id = ? AND status = 'Pending'")->execute([$id]);
         $pdo->prepare("UPDATE payments SET status = 'Refunded' WHERE appointment_id = ? AND status = 'Paid'")->execute([$id]);
         add_notification((int) $patient['patient_id'], 'Appointment', 'Appointment cancelled', 'Your appointment has been cancelled.', 'appointments.html?tab=history', 'View history');
+        add_doctor_notification($pdo, (int) $appt['doctor_id'], (int) $patient['patient_id'], $id, 'Appointment', 'Patient cancelled an appointment',
+            'The patient cancelled the appointment scheduled for ' . date('j M Y', strtotime($appt['appointment_date'])) . '.');
         $pdo->commit();
         out(null, 204);
     }
@@ -167,6 +175,9 @@ function appointments_update(array $p, array $in): void
         ->execute([$date, $time . ':00', time_window($time), $id]);
     add_notification((int) $patient['patient_id'], 'Appointment', 'Appointment rescheduled',
         'Your appointment was moved to ' . date('j M Y', strtotime($date)) . ' at ' . $time . '.', 'appointments.html', 'View appointment');
+    $oldTime = $appt['appointment_time'] ? hm($appt['appointment_time']) : 'time not set';
+    add_doctor_notification($pdo, (int) $appt['doctor_id'], (int) $patient['patient_id'], $id, 'Appointment', 'Patient rescheduled an appointment',
+        'Moved from ' . date('j M Y', strtotime($appt['appointment_date'])) . ' at ' . $oldTime . ' to ' . date('j M Y', strtotime($date)) . ' at ' . $time . '.');
     $pdo->commit();
     out(null, 204);
 }
