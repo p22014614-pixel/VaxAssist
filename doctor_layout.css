@@ -341,6 +341,10 @@ body {
 .form-card h2, .form-card h3, .chat-layout h3 { color: var(--primary-dark) !important; }
 .chat-layout { background: #fff; }
 .chat-sidebar { background: #f6fafb; border-color: #e7edef; }
+.conversation-patient-list { display: grid; gap: 8px; max-height: 420px; margin-top: 12px; overflow-y: auto; }
+.conversation-patient { width: 100%; padding: 10px 12px; border: 1px solid #e1eaed; border-radius: 10px; background: #fff; color: var(--text-dark); text-align: left; }
+.conversation-patient:hover, .conversation-patient:focus-visible { border-color: var(--primary-color); outline: none; }
+.conversation-patient.is-active { border-color: var(--primary-color); background: #eaf5f6; color: var(--primary-dark); font-weight: 600; }
 .chat-messages { padding: 8px; }
 .msg-bubble { border-radius: 14px; }
 .msg-in { background: #edf5f6; color: var(--text-dark); }

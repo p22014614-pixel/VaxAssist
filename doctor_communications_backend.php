@@ -2,9 +2,9 @@
 // Loads and sends messages for conversations associated with the signed-in doctor.
 require __DIR__ . '/doctor_backend_auth.php';
 if ($_SERVER['REQUEST_METHOD']==='GET') {
-    // Lists the doctor's patients, marks their incoming messages read, and returns the conversation.
-    $stmt=$conn->prepare("SELECT p.patient_id,p.full_name FROM patients p WHERE EXISTS(SELECT 1 FROM messages m WHERE m.patient_id=p.patient_id AND m.doctor_id=?) OR EXISTS(SELECT 1 FROM appointments a WHERE a.patient_id=p.patient_id AND a.doctor_id=?) ORDER BY p.full_name");
-    $stmt->bind_param('ii',$doctor_id,$doctor_id); $stmt->execute(); $patients=$stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    // Lists every registered patient so the doctor can search or start any conversation.
+    $patientsResult=$conn->query('SELECT patient_id,full_name FROM patients ORDER BY full_name,patient_id');
+    $patients=$patientsResult->fetch_all(MYSQLI_ASSOC);
     $selected=filter_var($_GET['patient_id']??($patients[0]['patient_id']??null),FILTER_VALIDATE_INT);
     $allowed=false; foreach($patients as $person) if((int)$person['patient_id']===$selected) $allowed=true;
     if (!$allowed) { echo json_encode(['status'=>'success','patients'=>$patients,'patient'=>null,'data'=>[]]); exit; }
@@ -20,8 +20,8 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
     // Validates the conversation belongs to this doctor and stores the doctor's reply.
     $input=json_decode(file_get_contents('php://input'),true)?:[]; $patient=filter_var($input['patient_id']??null,FILTER_VALIDATE_INT); $message=trim($input['message_text']??'');
     if (!$patient || $message==='' || mb_strlen($message)>4000) { http_response_code(422); echo json_encode(['status'=>'error','message'=>'Choose a patient and enter a message of up to 4,000 characters.']); exit; }
-    $check=$conn->prepare('SELECT 1 FROM patients p WHERE p.patient_id=? AND (EXISTS(SELECT 1 FROM messages m WHERE m.patient_id=p.patient_id AND m.doctor_id=?) OR EXISTS(SELECT 1 FROM appointments a WHERE a.patient_id=p.patient_id AND a.doctor_id=?))');
-    $check->bind_param('iii',$patient,$doctor_id,$doctor_id); $check->execute();
+    $check=$conn->prepare('SELECT 1 FROM patients WHERE patient_id=?');
+    $check->bind_param('i',$patient); $check->execute();
     if (!$check->get_result()->fetch_row()) { http_response_code(404); echo json_encode(['status'=>'error','message'=>'Patient conversation not found.']); exit; }
     $stmt=$conn->prepare("INSERT INTO messages (doctor_id,patient_id,sender_type,message_text,is_read) VALUES (?,?,'doctor',?,0)"); $stmt->bind_param('iis',$doctor_id,$patient,$message);
     if (!$stmt->execute()) { http_response_code(500); echo json_encode(['status'=>'error','message'=>'Message could not be sent.']); exit; }
