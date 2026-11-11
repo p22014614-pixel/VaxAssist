@@ -15,8 +15,6 @@ function respond(int $status, array $data): void
     exit;
 }
 
-
-
 const STAFF_ROLES = [
     'Administrator',
     'Doctor',

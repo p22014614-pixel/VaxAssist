@@ -2,14 +2,12 @@
 session_start();
 require "db.php";
 
-$email = strtolower(trim($_POST["email"] ?? ""));
-$password = $_POST["password"] ?? "";
-
-require_once __DIR__ . '/db.php';
-
 $result = $doctorDb->query('SELECT doctors FROM vaxassist_db'); // Doctor database
 $result = $patientDb->query('SELECT patients FROM vaxassist_db'); // Patient database
 $result = $adminDb->query('SELECT users FROM vaxassist_db'); // Admin database
+
+$email = strtolower(trim($_POST["email"] ?? ""));
+$password = $_POST["password"] ?? "";
 
 $stmt = $pdo->prepare(
     "SELECT id, password_hash, role FROM users WHERE email = ?"
@@ -24,6 +22,7 @@ if (!$user || !password_verify($password, $user["password_hash"])) {
 
 session_regenerate_id(true);
 $_SESSION["user_id"] = $user["id"];
+$_SESSION['role'] = $user['role'];
 
 if ($_SESSION['role'] === 'Doctor') {
     header('Location: doctor_dashboard.html');
