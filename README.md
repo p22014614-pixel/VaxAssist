@@ -25,3 +25,8 @@ Rules so the database stays the same for everyone:
 1. Start MySQL in XAMPP.
 2. In this folder run `./start-server.command` (or `php -S 127.0.0.1:8000 router.php`).
 3. Open http://127.0.0.1:8000/
+
+## Doctor notifications
+
+Doctor alerts use the existing `notifications` table and are separated from patient alerts with `recipient_type`. For an existing database, import `doctor_notifications_migration.sql` once in phpMyAdmin with `vaxassist_db` selected. A fresh database import uses the updated `vaxassist_db.sql`.
+

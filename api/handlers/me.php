@@ -75,6 +75,7 @@ function health_update(array $p, array $in): void
     if ($errors) fail(422, 'Please check the highlighted fields.', $errors);
 
     $items = [];
+    if (!empty($in['no_known_allergies'])) $in['allergies'] = [];
     foreach (['Allergy' => 'allergies', 'Condition' => 'conditions', 'Medication' => 'medications'] as $type => $key) {
         $names = [];
         foreach ((array) ($in[$key] ?? []) as $n) {
@@ -150,7 +151,21 @@ function children_create(array $p, array $in): void
 function children_delete(array $p, array $in): void
 {
     $patient = require_login();
-    $stmt = db()->prepare('DELETE FROM children WHERE child_id = ? AND patient_id = ?');
+    $pdo = db();
+
+    // Removing a child would also erase their vaccination records and turn their visits into the
+    // parent's own, so a child with any history cannot be removed.
+    $own = $pdo->prepare('SELECT first_name FROM children WHERE child_id = ? AND patient_id = ?');
+    $own->execute([(int) $p['id'], $patient['patient_id']]);
+    $name = $own->fetchColumn();
+    if ($name === false) fail(404, 'Child not found.');
+    $history = $pdo->prepare('SELECT (SELECT COUNT(*) FROM vaccination_records WHERE child_id = ?) + (SELECT COUNT(*) FROM appointments WHERE child_id = ?)');
+    $history->execute([(int) $p['id'], (int) $p['id']]);
+    if ((int) $history->fetchColumn() > 0) {
+        fail(409, $name . ' has vaccination records or appointments, so they cannot be removed. Their health history is kept for safety.');
+    }
+
+    $stmt = $pdo->prepare('DELETE FROM children WHERE child_id = ? AND patient_id = ?');
     $stmt->execute([(int) $p['id'], $patient['patient_id']]);
     if ($stmt->rowCount() === 0) fail(404, 'Child not found.');
     out(null, 204);

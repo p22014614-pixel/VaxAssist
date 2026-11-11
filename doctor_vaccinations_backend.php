@@ -39,8 +39,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $patients = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
     // Adds each patient's dose history and whether the next due date is already booked.
-    $historyQuery = $conn->prepare("SELECT vr.record_id, vr.dose_number, vr.date_given, vr.next_dose_date, vr.notes,
-            v.name AS vaccine_name, CONCAT_WS(' ', d.first_name, d.last_name) AS doctor_name,
+    $historyQuery = $conn->prepare("SELECT vr.record_id, vr.vaccine_id, vr.dose_number, vr.date_given, vr.next_dose_date, vr.notes,
+            v.name AS vaccine_name, v.total_doses, CONCAT_WS(' ', d.first_name, d.last_name) AS doctor_name,
             (SELECT a2.appointment_date FROM appointments a2
                 WHERE a2.patient_id = vr.patient_id AND a2.child_id <=> vr.child_id
                   AND a2.vaccine_id = vr.vaccine_id AND a2.status = 'Scheduled'
@@ -144,11 +144,15 @@ try {
     $body = $nextDoseDate !== ''
         ? $vaccineName . ' dose ' . $doseNumber . ' was recorded for ' . $patientName . '. Next dose due ' . $nextDoseDate . '.'
         : $vaccineName . ' dose ' . $doseNumber . ' was recorded for ' . $patientName . '.';
-    $notify = $conn->prepare('INSERT INTO notifications (patient_id, doctor_id, appointment_id, type, title, body, action_url, action_label) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
+    $notify = $conn->prepare("INSERT INTO notifications (patient_id, recipient_type, doctor_id, appointment_id, type, title, body, action_url, action_label) VALUES (?, 'patient', ?, ?, ?, ?, ?, ?, ?)");
     $url = 'appointments.html';
     $label = 'View appointment';
     $notify->bind_param('iiisssss', $patientId, $doctor_id, $appointmentId, $notificationType, $title, $body, $url, $label);
     $notify->execute();
+
+    $doctorNotice = $conn->prepare("INSERT INTO notifications (patient_id, recipient_type, doctor_id, appointment_id, type, title, body, action_url, action_label) VALUES (?, 'doctor', ?, ?, 'Announcement', 'Vaccination recorded', ?, 'doctor_dashboard.html', 'View notification')");
+    $doctorNotice->bind_param('iiis', $patientId, $doctor_id, $appointmentId, $body);
+    $doctorNotice->execute();
 
     $conn->commit();
     vaccine_json(['status' => 'success', 'message' => 'Vaccination recorded, appointment completed, and patient notification created.']);

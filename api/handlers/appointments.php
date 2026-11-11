@@ -24,7 +24,7 @@ function appointments_list(array $p, array $in): void
             'doctor_name' => 'Dr. ' . $r['dfirst'] . ' ' . $r['dlast'], 'specialty' => $r['specialization'],
             'vaccine_name' => $r['vaccine'] ?: 'Consultation',
             'appointment_date' => $r['appointment_date'],
-            'appointment_time' => $r['appointment_time'] ? hm($r['appointment_time']) : window_start($r['time_slot']),
+            'appointment_time' => visit_time($r),
             'patient_type' => $r['child_id'] ? 'child' : 'self', 'child_name' => (string) $r['child_name'],
             'notes' => (string) $r['symptoms_notes'], 'status' => $status[$r['status']] ?? 'booked',
         ];
@@ -59,7 +59,9 @@ function appointments_create(array $p, array $in): void
     }
     if (!in_array($time, slot_times(), true)) fail(422, 'Please choose a time slot.');
 
+    // Check the child's details first, but only save a new child once the slot is secured.
     $childId = null;
+    $newChild = null;
     if ($forChild) {
         $name = text_in($in['child_name'] ?? '', 50);
         $dob  = (string) ($in['child_dob'] ?? '');
@@ -71,8 +73,10 @@ function appointments_create(array $p, array $in): void
             if (!valid_date($dob) || $dob > date('Y-m-d') || $dob < date('Y-m-d', strtotime('-18 years'))) {
                 fail(422, "Please enter your child's date of birth.");
             }
-            $pdo->prepare("INSERT INTO children (patient_id, first_name, dob, gender) VALUES (?, ?, ?, 'Other')")->execute([$patientId, $name, $dob]);
-            $childId = (int) $pdo->lastInsertId();
+            $count = $pdo->prepare('SELECT COUNT(*) FROM children WHERE patient_id = ?');
+            $count->execute([$patientId]);
+            if ((int) $count->fetchColumn() >= 10) fail(422, 'You can save up to 10 children.');
+            $newChild = [$name, $dob];
         }
     }
 
@@ -86,6 +90,15 @@ function appointments_create(array $p, array $in): void
     if (!$free) {
         $pdo->rollBack();
         fail(409, 'Sorry, that time is no longer available. Please choose another slot.');
+    }
+    if (patient_busy($patientId, $date, $time)) {
+        $pdo->rollBack();
+        fail(409, 'You already have another appointment at that time. Please choose a different time.');
+    }
+
+    if ($newChild) {
+        $pdo->prepare("INSERT INTO children (patient_id, first_name, dob, gender) VALUES (?, ?, ?, 'Other')")->execute([$patientId, $newChild[0], $newChild[1]]);
+        $childId = (int) $pdo->lastInsertId();
     }
 
     $pdo->prepare(
@@ -120,6 +133,12 @@ function appointments_create(array $p, array $in): void
     add_notification($patientId, 'Appointment', 'Booking confirmed',
         'Your ' . $vaccine['name'] . ' appointment on ' . date('j M Y', strtotime($date)) . ' at ' . $time . ' has been confirmed.',
         'appointments.html', 'View appointment');
+    add_doctor_notification($pdo, $doctorId, $patientId, $appointmentId, 'Appointment', 'New vaccination appointment booked',
+        $vaccine['name'] . ' on ' . date('j M Y', strtotime($date)) . ' at ' . $time . '.');
+    if ($formId) {
+        add_doctor_notification($pdo, $doctorId, $patientId, $appointmentId, 'Announcement', 'Patient submitted a pre-check form',
+            'A pre-check form is ready for review before the ' . $vaccine['name'] . ' appointment.');
+    }
     $pdo->commit();
 
     created('/api/appointments/' . $appointmentId, ['id' => $appointmentId]);
@@ -132,7 +151,9 @@ function appointments_update(array $p, array $in): void
     $pdo = db();
     $id = (int) $p['id'];
 
-    $stmt = $pdo->prepare("SELECT doctor_id FROM appointments WHERE appointment_id = ? AND patient_id = ? AND status = 'Scheduled'");
+    $stmt = $pdo->prepare("SELECT a.doctor_id, a.appointment_date, a.appointment_time, a.time_slot, COALESCE(v.name, 'Consultation') vaccine
+                             FROM appointments a LEFT JOIN vaccines v ON v.vaccine_id = a.vaccine_id
+                            WHERE a.appointment_id = ? AND a.patient_id = ? AND a.status = 'Scheduled'");
     $stmt->execute([$id, $patient['patient_id']]);
     $appt = $stmt->fetch();
     if (!$appt) fail(404, 'That appointment cannot be changed.');
@@ -143,7 +164,10 @@ function appointments_update(array $p, array $in): void
             ->execute([text_in($in['reason'] ?? '', 300) ?: null, $id]);
         $pdo->prepare("DELETE FROM payments WHERE appointment_id = ? AND status = 'Pending'")->execute([$id]);
         $pdo->prepare("UPDATE payments SET status = 'Refunded' WHERE appointment_id = ? AND status = 'Paid'")->execute([$id]);
-        add_notification((int) $patient['patient_id'], 'Appointment', 'Appointment cancelled', 'Your appointment has been cancelled.', 'appointments.html?tab=history', 'View history');
+        add_notification((int) $patient['patient_id'], 'Appointment', 'Appointment cancelled',
+            'Your ' . $appt['vaccine'] . ' appointment on ' . date('j M Y', strtotime($appt['appointment_date'])) . ' has been cancelled.', 'appointments.html?tab=history', 'View history');
+        add_doctor_notification($pdo, (int) $appt['doctor_id'], (int) $patient['patient_id'], $id, 'Appointment', 'Patient cancelled an appointment',
+            'The patient cancelled the appointment scheduled for ' . date('j M Y', strtotime($appt['appointment_date'])) . '.');
         $pdo->commit();
         out(null, 204);
     }
@@ -152,6 +176,11 @@ function appointments_update(array $p, array $in): void
     $time = (string) ($in['time'] ?? '');
     if (!valid_date($date) || $date < date('Y-m-d') || $date > date('Y-m-d', strtotime('+60 days'))) fail(422, 'Choose a date within the next 60 days.');
     if (!in_array($time, slot_times(), true)) fail(422, 'Please choose a time slot.');
+
+    // Choosing the time the visit already has changes nothing.
+    if ($date === $appt['appointment_date'] && visit_time($appt) === $time) {
+        fail(422, 'That is already your appointment time. Please choose a different time.');
+    }
 
     $pdo->beginTransaction();
     $pdo->prepare('SELECT appointment_id FROM appointments WHERE doctor_id = ? AND appointment_date = ? FOR UPDATE')->execute([$appt['doctor_id'], $date]);
@@ -163,10 +192,17 @@ function appointments_update(array $p, array $in): void
         $pdo->rollBack();
         fail(409, 'Sorry, that time is no longer available. Please choose another slot.');
     }
+    if (patient_busy((int) $patient['patient_id'], $date, $time, $id)) {
+        $pdo->rollBack();
+        fail(409, 'You already have another appointment at that time. Please choose a different time.');
+    }
     $pdo->prepare('UPDATE appointments SET appointment_date = ?, appointment_time = ?, time_slot = ? WHERE appointment_id = ?')
         ->execute([$date, $time . ':00', time_window($time), $id]);
     add_notification((int) $patient['patient_id'], 'Appointment', 'Appointment rescheduled',
         'Your appointment was moved to ' . date('j M Y', strtotime($date)) . ' at ' . $time . '.', 'appointments.html', 'View appointment');
+    $oldTime = visit_time($appt) ?: 'time not set';
+    add_doctor_notification($pdo, (int) $appt['doctor_id'], (int) $patient['patient_id'], $id, 'Appointment', 'Patient rescheduled an appointment',
+        'Moved from ' . date('j M Y', strtotime($appt['appointment_date'])) . ' at ' . $oldTime . ' to ' . date('j M Y', strtotime($date)) . ' at ' . $time . '.');
     $pdo->commit();
     out(null, 204);
 }

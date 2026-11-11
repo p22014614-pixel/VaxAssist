@@ -14,10 +14,11 @@
     <link href="profile.css" rel="stylesheet">
     <link href="polish.css?v=1" rel="stylesheet">
     <script src="auth.js?v=5"></script>
+    <script src="patient_live.js"></script>
     <script src="motion.js?v=2" defer></script>
 </head>
 
-<body class="d-flex flex-column min-vh-100">
+<body class="d-flex flex-column min-vh-100" data-require-role="patient">
 
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg">
@@ -73,7 +74,7 @@
                             <li><a class="dropdown-item" href="receipts.html">Payments &amp; Receipts</a></li>
                             <li><a class="dropdown-item" href="reviews.html">Reviews &amp; Ratings</a></li>
                             <li><a class="dropdown-item" href="messages.html">Messages <span class="msg-badge" data-unread-messages hidden></span></a></li>
-                            <li><a class="dropdown-item" href="notifications.html">Notifications</a></li>
+                            <li><a class="dropdown-item" href="notifications.html">Notifications <span class="msg-badge" data-unread-notifications hidden></span></a></li>
                             <li><a class="dropdown-item active" href="profile.html">My Profile</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item logout-link" href="#" data-logout>Log out</a></li>

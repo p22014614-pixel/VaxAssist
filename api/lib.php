@@ -196,6 +196,15 @@ function window_start(?string $window): string
     return sprintf('%02d:%s', $h, $m[2]);
 }
 
+// The visit's real start time. The admin page edits only the 2-hour window (time_slot), which can leave
+// the exact appointment_time behind, so the exact time counts only while it still sits inside that window.
+function visit_time(array $row): string
+{
+    $exact = !empty($row['appointment_time']) ? hm($row['appointment_time']) : '';
+    if ($exact !== '' && time_window($exact) === ($row['time_slot'] ?? '')) return $exact;
+    return window_start($row['time_slot'] ?? null);
+}
+
 // Lists the clinic's bookable half-hour appointment times.
 function slot_times(): array
 {
@@ -236,7 +245,8 @@ function available_slots(int $doctorId, string $date, ?int $ignoreAppointment = 
     $windows = [];
     foreach ($stmt->fetchAll() as $row) {
         if ($ignoreAppointment !== null && (int) $row['appointment_id'] === $ignoreAppointment) continue;
-        if ($row['appointment_time']) $taken[hm($row['appointment_time'])] = true;
+        $exact = !empty($row['appointment_time']) && time_window(hm($row['appointment_time'])) === $row['time_slot'];
+        if ($exact) $taken[hm($row['appointment_time'])] = true;
         else $windows[$row['time_slot']] = true;
     }
 
@@ -250,11 +260,32 @@ function available_slots(int $doctorId, string $date, ?int $ignoreAppointment = 
     return $slots;
 }
 
+// True when the patient already has a scheduled visit (with any doctor) at this date and time.
+function patient_busy(int $patientId, string $date, string $time, ?int $ignoreAppointment = null): bool
+{
+    $stmt = db()->prepare("SELECT appointment_id, appointment_time, time_slot FROM appointments WHERE patient_id = ? AND appointment_date = ? AND status = 'Scheduled'");
+    $stmt->execute([$patientId, $date]);
+    foreach ($stmt->fetchAll() as $row) {
+        if ($ignoreAppointment !== null && (int) $row['appointment_id'] === $ignoreAppointment) continue;
+        $exact = !empty($row['appointment_time']) && time_window(hm($row['appointment_time'])) === $row['time_slot'];
+        if ($exact ? hm($row['appointment_time']) === $time : $row['time_slot'] === time_window($time)) return true;
+    }
+    return false;
+}
+
 // Saves a patient notification and, when supplied, links it to its responsible doctor visit.
 function add_notification(int $patientId, string $type, string $title, string $body, ?string $url = null, ?string $label = null, ?int $doctorId = null, ?int $appointmentId = null): void
 {
-    db()->prepare('INSERT INTO notifications (patient_id, doctor_id, appointment_id, type, title, body, action_url, action_label) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
+    db()->prepare("INSERT INTO notifications (patient_id, recipient_type, doctor_id, appointment_id, type, title, body, action_url, action_label) VALUES (?, 'patient', ?, ?, ?, ?, ?, ?, ?)")
         ->execute([$patientId, $doctorId, $appointmentId, $type, $title, $body, $url, $label]);
+}
+
+// Stores a doctor alert in the shared notification table without exposing it in the patient's feed.
+function add_doctor_notification(PDO $pdo, int $doctorId, int $patientId, ?int $appointmentId, string $type, string $title, string $body): void
+{
+    $pdo->prepare("INSERT INTO notifications (patient_id, recipient_type, doctor_id, appointment_id, type, title, body, action_url, action_label)
+        VALUES (?, 'doctor', ?, ?, ?, ?, ?, 'doctor_dashboard.html', 'View notification')")
+        ->execute([$patientId, $doctorId, $appointmentId, $type, $title, $body]);
 }
 
 // Formats a database time value as an ISO-compatible timestamp.

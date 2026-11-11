@@ -1,12 +1,13 @@
 // Loads the doctor's assigned vaccination appointments, pre-checks, and dose-record form.
 (() => {
-    const list = document.getElementById('vaccinationPatientList');
+    const scheduledList = document.getElementById('scheduledVaccinationList');
+    const completedList = document.getElementById('completedVaccinationList');
     const details = document.getElementById('vaccinationPatientDetails');
     const precheck = document.getElementById('precheckDetails');
     const form = document.getElementById('vaccinationRecordForm');
     const history = document.getElementById('vaccinationHistory');
     const historyButton = document.getElementById('toggleVaccinationHistory');
-    const historyModalElement = document.getElementById('vaccinationHistoryModal');
+    const patientModalElement = document.getElementById('vaccinationPatientModal');
     const vaccineSelect = document.getElementById('recordVaccine');
     const batchSelect = document.getElementById('recordBatch');
     const status = document.getElementById('vaccinationLoadStatus');
@@ -52,37 +53,107 @@
         return Number(value) === 1 ? 'Yes' : 'No';
     }
 
-    // Builds the list of scheduled patients assigned to this doctor.
+    // Finds the latest recorded dose for this patient, child, and vaccine.
+    function doseProgress(patient) {
+        const records = (patient.vaccination_history || [])
+            .filter((record) => patient.vaccine_id && Number(record.vaccine_id) === Number(patient.vaccine_id))
+            .sort((a, b) => String(b.date_given).localeCompare(String(a.date_given)) || Number(b.dose_number) - Number(a.dose_number));
+        const latest = records[0] || null;
+        const vaccine = vaccines.find((item) => Number(item.vaccine_id) === Number(patient.vaccine_id));
+        const total = Number(patient.total_doses || latest?.total_doses || vaccine?.total_doses || 1);
+        const completed = records.reduce((max, record) => Math.max(max, Number(record.dose_number) || 0), 0);
+        return { latest, total, completed };
+    }
+
+    // Builds separate, scrollable lists for scheduled visits and completed visits.
     function renderRoster() {
-        list.replaceChildren();
-        if (!roster.length) {
+        const scheduled = roster.filter((patient) => patient.status === 'Scheduled');
+        const completed = roster.filter((patient) => patient.status === 'Completed');
+        document.getElementById('scheduledPatientCount').textContent = String(scheduled.length);
+        document.getElementById('completedPatientCount').textContent = String(completed.length);
+        scheduledList.replaceChildren();
+        completedList.replaceChildren();
+
+        const renderEmpty = (container, message) => {
             const empty = document.createElement('p');
-            empty.className = 'text-muted';
-            empty.textContent = 'There are no scheduled appointments assigned to you.';
-            list.append(empty);
-            return;
-        }
-        roster.forEach((patient) => {
-            const button = document.createElement('button');
-            button.type = 'button';
-            button.className = `vaccination-patient-card${selected?.appointment_id === patient.appointment_id ? ' is-selected' : ''}`;
-            button.dataset.appointmentId = patient.appointment_id;
+            empty.className = 'vaccination-roster-empty';
+            empty.textContent = message;
+            container.append(empty);
+        };
+
+        scheduled.forEach((patient) => {
+            const card = document.createElement('article');
+            card.className = `vaccination-patient-card${selected?.appointment_id === patient.appointment_id ? ' is-selected' : ''}`;
+            const choose = document.createElement('button');
+            choose.type = 'button';
+            choose.className = 'vaccination-card-select';
+            choose.setAttribute('aria-label', `Review ${patient.child_name || patient.full_name}`);
             const name = document.createElement('strong');
             name.textContent = patient.child_name ? `${patient.child_name} (${patient.full_name})` : patient.full_name;
             const vaccine = document.createElement('span');
             vaccine.textContent = patient.vaccine_name || 'Vaccine not assigned';
             const date = document.createElement('small');
             date.textContent = `${formatDate(patient.appointment_date)}${patient.appointment_time ? ` · ${patient.appointment_time}` : ''}`;
-            const form = document.createElement('small');
-            form.className = patient.form_id ? 'precheck-available' : 'precheck-missing';
-            form.textContent = patient.form_id ? 'Pre-check available' : 'No pre-check form';
-            const appointmentStatus = document.createElement('small');
-            appointmentStatus.className = patient.status === 'Completed' ? 'vaccination-status-completed' : 'vaccination-status-scheduled';
-            appointmentStatus.textContent = patient.status === 'Completed' ? 'Completed' : 'Scheduled';
-            button.append(name, vaccine, date, form, appointmentStatus);
-            button.addEventListener('click', () => selectPatient(patient));
-            list.append(button);
+            const precheckStatus = document.createElement('small');
+            precheckStatus.className = patient.form_id ? 'precheck-available' : 'precheck-missing';
+            precheckStatus.textContent = patient.form_id ? 'Pre-check available' : 'No pre-check form';
+            choose.append(name, vaccine, date, precheckStatus);
+            choose.addEventListener('click', () => selectPatient(patient));
+            card.append(choose);
+            scheduledList.append(card);
         });
+
+        completed.forEach((patient) => {
+            const card = document.createElement('article');
+            card.className = `vaccination-patient-card vaccination-completed-card${selected?.appointment_id === patient.appointment_id ? ' is-selected' : ''}`;
+            const choose = document.createElement('button');
+            choose.type = 'button';
+            choose.className = 'vaccination-card-select';
+            choose.setAttribute('aria-label', `Review completed visit for ${patient.child_name || patient.full_name}`);
+            const name = document.createElement('strong');
+            name.textContent = patient.child_name ? `${patient.child_name} (${patient.full_name})` : patient.full_name;
+            const vaccine = document.createElement('span');
+            vaccine.textContent = patient.vaccine_name || 'Vaccine not assigned';
+            const date = document.createElement('small');
+            date.textContent = `Visit completed · ${formatDate(patient.appointment_date)}`;
+            choose.append(name, vaccine, date);
+            choose.addEventListener('click', () => selectPatient(patient));
+            card.append(choose);
+
+            if (patient.vaccine_id) {
+                const progress = doseProgress(patient);
+                const doseLine = document.createElement('p');
+                doseLine.className = 'vaccination-dose-progress';
+                doseLine.textContent = progress.completed
+                    ? `${progress.completed} of ${progress.total} doses recorded`
+                    : `0 of ${progress.total} doses recorded`;
+                const nextLine = document.createElement('div');
+                nextLine.className = `vaccination-completed-next${progress.latest?.next_dose_date ? ' has-next-dose' : ''}`;
+                if (progress.latest?.next_dose_date) {
+                    const due = document.createElement('span');
+                    due.textContent = `Next dose · ${formatDate(progress.latest.next_dose_date)}`;
+                    const notify = document.createElement('a');
+                    notify.className = 'btn secondary-btn btn-sm vaccination-notify-link';
+                    notify.href = `doctor_communications.html?patient_id=${encodeURIComponent(patient.patient_id)}`;
+                    notify.innerHTML = '<i class="bi bi-chat-dots" aria-hidden="true"></i> Notify patient';
+                    nextLine.append(due, notify);
+                } else if (progress.latest) {
+                    const complete = document.createElement('span');
+                    complete.className = 'vaccination-fully-completed';
+                    complete.innerHTML = '<i class="bi bi-check-circle-fill" aria-hidden="true"></i> Fully completed';
+                    nextLine.append(complete);
+                } else {
+                    const missing = document.createElement('span');
+                    missing.textContent = 'No vaccination dose record found';
+                    nextLine.append(missing);
+                }
+                card.append(doseLine, nextLine);
+            }
+            completedList.append(card);
+        });
+
+        if (!scheduled.length) renderEmpty(scheduledList, 'No scheduled patients are assigned to you.');
+        if (!completed.length) renderEmpty(completedList, 'Completed appointments will appear here.');
     }
 
     // Displays the pre-check form linked to the selected appointment.
@@ -149,7 +220,7 @@
             const due = document.createElement('p');
             due.className = 'vaccination-next-dose';
             due.textContent = record.next_dose_date
-                ? `Next dose due ${formatDate(record.next_dose_date)} · ${record.next_appointment_date ? `appointment ${formatDate(record.next_appointment_date)}${record.next_appointment_time ? ` at ${record.next_appointment_time}` : ''}` : 'no appointment booked yet'}`
+                ? `Dose ${record.dose_number} of ${record.total_doses} recorded · Next dose due ${formatDate(record.next_dose_date)} · ${record.next_appointment_date ? `appointment ${formatDate(record.next_appointment_date)}${record.next_appointment_time ? ` at ${record.next_appointment_time}` : ''}` : 'no appointment booked yet'}`
                 : 'No next-dose date recorded.';
             if (!record.next_dose_date) due.classList.add('is-unscheduled');
             item.append(due);
@@ -204,7 +275,7 @@
     }
 
     // Loads the selected patient's details and prepares the vaccination record form.
-    function selectPatient(patient) {
+    function selectPatient(patient, openModal = true) {
         selected = patient;
         renderRoster();
         details.replaceChildren();
@@ -217,30 +288,34 @@
         details.append(heading, identity, appointment);
         renderPrecheck(patient);
         historyButton.disabled = false;
+        historyButton.setAttribute('aria-expanded', 'false');
+        historyButton.textContent = 'View vaccination history';
+        history.hidden = true;
+        history.replaceChildren();
         document.getElementById('vaccinationDetailHint').textContent = patient.status === 'Completed'
             ? 'This appointment is completed. Review the patient details and recorded vaccination history.'
             : 'Review the screening responses and record the dose after administration.';
         form.hidden = patient.status === 'Completed';
-        if (patient.status === 'Completed') {
-            historyButton.textContent = 'View vaccination history';
-            return;
+        if (patient.status !== 'Completed') {
+            document.getElementById('recordAppointmentId').value = patient.appointment_id;
+            document.getElementById('recordDose').value = Math.max(1, Number(patient.previous_doses || 0) + 1);
+            const now = new Date();
+            const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+            const dateInput = document.getElementById('recordDate');
+            dateInput.value = today;
+            dateInput.max = today;
+            const nextInput = document.getElementById('recordNextDose');
+            nextInput.min = today;
+            populateVaccines(patient);
         }
-        document.getElementById('recordAppointmentId').value = patient.appointment_id;
-        document.getElementById('recordDose').value = Math.max(1, Number(patient.previous_doses || 0) + 1);
-        const now = new Date();
-        const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-        const dateInput = document.getElementById('recordDate');
-        dateInput.value = today;
-        dateInput.max = today;
-        const nextInput = document.getElementById('recordNextDose');
-        nextInput.min = today;
-        populateVaccines(patient);
+        if (openModal) window.bootstrap?.Modal.getOrCreateInstance(patientModalElement).show();
     }
 
     // Fetches the doctor's appointment roster, vaccine catalogue, and available batches.
     async function loadRoster() {
         setStatus('');
-        list.innerHTML = '<p class="text-muted">Loading scheduled patients…</p>';
+        scheduledList.innerHTML = '<p class="text-muted">Loading scheduled patients…</p>';
+        completedList.innerHTML = '<p class="text-muted">Loading completed patients…</p>';
         try {
             const data = await VaxApi.get('doctor_vaccinations_backend.php');
             if (data.status !== 'success') throw new Error(data.message || 'Could not load vaccination patients.');
@@ -249,16 +324,11 @@
             batches = data.batches || [];
             selected = selected ? roster.find((item) => Number(item.appointment_id) === Number(selected.appointment_id)) || null : null;
             renderRoster();
-            if (selected) selectPatient(selected);
-            else {
-                details.innerHTML = '<p class="text-muted">Select a scheduled patient to review their details.</p>';
-                precheck.innerHTML = '<p class="text-muted">Pre-check form details will appear here.</p>';
-                form.hidden = true;
-                historyButton.disabled = true;
-            }
+            if (selected) selectPatient(selected, false);
         } catch (error) {
             setStatus(error.message || 'Could not load vaccination patients.', true);
-            list.innerHTML = '<p class="text-muted">Patient list is unavailable.</p>';
+            scheduledList.innerHTML = '<p class="text-muted">Patient list is unavailable.</p>';
+            completedList.replaceChildren();
         }
     }
 
@@ -266,7 +336,9 @@
     historyButton.addEventListener('click', () => {
         if (!selected) return;
         renderHistory(selected);
-        window.bootstrap?.Modal.getOrCreateInstance(historyModalElement).show();
+        history.hidden = !history.hidden;
+        historyButton.setAttribute('aria-expanded', String(!history.hidden));
+        historyButton.textContent = history.hidden ? 'View vaccination history' : 'Hide vaccination history';
     });
     form.addEventListener('submit', async (event) => {
         event.preventDefault();
@@ -288,8 +360,7 @@
             selected = null;
             form.reset();
             form.hidden = true;
-            details.innerHTML = '<p class="text-muted">Select another scheduled patient to continue.</p>';
-            precheck.innerHTML = '<p class="text-muted">Pre-check form details will appear here.</p>';
+            window.bootstrap?.Modal.getOrCreateInstance(patientModalElement).hide();
             await loadRoster();
             setStatus(successMessage);
         } catch (error) {
