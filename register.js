@@ -44,6 +44,7 @@ form.addEventListener("submit", async function (e) {
             email: form.elements.email.value.trim(),
             phone: form.elements.phone.value.trim(),
             dob: form.elements.dob.value,
+            gender: form.elements.gender.value,
             password: password.value
         });
     } catch (err) {

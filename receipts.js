@@ -120,7 +120,7 @@ document.getElementById('printReceipt').addEventListener('click', function () { 
 
 // A visit changed while this page is open: reload the payments so the list stays correct.
 window.addEventListener('vax:refresh', async function (e) {
-    if (!e.detail || !e.detail.data) return;
+    if (!e.detail || !(e.detail.data || e.detail.notifications)) return;
     try {
         payments = await getPayments();
         renderStats();

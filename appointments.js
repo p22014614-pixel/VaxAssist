@@ -155,6 +155,7 @@ function card(a, upcoming) {
                 'For: ' + esc(patientText(a)) + ' &middot; Ref ' + esc(reference(a)) +
                 (a.notes ? '<br>Notes: ' + esc(a.notes) : '') +
             '</div>' +
+            (a.doctor_on_leave ? '<div class="text-danger small fw-semibold mt-1">&#9888; ' + esc(a.doctor_name) + ' is on leave on this day. Please reschedule.</div>' : '') +
         '</div>' +
         actions +
     '</div>';
@@ -306,7 +307,7 @@ confirmCancelBtn.addEventListener('click', async function () {
 
 // A doctor or admin changed a visit while this page is open: show the new details.
 window.addEventListener('vax:refresh', async function (e) {
-    if (!e.detail || !e.detail.data) return;
+    if (!e.detail || !(e.detail.data || e.detail.notifications)) return;
     try {
         appointments = await getAppointments();
         render();

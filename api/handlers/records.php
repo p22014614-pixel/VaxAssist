@@ -38,6 +38,7 @@ function records_list(array $p, array $in): void
 function payments_list(array $p, array $in): void
 {
     $patient = require_login();
+    sync_clinic_changes((int) $patient['patient_id']);
     $pdo = db();
 
     $stmt = $pdo->prepare(
@@ -75,6 +76,7 @@ function payments_list(array $p, array $in): void
 function payments_update(array $p, array $in): void
 {
     $patient = require_login();
+    sync_clinic_changes((int) $patient['patient_id']);
     if (($in['status'] ?? '') !== 'paid') fail(422, 'The only change allowed is paying a pending payment.');
 
     $method = (string) ($in['method'] ?? '');

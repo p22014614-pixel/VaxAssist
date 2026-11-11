@@ -4,10 +4,13 @@
 function appointments_list(array $p, array $in): void
 {
     $patient = require_login();
+    sync_clinic_changes((int) $patient['patient_id']);
     $stmt = db()->prepare(
         "SELECT a.appointment_id, a.doctor_id, d.first_name dfirst, d.last_name dlast, d.specialization,
                 v.name vaccine, a.appointment_date, a.appointment_time, a.time_slot, a.child_id, c.first_name child_name,
-                a.symptoms_notes, a.status
+                a.symptoms_notes, a.status,
+                EXISTS (SELECT 1 FROM leave_requests l WHERE l.doctor_id = a.doctor_id AND l.status = 'Approved'
+                          AND a.appointment_date BETWEEN l.start_date AND l.end_date) AS on_leave
            FROM appointments a
            JOIN doctors d ON d.doctor_id = a.doctor_id
            LEFT JOIN vaccines v ON v.vaccine_id = a.vaccine_id
@@ -16,7 +19,7 @@ function appointments_list(array $p, array $in): void
           ORDER BY a.appointment_date DESC, a.appointment_time DESC"
     );
     $stmt->execute([$patient['patient_id']]);
-    $status = ['Scheduled' => 'booked', 'Completed' => 'completed', 'Cancelled' => 'cancelled', 'Missed' => 'missed'];
+    $status = ['Scheduled' => 'booked', 'Confirmed' => 'booked', 'Completed' => 'completed', 'Cancelled' => 'cancelled', 'Missed' => 'missed'];
 
     out(['appointments' => array_map(function ($r) use ($status) {
         return [
@@ -27,6 +30,7 @@ function appointments_list(array $p, array $in): void
             'appointment_time' => visit_time($r),
             'patient_type' => $r['child_id'] ? 'child' : 'self', 'child_name' => (string) $r['child_name'],
             'notes' => (string) $r['symptoms_notes'], 'status' => $status[$r['status']] ?? 'booked',
+            'doctor_on_leave' => in_array($r['status'], ['Scheduled', 'Confirmed'], true) && (bool) $r['on_leave'],
         ];
     }, $stmt->fetchAll())]);
 }
@@ -153,7 +157,7 @@ function appointments_update(array $p, array $in): void
 
     $stmt = $pdo->prepare("SELECT a.doctor_id, a.appointment_date, a.appointment_time, a.time_slot, COALESCE(v.name, 'Consultation') vaccine
                              FROM appointments a LEFT JOIN vaccines v ON v.vaccine_id = a.vaccine_id
-                            WHERE a.appointment_id = ? AND a.patient_id = ? AND a.status = 'Scheduled'");
+                            WHERE a.appointment_id = ? AND a.patient_id = ? AND a.status IN ('Scheduled', 'Confirmed')");
     $stmt->execute([$id, $patient['patient_id']]);
     $appt = $stmt->fetch();
     if (!$appt) fail(404, 'That appointment cannot be changed.');

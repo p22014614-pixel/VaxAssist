@@ -67,6 +67,8 @@
         let communicationPatients = [];
         let selectedPatientId = "";
         let sendingMessage = false;
+        let lastSignature = "";
+        const POLL_MS = 4000;
 
         document.addEventListener("DOMContentLoaded", () => {
             const requestedPatient = new URLSearchParams(window.location.search).get("patient_id");
@@ -76,7 +78,7 @@
                 if (!patientButton) return;
                 selectedPatientId = patientButton.dataset.patientId;
                 renderPatientList();
-                loadMessages(selectedPatientId);
+                loadMessages(selectedPatientId, { forceBottom: true });
             });
             document.getElementById("sendChatMessage").addEventListener("click", sendMessage);
             document.getElementById("chatInputText").addEventListener("keydown", event => {
@@ -85,13 +87,27 @@
                     sendMessage();
                 }
             });
-            loadMessages(requestedPatient || "");
+            loadMessages(requestedPatient || "", { forceBottom: true });
+
+            // Keep the open conversation and the unread counts current while the page stays open.
+            window.setInterval(() => { if (!document.hidden && !sendingMessage) loadMessages(selectedPatientId, { quiet: true }); }, POLL_MS);
+            document.addEventListener("visibilitychange", () => { if (!document.hidden) loadMessages(selectedPatientId, { quiet: true }); });
         });
+
+        // People with unread messages come first, then the most recent chats, then everyone else by name.
+        function sortedPatients() {
+            return communicationPatients.slice().sort((a, b) => {
+                if ((b.unread > 0) !== (a.unread > 0)) return b.unread > 0 ? 1 : -1;
+                const at = a.last_message_at || "", bt = b.last_message_at || "";
+                if (at !== bt) return at < bt ? 1 : -1;
+                return a.full_name.localeCompare(b.full_name);
+            });
+        }
 
         function renderPatientList() {
             const list = document.getElementById("conversationPatientList");
             const query = document.getElementById("conversationSearch").value.trim().toLocaleLowerCase();
-            const matches = communicationPatients.filter(person =>
+            const matches = sortedPatients().filter(person =>
                 person.full_name.toLocaleLowerCase().includes(query) || String(person.patient_id).includes(query)
             );
             list.replaceChildren();
@@ -109,20 +125,49 @@
                 button.dataset.patientId = String(person.patient_id);
                 button.setAttribute("role", "option");
                 button.setAttribute("aria-selected", String(String(person.patient_id) === selectedPatientId));
-                button.textContent = person.full_name;
+                const name = document.createElement("span");
+                name.textContent = person.full_name;
+                button.append(name);
+                if (person.unread > 0) {
+                    const pill = document.createElement("span");
+                    pill.className = "unread-pill";
+                    pill.textContent = String(person.unread);
+                    pill.setAttribute("aria-label", person.unread + " unread messages");
+                    button.append(pill);
+                }
                 list.append(button);
             });
         }
 
-        async function loadMessages(patientId = selectedPatientId) {
+        function messageTime(value) {
+            const d = new Date(String(value).replace(" ", "T"));
+            if (Number.isNaN(d.getTime())) return "";
+            const today = new Date();
+            const clock = d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+            return d.toDateString() === today.toDateString() ? clock : d.toLocaleDateString("en-GB", { day: "numeric", month: "short" }) + ", " + clock;
+        }
+
+        async function loadMessages(patientId = selectedPatientId, options = {}) {
             const container = document.getElementById("chatMessagesContainer");
             try {
                 const url = "doctor_communications_backend.php" + (patientId ? "?patient_id=" + encodeURIComponent(patientId) : "");
                 const data = await VaxApi.get(url);
                 if (data.status !== "success") throw new Error(data.message || "Could not load patients.");
+                // The doctor may have clicked another patient while this request was running.
+                if (options.quiet && patientId !== selectedPatientId) return;
+
                 communicationPatients = data.patients || [];
                 selectedPatientId = data.patient ? String(data.patient) : "";
+                const total = Number(data.unread_total || 0);
+                document.title = (total ? "(" + total + ") " : "") + "Communications - VaxAssist";
                 renderPatientList();
+
+                // Only redraw the conversation when something in it changed, so typing and scrolling are not disturbed.
+                const signature = selectedPatientId + "|" + (data.data || []).map(msg => msg.id).join(",");
+                if (options.quiet && signature === lastSignature) return;
+                const nearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 80;
+                lastSignature = signature;
+
                 const person = communicationPatients.find(item => String(item.patient_id) === selectedPatientId);
                 document.getElementById("chatHeading").textContent = person ? "Chatting with: " + person.full_name : "Choose a patient";
                 container.replaceChildren();
@@ -137,11 +182,16 @@
                 data.data.forEach(msg => {
                     const bubble = document.createElement("div");
                     bubble.className = `msg-bubble ${msg.type}`;
-                    bubble.textContent = msg.text;
+                    bubble.append(document.createTextNode(msg.text));
+                    const time = document.createElement("small");
+                    time.className = "msg-time";
+                    time.textContent = messageTime(msg.created_at);
+                    bubble.append(time);
                     container.appendChild(bubble);
                 });
-                container.scrollTop = container.scrollHeight;
+                if (options.forceBottom || nearBottom) container.scrollTop = container.scrollHeight;
             } catch (error) {
+                if (options.quiet) return;
                 console.error("Error loading messages:", error);
                 container.textContent = error.message || "Could not load patients or messages.";
             }
@@ -162,7 +212,7 @@
                 const data = await VaxApi.post("doctor_communications_backend.php", { message_text: text, patient_id: selectedPatientId });
                 if (data.status !== "success") throw new Error(data.message || "Could not send the message.");
                 input.value = "";
-                await loadMessages(selectedPatientId);
+                await loadMessages(selectedPatientId, { forceBottom: true });
                 input.focus();
             } catch (error) {
                 alert(error.message || "Could not send the message.");

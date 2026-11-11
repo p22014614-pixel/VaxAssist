@@ -5,6 +5,7 @@
 // the unread notification count, the newest unread one, and a fingerprint of the patient's visits and records.
 function live_state(int $patientId): array
 {
+    sync_clinic_changes($patientId);
     $pdo = db();
     $count = $pdo->prepare("SELECT COUNT(*) FROM notifications WHERE patient_id = ? AND recipient_type = 'patient' AND is_read = 0");
     $count->execute([$patientId]);
@@ -153,9 +154,11 @@ function patient_create(array $p, array $in): void
     $email    = strtolower(trim((string) ($in['email'] ?? '')));
     $phone    = trim((string) ($in['phone'] ?? ''));
     $dob      = (string) ($in['dob'] ?? '');
+    $gender   = strtolower((string) ($in['gender'] ?? ''));
     $password = (string) ($in['password'] ?? '');
 
     $errors = [];
+    if (!in_array($gender, ['female', 'male', 'other'], true)) $errors['gender'] = 'Please choose a gender.';
     if ($first === '' || mb_strlen($first) > 50)  $errors['first_name'] = 'Enter your first name.';
     if ($last === ''  || mb_strlen($last) > 50)   $errors['last_name']  = 'Enter your last name.';
     if (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 100) $errors['email'] = 'Enter a valid email address.';
@@ -172,8 +175,8 @@ function patient_create(array $p, array $in): void
     }
 
     $pdo->beginTransaction();
-    $pdo->prepare('INSERT INTO patients (full_name, email, password_hash, phone, dob, blood_type, allergies) VALUES (?, ?, ?, ?, ?, NULL, NULL)')
-        ->execute([$first . ' ' . $last, $email, password_hash($password, PASSWORD_DEFAULT), $phone, $dob]);
+    $pdo->prepare('INSERT INTO patients (full_name, email, password_hash, phone, dob, gender, blood_type, allergies) VALUES (?, ?, ?, ?, ?, ?, NULL, NULL)')
+        ->execute([$first . ' ' . $last, $email, password_hash($password, PASSWORD_DEFAULT), $phone, $dob, gender_to_db($gender)]);
     $id = (int) $pdo->lastInsertId();
     $pdo->prepare('INSERT INTO notification_preferences (patient_id) VALUES (?)')->execute([$id]);
     $pdo->commit();

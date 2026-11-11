@@ -239,7 +239,7 @@ function available_slots(int $doctorId, string $date, ?int $ignoreAppointment = 
 
     $stmt = db()->prepare(
         "SELECT appointment_id, appointment_time, time_slot FROM appointments
-         WHERE doctor_id = ? AND appointment_date = ? AND status = 'Scheduled'"
+         WHERE doctor_id = ? AND appointment_date = ? AND status IN ('Scheduled', 'Confirmed')"
     );
     $stmt->execute([$doctorId, $date]);
     $taken = [];
@@ -264,7 +264,7 @@ function available_slots(int $doctorId, string $date, ?int $ignoreAppointment = 
 // True when the patient already has a scheduled visit (with any doctor) at this date and time.
 function patient_busy(int $patientId, string $date, string $time, ?int $ignoreAppointment = null): bool
 {
-    $stmt = db()->prepare("SELECT appointment_id, appointment_time, time_slot FROM appointments WHERE patient_id = ? AND appointment_date = ? AND status = 'Scheduled'");
+    $stmt = db()->prepare("SELECT appointment_id, appointment_time, time_slot FROM appointments WHERE patient_id = ? AND appointment_date = ? AND status IN ('Scheduled', 'Confirmed')");
     $stmt->execute([$patientId, $date]);
     foreach ($stmt->fetchAll() as $row) {
         if ($ignoreAppointment !== null && (int) $row['appointment_id'] === $ignoreAppointment) continue;
@@ -279,6 +279,56 @@ function add_notification(int $patientId, string $type, string $title, string $b
 {
     db()->prepare("INSERT INTO notifications (patient_id, recipient_type, doctor_id, appointment_id, type, title, body, action_url, action_label) VALUES (?, 'patient', ?, ?, ?, ?, ?, ?, ?)")
         ->execute([$patientId, $doctorId, $appointmentId, $type, $title, $body, $url, $label]);
+}
+
+// Keeps the patient's payments and notices in step with what the clinic did to their visits without the
+// patient being involved: an admin cancelling a visit, or a doctor going on approved leave on a booked day.
+// It is safe to run often, because each change is made once and then no longer matches.
+function sync_clinic_changes(int $patientId): void
+{
+    $pdo = db();
+
+    // A visit the clinic cancelled must not stay payable. (When the patient cancels, the payment is already cleared.)
+    $cancelled = $pdo->prepare(
+        "SELECT p.payment_id, p.status AS pay_status, a.appointment_date, COALESCE(v.name, 'Consultation') AS vaccine
+           FROM payments p
+           JOIN appointments a ON a.appointment_id = p.appointment_id
+           LEFT JOIN vaccines v ON v.vaccine_id = a.vaccine_id
+          WHERE p.patient_id = ? AND a.status = 'Cancelled' AND p.status IN ('Pending', 'Paid')"
+    );
+    $cancelled->execute([$patientId]);
+    foreach ($cancelled->fetchAll() as $row) {
+        if ($row['pay_status'] === 'Paid') {
+            $pdo->prepare("UPDATE payments SET status = 'Refunded' WHERE payment_id = ? AND status = 'Paid'")->execute([$row['payment_id']]);
+        } else {
+            $pdo->prepare("DELETE FROM payments WHERE payment_id = ? AND status = 'Pending'")->execute([$row['payment_id']]);
+        }
+        add_notification($patientId, 'Appointment', 'Appointment cancelled by the clinic',
+            'Your ' . $row['vaccine'] . ' appointment on ' . date('j M Y', strtotime($row['appointment_date'])) . ' was cancelled by the clinic.'
+            . ($row['pay_status'] === 'Paid' ? ' Your payment has been marked as refunded.' : ''),
+            'appointments.html?tab=history', 'View history');
+    }
+
+    // A booked visit that falls on a day the doctor is on approved leave needs a new time.
+    $clash = $pdo->prepare(
+        "SELECT a.appointment_date, d.first_name, d.last_name, COALESCE(v.name, 'Consultation') AS vaccine
+           FROM appointments a
+           JOIN doctors d ON d.doctor_id = a.doctor_id
+           LEFT JOIN vaccines v ON v.vaccine_id = a.vaccine_id
+          WHERE a.patient_id = ? AND a.status IN ('Scheduled', 'Confirmed') AND a.appointment_date >= CURDATE()
+            AND EXISTS (SELECT 1 FROM leave_requests l WHERE l.doctor_id = a.doctor_id AND l.status = 'Approved'
+                          AND a.appointment_date BETWEEN l.start_date AND l.end_date)"
+    );
+    $clash->execute([$patientId]);
+    $seen = $pdo->prepare("SELECT 1 FROM notifications WHERE patient_id = ? AND title = 'Doctor unavailable' AND body = ? LIMIT 1");
+    foreach ($clash->fetchAll() as $row) {
+        $body = 'Dr. ' . $row['first_name'] . ' ' . $row['last_name'] . ' is on leave on ' . date('j M Y', strtotime($row['appointment_date']))
+              . ', the day of your ' . $row['vaccine'] . ' appointment. Please reschedule.';
+        $seen->execute([$patientId, $body]);
+        if (!$seen->fetch()) {
+            add_notification($patientId, 'Appointment', 'Doctor unavailable', $body, 'appointments.html', 'Reschedule');
+        }
+    }
 }
 
 // Stores a doctor alert in the shared notification table without exposing it in the patient's feed.

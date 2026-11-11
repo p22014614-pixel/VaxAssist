@@ -568,3 +568,8 @@ footer {
     .appointment-booking-row { align-items: flex-start; }
     .appointment-actions { width: 100%; margin-left: 0; }
 }
+
+/* Communications: unread counts and message times */
+.conversation-patient { display: flex; align-items: center; justify-content: space-between; gap: 8px; text-align: left; }
+.unread-pill { min-width: 22px; padding: 1px 7px; border-radius: 999px; background: #d9534f; color: #fff; font-size: .75rem; font-weight: 700; text-align: center; }
+.msg-time { display: block; margin-top: 3px; font-size: .7rem; opacity: .7; }

@@ -118,7 +118,7 @@ function precheck_create(array $p, array $in): void
     // If this person already has an upcoming visit, attach the form to it so the doctor sees it.
     $visit = $pdo->prepare(
         "SELECT appointment_id, doctor_id, appointment_date, appointment_time FROM appointments
-          WHERE patient_id = ? AND child_id <=> ? AND status = 'Scheduled' AND appointment_date >= CURDATE()
+          WHERE patient_id = ? AND child_id <=> ? AND status IN ('Scheduled', 'Confirmed') AND appointment_date >= CURDATE()
             AND (? IS NULL OR vaccine_id = ?)
           ORDER BY appointment_date, appointment_time LIMIT 1"
     );

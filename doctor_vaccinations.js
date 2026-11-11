@@ -1,4 +1,10 @@
 // Loads the doctor's assigned vaccination appointments, pre-checks, and dose-record form.
+// Shows a stored time such as 10:30:00 as 10:30.
+function shortTime(value) {
+    const match = String(value || '').match(/^(\d{1,2}):(\d{2})/);
+    return match ? match[1].padStart(2, '0') + ':' + match[2] : String(value || '');
+}
+
 (() => {
     const scheduledList = document.getElementById('scheduledVaccinationList');
     const completedList = document.getElementById('completedVaccinationList');
@@ -93,7 +99,7 @@
             const vaccine = document.createElement('span');
             vaccine.textContent = patient.vaccine_name || 'Vaccine not assigned';
             const date = document.createElement('small');
-            date.textContent = `${formatDate(patient.appointment_date)}${patient.appointment_time ? ` · ${patient.appointment_time}` : ''}`;
+            date.textContent = `${formatDate(patient.appointment_date)}${patient.appointment_time ? ` · ${shortTime(patient.appointment_time)}` : ''}`;
             const precheckStatus = document.createElement('small');
             precheckStatus.className = patient.form_id ? 'precheck-available' : 'precheck-missing';
             precheckStatus.textContent = patient.form_id ? 'Pre-check available' : 'No pre-check form';
@@ -284,7 +290,7 @@
         const identity = document.createElement('p');
         identity.textContent = `Date of birth: ${formatDate(patient.child_dob || patient.dob)} · Phone: ${patient.phone || 'Not provided'}`;
         const appointment = document.createElement('p');
-        appointment.textContent = `Appointment: ${formatDate(patient.appointment_date)}${patient.appointment_time ? ` at ${patient.appointment_time}` : ''} · ${patient.vaccine_name || 'Vaccine not assigned'}`;
+        appointment.textContent = `Appointment: ${formatDate(patient.appointment_date)}${patient.appointment_time ? ` at ${shortTime(patient.appointment_time)}` : ''} · ${patient.vaccine_name || 'Vaccine not assigned'}`;
         details.append(heading, identity, appointment);
         renderPrecheck(patient);
         historyButton.disabled = false;
