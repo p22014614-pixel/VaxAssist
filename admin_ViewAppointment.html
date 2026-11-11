@@ -10,7 +10,7 @@
     <script src="motion.js" defer></script>
     <link rel="stylesheet" href="admin_ViewAppointment.css?v=4">
     <link rel="stylesheet" href="admin-footer.css?v=1">
-    <link rel="stylesheet" href="admin-nav.css?v=4">
+    <link rel="stylesheet" href="admin-nav.css?v=6">
     <script src="admin-nav.js?v=1" defer></script>
 </head>
 <body class="admin-dashboard">
@@ -19,7 +19,7 @@
     <div class="admin-main-content">
         <header class="schedule-banner">
             <div>
-                <p class="eyebrow">VAXASSIST · CLINIC ADMINISTRATION</p>
+                <p class="eyebrow">VAXASSIST / CLINIC ADMINISTRATION</p>
                 <h1>Appointment schedule</h1>
                 <p>Coordinate patient bookings, doctors, dates, and times.</p>
             </div>
@@ -481,7 +481,7 @@
             const message = document.getElementById('addMessage');
             const saveButton = addForm.querySelector('[type="submit"]');
             saveButton.disabled = true;
-            message.textContent = 'Saving appointmentâ€¦';
+            message.textContent = 'Saving appointment…';
 
             const payload = Object.fromEntries(new FormData(addForm).entries());
             payload.patient_id = Number(payload.patient_id);
@@ -503,7 +503,7 @@
             const message = document.getElementById('editMessage');
             const saveButton = editForm.querySelector('[type="submit"]');
             saveButton.disabled = true;
-            message.textContent = 'Saving changesâ€¦';
+            message.textContent = 'Saving changes…';
             const formData = new FormData(editForm);
             const payload = Object.fromEntries(formData.entries());
             payload.appointment_id = Number(payload.appointment_id);
