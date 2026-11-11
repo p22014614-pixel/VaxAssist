@@ -43,7 +43,8 @@ session_set_cookie_params([
     'path'     => '/',
     'httponly' => true,
     'samesite' => 'Lax',
-    'secure'   => !empty($_SERVER['HTTPS']),
+    'secure'   => !empty($_SERVER['HTTPS'])
+        && strtolower((string) $_SERVER['HTTPS']) !== 'off',
 ]);
 session_name('vaxassist_patient');
 session_start();
