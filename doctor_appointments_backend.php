@@ -24,7 +24,7 @@ if ($action === 'get_day') {
     while ($row = $res->fetch_assoc()) {
         $time = $row['appointment_time'] ? substr((string) $row['appointment_time'], 0, 5) : '';
         if ($time !== '') {
-            $key = substr($time, 0, 2) . ':00';
+            $key = $time;
         } else {
             $slotStart = DateTime::createFromFormat('h:i A', substr((string) $row['time_slot'], 0, 8));
             $key = $slotStart ? $slotStart->format('H:00') : 'other';

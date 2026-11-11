@@ -12,10 +12,14 @@
     let activeDay = '';
     let visibleMonth = new Date();
 
-    const hourlySlots = [
-        ['08:00', '8:00 AM'], ['09:00', '9:00 AM'], ['10:00', '10:00 AM'],
-        ['11:00', '11:00 AM'], ['12:00', '12:00 PM'], ['14:00', '2:00 PM'],
-        ['15:00', '3:00 PM'], ['16:00', '4:00 PM'], ['17:00', '5:00 PM'],
+    const appointmentSlots = [
+        ['09:00', '9:00 AM'], ['09:30', '9:30 AM'],
+        ['10:00', '10:00 AM'], ['10:30', '10:30 AM'],
+        ['11:00', '11:00 AM'], ['11:30', '11:30 AM'],
+        ['13:00', '1:00 PM'], ['13:30', '1:30 PM'],
+        ['14:00', '2:00 PM'], ['14:30', '2:30 PM'],
+        ['15:00', '3:00 PM'], ['15:30', '3:30 PM'],
+        ['16:00', '4:00 PM'], ['16:30', '4:30 PM'],
     ];
 
     // Formats calendar dates without changing the date through timezone conversion.
@@ -163,11 +167,11 @@
         return row;
     }
 
-    // Renders the same hourly slots for a selected day that were shown in the former week view.
+    // Renders the clinic's configured half-hour appointment slots for a selected day.
     function renderDaySchedule(data) {
         const appointments = data.data || {};
         daySlots.replaceChildren();
-        const knownHours = new Set(hourlySlots.map(([key]) => key));
+        const knownSlots = new Set(appointmentSlots.map(([key]) => key));
         const appendSlot = (key, label, bookings) => {
             const card = document.createElement('article');
             card.className = 'time-slot-card appointment-hour-card';
@@ -186,8 +190,8 @@
             card.append(time, details);
             daySlots.append(card);
         };
-        hourlySlots.forEach(([key, label]) => appendSlot(key, label, appointments[key] || []));
-        Object.keys(appointments).filter((key) => !knownHours.has(key)).sort().forEach((key) => {
+        appointmentSlots.forEach(([key, label]) => appendSlot(key, label, appointments[key] || []));
+        Object.keys(appointments).filter((key) => !knownSlots.has(key)).sort().forEach((key) => {
             appendSlot(key, key === 'other' ? 'Other time' : clockLabel(key), appointments[key]);
         });
     }
