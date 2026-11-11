@@ -92,7 +92,7 @@ function session_create(array $p, array $in): void
         $validDoctor = password_verify($password, $doctorHash) && $doctor && $doctor['password_hash'];
         if ($validDoctor) {
             session_regenerate_id(true);
-            unset($_SESSION['login_failures'], $_SESSION['login_locked_until'], $_SESSION['patient_id']);
+            unset($_SESSION['login_failures'], $_SESSION['login_locked_until'], $_SESSION['patient_id'], $_SESSION['admin_id']);
             $_SESSION['doctor_id'] = (int) $doctor['doctor_id'];
             $_SESSION['doctor_notifications_pending'] = true;
             unset($_SESSION['doctor_login_updates']);

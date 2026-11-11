@@ -7,4 +7,12 @@ if (strpos($path, '/api/') === 0 && !is_file(__DIR__ . $path)) {
     require __DIR__ . '/api/index.php';
     return true;
 }
+// A page that does not exist gets the site's own 404 page instead of PHP's plain text.
+$file = __DIR__ . $path;
+if ($path !== '/' && !is_file($file) && !is_dir($file) && is_file(__DIR__ . '/404.html')) {
+    http_response_code(404);
+    header('Content-Type: text/html; charset=utf-8');
+    readfile(__DIR__ . '/404.html');
+    return true;
+}
 return false;
