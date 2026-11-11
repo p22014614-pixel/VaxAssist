@@ -36,8 +36,9 @@ CREATE TABLE `appointments` (
   `appointment_date` date NOT NULL,
   `appointment_time` time DEFAULT NULL,
   `time_slot` enum('08:00 AM - 10:00 AM','10:00 AM - 12:00 PM','01:00 PM - 03:00 PM','03:00 PM - 05:00 PM') NOT NULL,
-  `status` enum('Scheduled','Completed','Cancelled','Missed') DEFAULT 'Scheduled',
+  `status` enum('Scheduled','Confirmed','Completed','Cancelled','Missed') DEFAULT 'Scheduled',
   `symptoms_notes` text DEFAULT NULL,
+  `edit_reason` text DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `cancel_reason` varchar(300) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -962,6 +963,7 @@ INSERT INTO `vaccination_records` (`record_id`, `patient_id`, `child_id`, `vacci
 CREATE TABLE `vaccines` (
   `vaccine_id` int(11) NOT NULL,
   `name` varchar(100) NOT NULL,
+  `code` varchar(40) DEFAULT NULL,
   `category` enum('Travel','Childhood','Booster','Consultation') NOT NULL,
   `total_doses` tinyint(3) UNSIGNED NOT NULL DEFAULT 1,
   `price` decimal(8,2) NOT NULL DEFAULT 0.00 COMMENT 'demo price in RM',
@@ -991,6 +993,14 @@ INSERT INTO `vaccines` (`vaccine_id`, `name`, `category`, `total_doses`, `price`
 (16, 'Td Booster', 'Booster', 1, 55.00, 14),
 (17, 'Influenza', 'Booster', 1, 70.00, 14),
 (18, 'Vaccine consultation', 'Consultation', 1, 40.00, NULL);
+
+UPDATE `vaccines`
+SET `code` = CONCAT('VAX-', LPAD(`vaccine_id`, 6, '0'))
+WHERE `code` IS NULL;
+
+ALTER TABLE `vaccines`
+  MODIFY `code` varchar(40) NOT NULL,
+  ADD UNIQUE KEY `uq_vaccine_code` (`code`);
 
 -- --------------------------------------------------------
 
