@@ -1,8 +1,7 @@
 <?php
-// Sessions and accounts: log in, log out, register, reset a password.
+// Login, logout, registration and password reset.
 
-// What the pages poll to show new notifications and to notice changes made by a doctor or admin:
-// the unread notification count, the newest unread one, and a fingerprint of the patient's visits and records.
+// Returns unread counts and a change stamp.
 function live_state(int $patientId): array
 {
     sync_clinic_changes($patientId);
@@ -33,7 +32,7 @@ function live_state(int $patientId): array
     ];
 }
 
-// Returns the current signed-in user, role, and CSRF token to the browser.
+// Returns the signed-in user and CSRF token.
 function session_show(array $p, array $in): void
 {
     if (!empty($_SESSION['admin_id'])) {
@@ -63,14 +62,12 @@ function session_show(array $p, array $in): void
     out(['user' => $user, 'csrf' => csrf_token(), 'unread_messages' => $unread] + $live);
 }
 
-// POST /session = log in
-// Authenticates a patient or doctor account and starts the matching session.
+// Logs a user in (patient, doctor or admin).
 function session_create(array $p, array $in): void
 {
     $email    = strtolower(trim((string) ($in['email'] ?? '')));
     $password = (string) ($in['password'] ?? '');
 
-    // Slow down password guessing: 5 failures locks this session for 5 minutes.
     if (($_SESSION['login_locked_until'] ?? 0) > time()) {
         fail(429, 'Too many attempts. Please wait a few minutes and try again.');
     }
@@ -79,7 +76,6 @@ function session_create(array $p, array $in): void
     $stmt->execute([$email]);
     $patient = $stmt->fetch();
 
-    // Same check and same message whether the email exists or not.
     $hash  = $patient['password_hash'] ?? password_hash('not-a-real-password', PASSWORD_DEFAULT);
     $valid = password_verify($password, $hash) && $patient && $patient['password_hash'];
 
@@ -132,8 +128,7 @@ function session_create(array $p, array $in): void
     out(['user' => $user, 'csrf' => csrf_token()], 201);
 }
 
-// DELETE /session = log out
-// Ends the signed-in session and clears its cookie.
+// Logs the user out.
 function session_delete(array $p, array $in): void
 {
     $_SESSION = [];
@@ -145,8 +140,7 @@ function session_delete(array $p, array $in): void
     out(null, 204);
 }
 
-// POST /patients = register
-// Validates and creates a patient account.
+// Registers a new patient.
 function patient_create(array $p, array $in): void
 {
     $first    = trim((string) ($in['first_name'] ?? ''));
@@ -184,8 +178,7 @@ function patient_create(array $p, array $in): void
     created('/api/patients/' . $id, ['id' => $id]);
 }
 
-// POST /password-resets = ask for a reset link
-// Creates a time-limited password-reset request for an eligible account.
+// Creates a password reset link.
 function reset_request(array $p, array $in): void
 {
     $email = strtolower(trim((string) ($in['email'] ?? '')));
@@ -206,7 +199,6 @@ function reset_request(array $p, array $in): void
         $doctor->execute([$email]);
         $doctorId = $doctor->fetchColumn();
         if ($doctorId) {
-            // Doctor accounts use their own reset table (doctor_password_resets) because patient_id is a required patient foreign key.
             $token = bin2hex(random_bytes(32));
             db()->prepare('UPDATE doctor_password_resets SET used = 1 WHERE doctor_id = ? AND used = 0')->execute([$doctorId]);
             db()->prepare('INSERT INTO doctor_password_resets (doctor_id, token_hash, expires_at) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 1 HOUR))')
@@ -215,11 +207,10 @@ function reset_request(array $p, array $in): void
         }
     }
 
-    // The same answer whether or not the email exists, so nobody can check who has an account.
     out(null, 202);
 }
 
-// Builds the local reset-page URL containing the one-time reset token.
+// Builds the reset link address.
 function reset_link_url(string $token): string
 {
     $origin = rtrim((string) ($_SERVER['HTTP_ORIGIN'] ?? ''), '/');
@@ -238,8 +229,7 @@ function reset_link_url(string $token): string
     return $origin . $basePath . '/reset-password.html?token=' . rawurlencode($token);
 }
 
-// PUT /password-resets/{token} = use the link to set a new password
-// Validates a reset token and saves the account's new password hash.
+// Saves the new password from a reset link.
 function reset_complete(array $p, array $in): void
 {
     $token = (string) $p['token'];

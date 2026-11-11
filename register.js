@@ -1,3 +1,5 @@
+// Register page.
+
 VaxAuth.fetchUser().then(function (user) {
     if (user) window.location.replace(VaxAuth.getDashboardForRole(user.role));
 });
@@ -8,8 +10,9 @@ const confirmPassword = document.getElementById("confirmPassword");
 const dob = document.getElementById("dob");
 const registerError = document.getElementById("registerError");
 
-dob.max = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().split("T")[0]; // local date, not UTC
+dob.max = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().split("T")[0];
 
+// Shows or hides the password.
 document.getElementById("togglePw").addEventListener("click", function () {
     const hidden = password.type === "password";
     password.type = hidden ? "text" : "password";
@@ -17,6 +20,7 @@ document.getElementById("togglePw").addEventListener("click", function () {
     this.setAttribute("aria-label", hidden ? "Hide password" : "Show password");
 });
 
+// Checks the form and registers the patient.
 form.addEventListener("submit", async function (e) {
     e.preventDefault();
     registerError.classList.add("d-none");

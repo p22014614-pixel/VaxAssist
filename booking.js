@@ -1,19 +1,26 @@
+// Book Appointment page.
+
+// Asks the server who is signed in.
 async function getCurrentUser() {
     return VaxAuth.fetchUser();
 }
 
+// Loads the doctor list from the API.
 async function getDoctors() {
     return (await VaxApi.get('api/doctors')).doctors;
 }
 
+// Loads the vaccine list from the API.
 async function getVaccines() {
     return (await VaxApi.get('api/vaccines')).vaccines;
 }
 
+// Loads the free times for a doctor on a date.
 async function getAvailableSlots(doctorId, date) {
     return (await VaxApi.get('api/doctors/' + encodeURIComponent(doctorId) + '/slots?date=' + encodeURIComponent(date))).slots;
 }
 
+// Sends the new booking to the API.
 async function saveBooking(booking) {
     return VaxApi.post('api/appointments', booking);
 }
@@ -36,45 +43,55 @@ const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Frid
 let doctors = [];
 let vaccines = [];
 
+// Adds a leading zero to numbers under 10.
 function pad(n) { return String(n).padStart(2, '0'); }
 
+// Escapes text so it is safe to put in HTML.
 function esc(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
 }
 
+// Formats a date as YYYY-MM-DD.
 function isoDate(d) {
     return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
 }
 
+// Turns a YYYY-MM-DD text into a date.
 function parseISO(s) {
     const p = s.split('-').map(Number);
     return new Date(p[0], p[1] - 1, p[2]);
 }
 
+// Formats a 24-hour time as 12-hour text.
 function timeText(t) {
     const p = t.split(':').map(Number);
     return ((p[0] % 12) || 12) + ':' + pad(p[1]) + ' ' + (p[0] < 12 ? 'AM' : 'PM');
 }
 
+// Formats a date as a long readable date.
 function dateText(s) {
     return parseISO(s).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 }
 
+// Returns the doctor chosen in the form.
 function selectedDoctor() {
     return doctors.find(function (d) { return String(d.id) === doctorSel.value; });
 }
 
+// Returns the vaccine chosen in the form.
 function selectedVaccine() {
     return vaccines.find(function (v) { return String(v.id) === vaccineSel.value; });
 }
 
+// Returns the time chosen in the form.
 function selectedTime() {
     const checked = form.querySelector('input[name="appointment_time"]:checked');
     return checked ? checked.value : '';
 }
 
+// Finds the next day the doctor works.
 function nextWorkingDate(days) {
     const now = new Date();
     for (let i = 0; i < 14; i++) {
@@ -85,12 +102,14 @@ function nextWorkingDate(days) {
     return '';
 }
 
+// Fills one line of the booking summary.
 function setSummary(id, text) {
     const el = document.getElementById(id);
     el.textContent = text || 'Not chosen yet';
     el.classList.toggle('summary-empty', !text);
 }
 
+// Refreshes the booking summary box.
 function updateSummary() {
     const d = selectedDoctor();
     const v = selectedVaccine();
@@ -104,6 +123,7 @@ function updateSummary() {
         forChild ? (childName.value.trim() ? childName.value.trim() + ' (child)' : 'My child') : 'Myself';
 }
 
+// Loads and draws the free times for the chosen doctor and date.
 async function loadSlots() {
     slotGrid.innerHTML = '';
     slotError.classList.add('d-none');
@@ -140,6 +160,7 @@ async function loadSlots() {
     updateSummary();
 }
 
+// Reloads the times when the doctor changes.
 doctorSel.addEventListener('change', function () {
     const d = selectedDoctor();
     if (d && (!dateInput.value || d.days.indexOf(parseISO(dateInput.value).getDay()) === -1)) {
@@ -149,16 +170,19 @@ doctorSel.addEventListener('change', function () {
     loadSlots();
 });
 
+// Updates the summary when the vaccine changes.
 vaccineSel.addEventListener('change', function () {
     vaccineSel.classList.remove('is-invalid');
     updateSummary();
 });
 
+// Reloads the times for the new date.
 dateInput.addEventListener('change', function () {
     dateInput.classList.remove('is-invalid');
     loadSlots();
 });
 
+// Updates the summary when a time is chosen.
 slotGrid.addEventListener('change', function () {
     slotError.classList.add('d-none');
     updateSummary();
@@ -172,15 +196,19 @@ form.querySelectorAll('input[name="patient_type"]').forEach(function (radio) {
     });
 });
 
+// Clears the error mark while typing.
 childName.addEventListener('input', function () { childName.classList.remove('is-invalid'); updateSummary(); });
+// Clears the error mark while typing.
 childDob.addEventListener('input', function () { childDob.classList.remove('is-invalid'); });
 
+// Shows a form error message.
 function showFormError(message) {
     formError.textContent = message;
     formError.classList.remove('d-none');
     formError.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
+// Checks the form and sends the booking.
 form.addEventListener('submit', async function (e) {
     e.preventDefault();
     formError.classList.add('d-none');
@@ -189,6 +217,7 @@ form.addEventListener('submit', async function (e) {
     const time = selectedTime();
     let valid = true;
 
+    // Marks a field valid or invalid.
     function check(input, ok) {
         input.classList.toggle('is-invalid', !ok);
         if (!ok) valid = false;
@@ -245,6 +274,7 @@ form.addEventListener('submit', async function (e) {
     }
 });
 
+// Shows the booking confirmation.
 function showSuccess(booking, result) {
     const d = selectedDoctor();
     const v = selectedVaccine();

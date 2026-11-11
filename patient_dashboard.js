@@ -1,3 +1,5 @@
+// Home page: switches the planner tabs.
+
 const tabs = document.querySelectorAll(".planner-tab");
 const mode = document.getElementById("plannerMode");
 const travelField = document.getElementById("travelField");
@@ -5,14 +7,13 @@ const childField = document.getElementById("childField");
 const destination = document.getElementById("destination");
 const childDob = document.getElementById("childDob");
 
-// The home page is the patient landing page. Send authenticated doctors to their portal.
 VaxAuth.fetchUser().then(function (user) {
     if (user && user.role === "doctor") {
         window.location.replace(VaxAuth.getDashboardForRole(user.role));
     }
 });
 
-childDob.max = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().split("T")[0]; // local date, not UTC
+childDob.max = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().split("T")[0];
 
 tabs.forEach(function (tab) {
     tab.addEventListener("click", function () {

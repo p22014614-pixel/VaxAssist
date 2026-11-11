@@ -1,9 +1,9 @@
 <?php
-// Public reference data. Read only.
+// Public data: doctors, slots, vaccines, destinations and schedule.
 
+// Lists doctors with ratings and working days.
 function doctors_list(array $p, array $in): void
 {
-    // By default only doctors with working days appear. ?all=1 lists every doctor (used for messaging).
     $having = isset($_GET['all']) ? '1 = 1' : 'EXISTS (SELECT 1 FROM doctor_availability v WHERE v.doctor_id = d.doctor_id)';
     $rows = db()->query(
         "SELECT d.doctor_id, d.first_name, d.last_name, d.specialization, d.years_experience, d.languages, d.bio, d.keywords,
@@ -16,7 +16,6 @@ function doctors_list(array $p, array $in): void
 
     $days = [];
     foreach (db()->query('SELECT doctor_id, weekday FROM doctor_availability ORDER BY weekday')->fetchAll() as $r) {
-        // The database counts Monday=1 to Sunday=7; the pages use JavaScript days (Sunday=0).
         $days[$r['doctor_id']][] = (int) $r['weekday'] % 7;
     }
 
@@ -31,7 +30,7 @@ function doctors_list(array $p, array $in): void
     }, $rows)]);
 }
 
-// GET /doctors/{id}/slots?date=YYYY-MM-DD
+// Lists a doctor's free times on a date.
 function doctor_slots(array $p, array $in): void
 {
     $doctorId = (int) $p['id'];
@@ -44,12 +43,12 @@ function doctor_slots(array $p, array $in): void
     out(['slots' => available_slots($doctorId, $date, $ignore)]);
 }
 
+// Lists vaccines with prices and suggested doctors.
 function vaccines_list(array $p, array $in): void
 {
     $labels = ['Travel' => 'Travel vaccines', 'Childhood' => 'Childhood vaccines', 'Booster' => 'Boosters', 'Consultation' => 'Consultation'];
     $gp = ['Influenza', 'Td Booster', 'MMR'];
 
-    // Which doctor to suggest for each kind of vaccine.
     $doctorFor = [];
     foreach (db()->query(
         'SELECT d.specialization, MIN(d.doctor_id) id FROM doctors d
@@ -69,6 +68,7 @@ function vaccines_list(array $p, array $in): void
     }, db()->query('SELECT vaccine_id, name, category, price, lead_days FROM vaccines ORDER BY vaccine_id')->fetchAll())]);
 }
 
+// Lists destinations with their vaccines.
 function destinations_list(array $p, array $in): void
 {
     $dest = db()->query('SELECT destination_id, country_code, country, region FROM destinations ORDER BY country')->fetchAll();
@@ -84,6 +84,7 @@ function destinations_list(array $p, array $in): void
     }, $dest)]);
 }
 
+// Lists the child vaccine schedule.
 function schedule_list(array $p, array $in): void
 {
     out(['schedule' => array_map(function ($r) {

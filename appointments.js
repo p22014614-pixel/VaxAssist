@@ -1,24 +1,32 @@
+// My Appointments page: lists, reschedules and cancels visits.
+
+// Asks the server who is signed in.
 async function getCurrentUser() {
     return VaxAuth.fetchUser();
 }
 
+// Loads the doctor list from the API.
 async function getDoctors() {
     return (await VaxApi.get('api/doctors')).doctors;
 }
 
+// Loads the patient's appointments from the API.
 async function getAppointments() {
     return (await VaxApi.get('api/appointments')).appointments;
 }
 
+// Loads the free times for a doctor on a date.
 async function getAvailableSlots(doctorId, date, ignoreId) {
     return (await VaxApi.get('api/doctors/' + encodeURIComponent(doctorId) + '/slots?date=' + encodeURIComponent(date) +
         (ignoreId ? '&ignore=' + encodeURIComponent(ignoreId) : ''))).slots;
 }
 
+// Sends a new date and time for an appointment.
 async function rescheduleAppointment(id, date, time) {
     return VaxApi.patch('api/appointments/' + encodeURIComponent(id), { date: date, time: time });
 }
 
+// Cancels an appointment with a reason.
 async function cancelAppointment(id, reason) {
     return VaxApi.patch('api/appointments/' + encodeURIComponent(id), { status: 'cancelled', reason: reason });
 }
@@ -42,31 +50,37 @@ const STATUS_TEXT = { booked: 'Booked', completed: 'Completed', cancelled: 'Canc
 
 let appointments = [];
 let doctors = [];
-let current = null;           // the appointment open in a modal
+let current = null;
 
+// Adds a leading zero to numbers under 10.
 function pad(n) { return String(n).padStart(2, '0'); }
 
+// Escapes text so it is safe to put in HTML.
 function esc(text) {
     const div = document.createElement('div');
     div.textContent = text == null ? '' : text;
     return div.innerHTML;
 }
 
+// Formats a date as YYYY-MM-DD.
 function isoDate(d) {
     return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
 }
 
+// Turns a YYYY-MM-DD text into a date.
 function parseISO(s) {
     const value = String(s || '').slice(0, 10);
     const p = value.split('-').map(Number);
     return new Date(p[0], p[1] - 1, p[2]);
 }
 
+// Returns the date n days from today as YYYY-MM-DD.
 function daysFromToday(n) {
     const d = new Date();
     return isoDate(new Date(d.getFullYear(), d.getMonth(), d.getDate() + n));
 }
 
+// Formats a 24-hour time as 12-hour text.
 function timeText(t) {
     const match = String(t || '').match(/^(\d{1,2}):(\d{2})/);
     if (!match) return 'Time to be confirmed';
@@ -75,10 +89,12 @@ function timeText(t) {
     return ((hour % 12) || 12) + ':' + pad(minute) + ' ' + (hour < 12 ? 'AM' : 'PM');
 }
 
+// Formats a date as a long readable date.
 function longDate(s) {
     return parseISO(s).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 }
 
+// Combines a visit's date and time into one date.
 function startOf(a) {
     const d = parseISO(a.appointment_date);
     const match = String(a.appointment_time || '').match(/^(\d{1,2}):(\d{2})/);
@@ -87,6 +103,7 @@ function startOf(a) {
     return d;
 }
 
+// Decides if a visit is upcoming or history.
 function isUpcoming(a) {
     const status = String(a.status || '').toLowerCase();
     if (status !== 'booked' && status !== 'scheduled') return false;
@@ -104,15 +121,18 @@ function isUpcoming(a) {
     return Number.isNaN(scheduledTime.getTime()) || scheduledTime > new Date();
 }
 
+// Says who the visit is for (myself or the child).
 function patientText(a) {
     return a.patient_type === 'child' ? a.child_name + ' (child)' : 'Myself';
 }
 
+// Builds the VAX-00012 style reference number.
 function reference(a) {
     const id = a.id ?? a.appointment_id;
     return 'VAX-' + String(id ?? 'confirmed').padStart(5, '0');
 }
 
+// Shows Today, Tomorrow or In n days.
 function countdown(a) {
     const today = parseISO(daysFromToday(0));
     const diff = Math.round((parseISO(a.appointment_date) - today) / 86400000);
@@ -121,12 +141,14 @@ function countdown(a) {
     return 'In ' + diff + ' days';
 }
 
+// Shows a success or error message at the top.
 function showAlert(type, message) {
     pageAlert.className = 'alert-soft ' + type + ' mb-4';
     pageAlert.textContent = message;
     pageAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
+// Builds the HTML card for one appointment.
 function card(a, upcoming) {
     const d = parseISO(a.appointment_date);
     const actions = upcoming
@@ -161,6 +183,7 @@ function card(a, upcoming) {
     '</div>';
 }
 
+// Draws the upcoming and history lists.
 function render() {
     const upcoming = appointments.filter(isUpcoming).sort(function (a, b) { return startOf(a) - startOf(b); });
     const history = appointments.filter(function (a) { return !isUpcoming(a); }).sort(function (a, b) { return startOf(b) - startOf(a); });
@@ -178,6 +201,7 @@ function render() {
         : '<div class="empty-state"><div class="icon">&#128203;</div>Your past and cancelled appointments will appear here.</div>';
 }
 
+// Switches between Upcoming and History.
 function showTab(which) {
     const up = which === 'upcoming';
     tabUpcoming.classList.toggle('active', up);
@@ -187,9 +211,12 @@ function showTab(which) {
     upcomingList.classList.toggle('d-none', !up);
     historyList.classList.toggle('d-none', up);
 }
+// Shows the Upcoming tab.
 tabUpcoming.addEventListener('click', function () { showTab('upcoming'); });
+// Shows the History tab.
 tabHistory.addEventListener('click', function () { showTab('history'); });
 
+// Opens the reschedule or cancel window.
 upcomingList.addEventListener('click', function (e) {
     const btn = e.target.closest('button[data-action]');
     if (!btn) return;
@@ -199,17 +226,20 @@ upcomingList.addEventListener('click', function (e) {
     if (btn.dataset.action === 'cancel') openCancel();
 });
 
+// Builds the short summary of a visit for the pop-up windows.
 function summaryHtml(a) {
     return '<strong>' + esc(a.vaccine_name) + '</strong> with ' + esc(a.doctor_name) + '<br>' +
         esc(longDate(a.appointment_date)) + ', ' + esc(timeText(a.appointment_time)) + '<br>' +
         'For: ' + esc(patientText(a));
 }
 
+// Returns the time chosen in the reschedule window.
 function selectedNewTime() {
     const checked = newSlotGrid.querySelector('input[name="appointment_time"]:checked');
     return checked ? checked.value : '';
 }
 
+// Loads the free times for the new date when rescheduling.
 async function loadNewSlots() {
     newSlotGrid.innerHTML = '';
     confirmRescheduleBtn.disabled = true;
@@ -233,6 +263,7 @@ async function loadNewSlots() {
     }).join('');
 }
 
+// Opens the reschedule window for the chosen visit.
 function openReschedule() {
     const doctor = doctors.find(function (d) { return d.id === current.doctor_id; });
     document.getElementById('currentSlot').innerHTML = '<small class="text-secondary">Currently booked</small><br>' + summaryHtml(current);
@@ -248,9 +279,12 @@ function openReschedule() {
     rescheduleModal.show();
 }
 
+// Loads the free times for the new date.
 newDate.addEventListener('change', loadNewSlots);
+// Enables Confirm once a time is chosen.
 newSlotGrid.addEventListener('change', function () { confirmRescheduleBtn.disabled = !selectedNewTime(); });
 
+// Sends the new date and time.
 confirmRescheduleBtn.addEventListener('click', async function () {
     const time = selectedNewTime();
     const errorBox = document.getElementById('rescheduleError');
@@ -278,6 +312,7 @@ confirmRescheduleBtn.addEventListener('click', async function () {
     }
 });
 
+// Opens the cancel window for the chosen visit.
 function openCancel() {
     document.getElementById('cancelSummary').innerHTML = summaryHtml(current);
     document.getElementById('cancelError').classList.add('d-none');
@@ -287,6 +322,7 @@ function openCancel() {
     cancelModal.show();
 }
 
+// Cancels the visit.
 confirmCancelBtn.addEventListener('click', async function () {
     confirmCancelBtn.disabled = true;
     confirmCancelBtn.textContent = 'Cancelling...';
@@ -305,13 +341,13 @@ confirmCancelBtn.addEventListener('click', async function () {
     }
 });
 
-// A doctor or admin changed a visit while this page is open: show the new details.
+// Reloads the visits when the server reports a change.
 window.addEventListener('vax:refresh', async function (e) {
     if (!e.detail || !(e.detail.data || e.detail.notifications)) return;
     try {
         appointments = await getAppointments();
         render();
-    } catch (err) { /* the next refresh will try again */ }
+    } catch (err) {  }
 });
 
 (async function init() {

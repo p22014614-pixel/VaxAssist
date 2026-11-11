@@ -1,31 +1,30 @@
-// Shared login/session helper used by doctor pages to check roles and call protected backends.
+// Shared helper for API requests, the CSRF token and the signed-in user.
+
 (function () {
     const KEY = 'vaxUser';
     let csrf = null;
 
-    // XAMPP serves both the pages and /api on the same origin. Only the VS Code
-    // preview ports need to forward requests to the PHP development server.
     const previewPorts = ['3000', '5500'];
     const API_BASE = (location.protocol === 'http:' && previewPorts.includes(location.port))
         ? location.protocol + '//' + location.hostname + ':8000/'
         : '';
 
-    // Reads the cached user summary used to render protected pages while the server session loads.
+    // Reads the saved user from browser storage.
     function read() {
         try { return JSON.parse(localStorage.getItem(KEY)); } catch (e) { return null; }
     }
 
-    // Stores the current user summary in the browser for display purposes.
+    // Saves the user to browser storage.
     function write(user) {
         try { localStorage.setItem(KEY, JSON.stringify(user)); } catch (e) {}
     }
 
-    // Removes cached user information after logout or an expired session.
+    // Removes the saved user from browser storage.
     function clear() {
         try { localStorage.removeItem(KEY); } catch (e) {}
     }
 
-    // Updates shared page elements that display the signed-in user's name.
+    // Shows the user's first name in the menu.
     function showUser(user) {
         document.documentElement.classList.toggle('logged-in', !!user);
         document.querySelectorAll('[data-user-name]').forEach(function (el) {
@@ -33,7 +32,7 @@
         });
     }
 
-    // Updates shared unread-message badges from the session response.
+    // Updates the unread message badges.
     function showUnread(count) {
         document.querySelectorAll('[data-unread-messages]').forEach(function (el) {
             el.textContent = count;
@@ -44,25 +43,23 @@
         });
     }
 
-    // Synchronizes cached user data and shared login-state display.
+    // Saves or clears the user and updates the page.
     function applyUser(user) {
         if (user) write(user); else clear();
         showUser(user);
     }
 
-    // Dev-only: VS Code's embedded Live Preview (port 3000) refuses session cookies,
-    // so there the session id travels in a header instead.
     const HEADER_SESSION = location.port === '3000';
     let devSession = null;
     try { devSession = sessionStorage.getItem('vaxDevSession') || localStorage.getItem('vaxDevSession'); } catch (e) {}
 
-    // Adds the development preview session header when running on its supported port.
+    // Adds the session header used only by the VS Code preview.
     function devHeaders(headers) {
         if (HEADER_SESSION && devSession) headers['X-Dev-Session'] = devSession;
         return headers;
     }
 
-    // Parses server responses and turns HTTP errors into useful JavaScript errors.
+    // Reads a response and turns errors into JavaScript errors.
     async function parse(response) {
         if (response.status === 204 || response.status === 202) {
             return {};
@@ -85,7 +82,7 @@
 
     let sessionPromise = null;
 
-    // Loads the authoritative server session and reuses its CSRF token.
+    // Asks the server for the current session and CSRF token.
     function loadSession(force) {
         if (!force && sessionPromise) return sessionPromise;
         const request = Api.get('api/session').then(function (session) {
@@ -101,7 +98,7 @@
         return sessionPromise;
     }
 
-    // Sends a protected JSON write request, refreshing its CSRF token once if needed.
+    // Sends a JSON write request with the CSRF token.
     async function send(method, url, data) {
         if (!csrf) {
             try {
@@ -111,7 +108,7 @@
             }
         }
 
-        // Performs one JSON request attempt using the current session token.
+        // Makes one attempt of the request.
         function once() {
             return fetch(API_BASE + url, {
                 method: method,
@@ -124,14 +121,13 @@
         try {
             return await once();
         } catch (err) {
-            // The security token went stale (for example the session was reset): get a new one and retry once.
             if (err.status !== 403) throw err;
             await loadSession(true);
             return await once();
         }
     }
 
-    // Sends a protected multipart request, such as a doctor's profile photo upload.
+    // Sends a file upload with the CSRF token.
     async function sendForm(url, formData) {
         if (!csrf) await (sessionPromise || loadSession());
         const once = function () {
@@ -152,34 +148,33 @@
     }
 
     const Api = {
-        // Sends a read-only request to a PHP API or doctor backend endpoint.
+        // Sends a read-only request.
         get: async function (url) {
             return parse(await fetch(API_BASE + url, { credentials: 'include', headers: devHeaders({ 'Accept': 'application/json' }) }));
         },
-        // Sends a CSRF-protected request that creates or changes a record.
+        // Sends a create request.
         post: function (url, data) { return send('POST', url, data); },
-        // Sends a CSRF-protected file upload without changing the browser-generated form boundary.
+        // Sends a file upload.
         postFormData: function (url, formData) { return sendForm(url, formData); },
-        // Sends a CSRF-protected full update request.
+        // Sends a full update request.
         put: function (url, data) { return send('PUT', url, data); },
-        // Sends a CSRF-protected partial update request.
+        // Sends a partial update request.
         patch: function (url, data) { return send('PATCH', url, data); },
-        // Sends a CSRF-protected delete request.
+        // Sends a delete request.
         delete: function (url) { return send('DELETE', url); }
     };
 
     window.VaxApi = Api;
 
     window.VaxAuth = {
-        // Returns the cached user summary for navigation labels and role hints.
         getUser: read,
 
-        // Chooses the correct landing page for a signed-in role.
+        // Chooses the dashboard page for a role.
         getDashboardForRole: function (role) {
             return role === 'doctor' ? 'doctor_dashboard.html' : role === 'admin' ? 'admin_dashboard.html' : 'patient_dashboard.html';
         },
 
-        // Checks the server session and redirects away from pages that require another role.
+        // Checks the signed-in user and updates the page.
         fetchUser: async function () {
             try {
                 const session = await loadSession();
@@ -187,14 +182,13 @@
                 showUnread(session.user ? session.unread_messages || 0 : 0);
                 return session.user;
             } catch (e) {
-                // Cached browser state is only a display hint; the server session is authoritative.
                 applyUser(null);
                 showUnread(0);
                 return null;
             }
         },
 
-        // Signs in through the session API and caches the returned user and security token.
+        // Signs in and keeps the CSRF token.
         login: async function (email, password) {
             const result = await Api.post('api/session', { email: email, password: password });
             csrf = result.csrf;
@@ -203,7 +197,7 @@
             return result.user;
         },
 
-        // Ends the server session, clears cached user state, and returns to login.
+        // Signs out and returns to the login page.
         logout: async function () {
             try { await Api.delete('api/session'); } catch (e) {}
             applyUser(null);
@@ -212,7 +206,7 @@
 
         setUnread: showUnread,
 
-        // Allows only role-appropriate local HTML destinations after login.
+        // Allows only safe pages to open after login.
         safeNext: function (next, fallback, role) {
             if (!/^[a-z0-9_-]+\.html(\?[A-Za-z0-9%&=._-]*)?$/i.test(next || '')) return fallback;
             const page = next.split('?')[0].toLowerCase();

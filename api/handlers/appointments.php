@@ -1,6 +1,7 @@
 <?php
-// Appointments and the reviews attached to them.
+// Appointments: list, book, reschedule, cancel and reviews.
 
+// Lists the patient's appointments (GET /appointments).
 function appointments_list(array $p, array $in): void
 {
     $patient = require_login();
@@ -35,7 +36,7 @@ function appointments_list(array $p, array $in): void
     }, $stmt->fetchAll())]);
 }
 
-// POST /appointments = book
+// Books an appointment (POST /appointments).
 function appointments_create(array $p, array $in): void
 {
     $patient = require_login();
@@ -63,7 +64,6 @@ function appointments_create(array $p, array $in): void
     }
     if (!in_array($time, slot_times(), true)) fail(422, 'Please choose a time slot.');
 
-    // Check the child's details first, but only save a new child once the slot is secured.
     $childId = null;
     $newChild = null;
     if ($forChild) {
@@ -85,7 +85,6 @@ function appointments_create(array $p, array $in): void
     }
 
     $pdo->beginTransaction();
-    // Lock this doctor's bookings for the day so two people cannot take the same slot.
     $pdo->prepare('SELECT appointment_id FROM appointments WHERE doctor_id = ? AND appointment_date = ? FOR UPDATE')->execute([$doctorId, $date]);
     $free = false;
     foreach (available_slots($doctorId, $date) as $s) {
@@ -111,7 +110,6 @@ function appointments_create(array $p, array $in): void
     )->execute([$doctorId, $patientId, $childId, $vaccineId, $date, $time . ':00', time_window($time), $notes ?: null]);
     $appointmentId = (int) $pdo->lastInsertId();
 
-    // Attach the latest pre-consultation form filled in before booking, so the doctor sees it for this visit.
     $form = $pdo->prepare(
         'SELECT form_id FROM precheck_forms
           WHERE patient_id = ? AND child_id <=> ? AND appointment_id IS NULL AND (vaccine_id IS NULL OR vaccine_id = ?)
@@ -124,7 +122,6 @@ function appointments_create(array $p, array $in): void
         $pdo->prepare('UPDATE precheck_forms SET appointment_id = ? WHERE form_id = ?')->execute([$appointmentId, $formId]);
     }
 
-    // A pending payment for this visit (vaccine + consultation fee).
     $consult = (float) $pdo->query("SELECT price FROM vaccines WHERE name = 'Vaccine consultation'")->fetchColumn();
     $pdo->prepare("INSERT INTO payments (patient_id, appointment_id, receipt_no, status) VALUES (?, ?, ?, 'Pending')")
         ->execute([$patientId, $appointmentId, 'T' . bin2hex(random_bytes(8))]);
@@ -148,7 +145,7 @@ function appointments_create(array $p, array $in): void
     created('/api/appointments/' . $appointmentId, ['id' => $appointmentId]);
 }
 
-// PATCH /appointments/{id}: reschedule ({date, time}) or cancel ({status: "cancelled", reason})
+// Reschedules or cancels an appointment (PATCH /appointments/{id}).
 function appointments_update(array $p, array $in): void
 {
     $patient = require_login();
@@ -181,7 +178,6 @@ function appointments_update(array $p, array $in): void
     if (!valid_date($date) || $date < date('Y-m-d') || $date > date('Y-m-d', strtotime('+60 days'))) fail(422, 'Choose a date within the next 60 days.');
     if (!in_array($time, slot_times(), true)) fail(422, 'Please choose a time slot.');
 
-    // Choosing the time the visit already has changes nothing.
     if ($date === $appt['appointment_date'] && visit_time($appt) === $time) {
         fail(422, 'That is already your appointment time. Please choose a different time.');
     }
@@ -211,7 +207,7 @@ function appointments_update(array $p, array $in): void
     out(null, 204);
 }
 
-// PUT /appointments/{id}/review: write or replace the review for a completed visit
+// Saves a rating for a completed visit (PUT).
 function review_put(array $p, array $in): void
 {
     $patient = require_login();
@@ -230,7 +226,7 @@ function review_put(array $p, array $in): void
     out(null, 204);
 }
 
-// GET /reviews = my reviews, keyed by appointment id
+// Lists the patient's reviews (GET /reviews).
 function reviews_list(array $p, array $in): void
 {
     $patient = require_login();

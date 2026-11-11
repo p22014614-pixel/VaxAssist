@@ -1,11 +1,13 @@
 <?php
-// Conversations between the patient and a doctor (the team's `messages` table).
+// Chat between patient and doctor.
 
+// Builds a doctor's display name.
 function doctor_label(array $d): string
 {
     return 'Dr. ' . $d['first_name'] . ' ' . $d['last_name'];
 }
 
+// Lists the doctors the patient can chat with.
 function conversations_list(array $p, array $in): void
 {
     $patient = require_login();
@@ -30,7 +32,7 @@ function conversations_list(array $p, array $in): void
     out(['conversations' => array_values($threads)]);
 }
 
-// GET /conversations/{doctor}/messages?after=ID  (reading never changes anything)
+// Returns the messages of one conversation.
 function messages_list(array $p, array $in): void
 {
     $patient = require_login();
@@ -56,7 +58,7 @@ function messages_list(array $p, array $in): void
     ]);
 }
 
-// POST /conversations/{doctor}/messages
+// Sends a message to a doctor.
 function messages_create(array $p, array $in): void
 {
     $patient = require_login();
@@ -72,12 +74,10 @@ function messages_create(array $p, array $in): void
     $doc->execute([$doctorId]);
     if (!$doc->fetch()) fail(404, 'Doctor not found.');
 
-    // Stop message flooding: 20 messages a minute is plenty for a chat.
     $recent = $pdo->prepare("SELECT COUNT(*) FROM messages WHERE patient_id = ? AND sender_type = 'patient' AND created_at > DATE_SUB(NOW(), INTERVAL 1 MINUTE)");
     $recent->execute([$pid]);
     if ((int) $recent->fetchColumn() >= 20) fail(429, 'You are sending messages too fast. Please wait a moment.');
 
-    // is_read = 0 means "the doctor has not read it yet".
     $pdo->prepare("INSERT INTO messages (doctor_id, patient_id, sender_type, message_text, is_read) VALUES (?, ?, 'patient', ?, 0)")
         ->execute([$doctorId, $pid, $text]);
     $id = (int) $pdo->lastInsertId();
@@ -89,7 +89,7 @@ function messages_create(array $p, array $in): void
         ['message' => ['id' => $id, 'sender' => 'patient', 'text' => $text, 'created_at' => iso_time($row->fetchColumn())]]);
 }
 
-// PATCH /conversations/{doctor}/messages {is_read: true} = I have read the doctor's messages
+// Marks the doctor's messages as read.
 function messages_mark_read(array $p, array $in): void
 {
     $patient = require_login();

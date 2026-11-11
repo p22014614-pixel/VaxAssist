@@ -1,3 +1,5 @@
+// Reset password page.
+
 const form = document.getElementById("resetForm");
 const password = document.getElementById("password");
 const confirmPassword = document.getElementById("confirmPassword");
@@ -5,6 +7,7 @@ const resetError = document.getElementById("resetError");
 const doneBox = document.getElementById("doneBox");
 const token = new URLSearchParams(window.location.search).get("token") || "";
 
+// Checks the new password and saves it.
 form.addEventListener("submit", async function (e) {
     e.preventDefault();
     resetError.classList.add("d-none");

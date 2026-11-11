@@ -1,3 +1,6 @@
+// Doctors page: search and filter doctors.
+
+// Loads the doctor list from the API.
 async function getDoctors() {
     return (await VaxApi.get('api/doctors')).doctors;
 }
@@ -11,16 +14,19 @@ const count = document.getElementById('count');
 const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 let doctors = [];
 
+// Escapes text so it is safe to put in HTML.
 function esc(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
 }
 
+// Makes the initials shown in an avatar.
 function initials(name) {
     return name.replace('Dr. ', '').split(' ').map(function (w) { return w[0]; }).slice(0, 2).join('');
 }
 
+// Finds the doctor's next working day.
 function nextAvailable(days) {
     const d = new Date();
     for (let i = 0; i < 8; i++) {
@@ -31,6 +37,7 @@ function nextAvailable(days) {
     return null;
 }
 
+// Describes the next available day as text.
 function nextText(days) {
     const next = nextAvailable(days);
     if (!next) return 'No upcoming availability';
@@ -38,6 +45,7 @@ function nextText(days) {
     return next.date.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
 }
 
+// Builds the HTML card for one doctor.
 function card(d) {
     const pills = [1, 2, 3, 4, 5].map(function (n) {
         return '<span class="day-pill' + (d.days.indexOf(n) !== -1 ? ' on' : '') + '">' + DAY_NAMES[n] + '</span>';
@@ -62,12 +70,14 @@ function card(d) {
         '</div></div>';
 }
 
+// Checks if a doctor matches the search text.
 function matchesSearch(d, term) {
     if (!term) return true;
     const haystack = [d.name, d.specialty].concat(d.treats).join(' ').toLowerCase();
     return haystack.indexOf(term) !== -1;
 }
 
+// Checks if a doctor works on the chosen day.
 function matchesAvailability(d, value) {
     if (!value) return true;
     if (value === 'today') {
@@ -77,6 +87,7 @@ function matchesAvailability(d, value) {
     return d.days.indexOf(Number(value)) !== -1;
 }
 
+// Filters the doctors and draws the list.
 function render() {
     const term = searchInput.value.trim().toLowerCase();
     const spec = specialtySelect.value;
@@ -94,12 +105,17 @@ function render() {
         : '<div class="col-12"><div class="empty-state">No doctors match your search. Try a different symptom, specialty or day.</div></div>';
 }
 
+// Stops the page from reloading.
 document.getElementById('filterForm').addEventListener('submit', function (e) { e.preventDefault(); });
 
+// Filters the list while typing.
 searchInput.addEventListener('input', render);
+// Filters the list by specialty.
 specialtySelect.addEventListener('change', render);
+// Filters the list by day.
 availabilitySelect.addEventListener('change', render);
 
+// Clears all filters.
 document.getElementById('resetBtn').addEventListener('click', function () {
     searchInput.value = '';
     specialtySelect.value = '';

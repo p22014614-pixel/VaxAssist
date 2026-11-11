@@ -1,6 +1,7 @@
 <?php
-// Messages from the public Contact Us form.
+// Contact form.
 
+// Saves a contact form message (POST /contact-messages).
 function contact_create(array $p, array $in): void
 {
     $name = text_in($in['name'] ?? '', 100);

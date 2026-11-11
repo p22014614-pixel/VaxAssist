@@ -1,3 +1,5 @@
+// Scroll animation shared by all pages.
+
 (function () {
     const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduce || !('IntersectionObserver' in window)) return;
@@ -40,7 +42,7 @@
         });
     }, { threshold: 0.12, rootMargin: '0px 0px -30px 0px' });
 
-    // Marks a visible page section for the shared scroll-reveal animation.
+    // Marks a section for the scroll animation.
     function register(el) {
         if (el.classList.contains('reveal') || el.closest('.modal')) return;
         const parent = el.parentElement && el.parentElement.closest('.reveal');
@@ -50,14 +52,14 @@
         observer.observe(el);
     }
 
-    // Finds matching sections in initial markup or newly rendered page content.
+    // Finds sections to animate inside an element.
     function scan(root) {
         if (root.nodeType !== 1) return;
         if (root.matches(SELECTORS)) register(root);
         root.querySelectorAll(SELECTORS).forEach(register);
     }
 
-    // Starts the shared reveal observer and watches for dynamically added content.
+    // Starts the scroll animation and watches for new content.
     function start() {
         scan(document.body);
         new MutationObserver(function (mutations) {

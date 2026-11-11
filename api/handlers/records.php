@@ -1,6 +1,7 @@
 <?php
 // Vaccination records and payments.
 
+// Lists the patient's vaccination records.
 function records_list(array $p, array $in): void
 {
     $patient = require_login();
@@ -35,6 +36,7 @@ function records_list(array $p, array $in): void
     }, $stmt->fetchAll())]);
 }
 
+// Lists the patient's payments.
 function payments_list(array $p, array $in): void
 {
     $patient = require_login();
@@ -72,7 +74,7 @@ function payments_list(array $p, array $in): void
     }, $stmt->fetchAll())]);
 }
 
-// PATCH /payments/{id} with {status: "paid", method}
+// Pays a pending payment.
 function payments_update(array $p, array $in): void
 {
     $patient = require_login();
@@ -82,7 +84,6 @@ function payments_update(array $p, array $in): void
     $method = (string) ($in['method'] ?? '');
     if (!in_array($method, ['Credit card', 'E-wallet', 'Online banking'], true)) fail(422, 'Choose a payment method.');
 
-    // Demo only: there is no real payment gateway, so this simply marks the payment as paid.
     $stmt = db()->prepare("UPDATE payments SET status = 'Paid', method = ?, paid_at = NOW() WHERE payment_id = ? AND patient_id = ? AND status = 'Pending'");
     $stmt->execute([$method, (int) $p['id'], $patient['patient_id']]);
     if ($stmt->rowCount() !== 1) fail(404, 'That payment cannot be paid.');

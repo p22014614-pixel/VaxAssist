@@ -1,3 +1,5 @@
+// Login page.
+
 (() => {
     'use strict';
 
@@ -20,17 +22,16 @@
     try {
         devSession = sessionStorage.getItem('vaxDevSession') || localStorage.getItem('vaxDevSession');
     } catch (error) {
-        // Storage can be unavailable in private or restricted browsing modes.
     }
 
-    // Shows login feedback such as invalid credentials or a session error.
+    // Shows a message above the form.
     function showStatus(message, type) {
         statusBox.textContent = message;
         statusBox.classList.toggle('info', type === 'info');
         statusBox.hidden = !message;
     }
 
-    // Disables the form while a login request is being processed.
+    // Disables the form while logging in.
     function setBusy(busy) {
         submitButton.disabled = busy;
         submitButton.querySelector('.button-label').textContent = busy ? 'Signing in…' : 'Log in';
@@ -38,7 +39,7 @@
         passwordInput.disabled = busy;
     }
 
-    // Routes a signed-in account to the correct role-specific starting page.
+    // Chooses the dashboard page for a role.
     function destinationFor(user) {
         if (user.role === 'doctor') return 'doctor_dashboard.html';
         if (user.role === 'admin') return 'admin_Dashboard.html';
@@ -46,8 +47,8 @@
         throw new Error('Your account has no supported portal. Please contact the clinic.');
     }
 
-    // Sends the user back to the page they were trying to open (?next=), if their role may open it.
     const PATIENT_PAGES = ['booking.html', 'appointments.html', 'vaccinations.html', 'precheck.html', 'receipts.html', 'reviews.html', 'messages.html', 'notifications.html', 'profile.html', 'planner.html'];
+    // Uses the ?next page if it is allowed, otherwise the dashboard.
     function nextOrDefault(user) {
         const next = new URLSearchParams(location.search).get('next') || '';
         const page = next.split('?')[0].toLowerCase();
@@ -55,14 +56,14 @@
         return allowed ? next : destinationFor(user);
     }
 
-    // Adds headers needed by the configured API or local development preview.
+    // Builds the request headers.
     function requestHeaders(extra) {
         const headers = Object.assign({ Accept: 'application/json' }, extra || {});
         if (useHeaderSession && devSession) headers['X-Dev-Session'] = devSession;
         return headers;
     }
 
-    // Sends a login-page request and turns server failures into readable errors.
+    // Sends a request and turns failures into readable errors.
     async function request(path, options) {
         let response;
         try {
@@ -81,7 +82,6 @@
                 sessionStorage.setItem('vaxDevSession', devSession);
                 localStorage.setItem('vaxDevSession', devSession);
             } catch (error) {
-                // The current page can still use the in-memory session id.
             }
         }
 
@@ -95,7 +95,7 @@
         return payload;
     }
 
-    // Gets the current server session and its CSRF token before a login write.
+    // Asks the server for the current session and CSRF token.
     function loadSession(force) {
         if (!force && sessionRequest) return sessionRequest;
         sessionRequest = request('api/session').then((session) => {
@@ -108,7 +108,7 @@
         return sessionRequest;
     }
 
-    // Clears stale field-level validation messages before another attempt.
+    // Clears the red error marks on the form.
     function clearValidation() {
         emailError.textContent = '';
         passwordError.textContent = '';
@@ -116,7 +116,7 @@
         passwordInput.removeAttribute('aria-invalid');
     }
 
-    // Checks the email and password fields before submitting credentials.
+    // Checks the email and password fields.
     function validate() {
         clearValidation();
         let valid = true;
@@ -177,6 +177,5 @@
             location.replace(nextOrDefault(session.user));
         }
     }).catch(() => {
-        // Keep the form available; a submit will show a clear connection error.
     });
 })();

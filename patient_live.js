@@ -1,6 +1,5 @@
-// Keeps the signed-in patient's pages up to date without a reload: shows a pop-up when a doctor sends a
-// message or a notification arrives, updates the menu badges, and tells the page when a doctor or admin
-// has changed the patient's appointments or records ('vax:refresh' event).
+// Live updates: pop-ups and badges on every page.
+
 (function () {
     if (!window.VaxApi || !window.VaxAuth) return;
 
@@ -13,6 +12,7 @@
     let polling = false;
     let rerunQuiet = false;
 
+    // Reads the last known numbers from session storage.
     function readState() {
         try {
             const saved = JSON.parse(sessionStorage.getItem(KEY));
@@ -20,13 +20,14 @@
         } catch (e) { return null; }
     }
 
+    // Saves the latest numbers to session storage.
     function writeState(state) {
         try { sessionStorage.setItem(KEY, JSON.stringify(Object.assign({ uid: userId }, state))); } catch (e) {}
     }
 
-    // ----- pop-up -----------------------------------------------------------
     let box = null;
 
+    // Creates the box that holds the pop-ups.
     function ensureBox() {
         if (box) return box;
         const style = document.createElement('style');
@@ -47,6 +48,7 @@
         return box;
     }
 
+    // Shows a pop-up message.
     function popup(title, text, url, label) {
         const toast = document.createElement('div');
         toast.className = 'vax-toast';
@@ -77,7 +79,7 @@
         setTimeout(function () { toast.remove(); }, 9000);
     }
 
-    // ----- menu badges ------------------------------------------------------
+    // Updates the unread badges in the menu.
     function showBadges(messages, notes) {
         VaxAuth.setUnread(messages);
         document.querySelectorAll('[data-unread-notifications]').forEach(function (el) {
@@ -89,8 +91,7 @@
         });
     }
 
-    // ----- polling ----------------------------------------------------------
-    // quiet = just remember the current numbers (used after the patient's own actions, so they do not pop up).
+    // Checks the server for new messages and changes.
     async function poll(quiet) {
         if (polling) { if (quiet) rerunQuiet = true; return; }
         polling = true;
@@ -126,24 +127,24 @@
             }
             writeState({ messages: messages, notes: notes, noteId: latest ? latest.id : 0, stamp: s.stamp });
         } catch (e) {
-            /* try again on the next tick */
         } finally {
             polling = false;
             if (rerunQuiet) { rerunQuiet = false; poll(true); }
         }
     }
 
+    // Stops the checking timer.
     function stop() {
         if (timer) window.clearInterval(timer);
         timer = null;
     }
 
+    // Starts checking and ignores the patient's own actions.
     function start() {
         poll(false);
         timer = window.setInterval(function () { if (!document.hidden) poll(false); }, POLL_MS);
         document.addEventListener('visibilitychange', function () { if (!document.hidden) poll(false); });
 
-        // The patient's own changes (booking, cancelling, reading a notification...) should not pop up.
         ['post', 'put', 'patch', 'delete'].forEach(function (verb) {
             const original = VaxApi[verb];
             VaxApi[verb] = async function () {

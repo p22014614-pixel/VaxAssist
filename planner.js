@@ -1,17 +1,23 @@
+// Vaccine Planner page.
+
+// Returns the date n days from today as YYYY-MM-DD.
 function daysFromToday(n) {
     const d = new Date();
     d.setDate(d.getDate() + n);
     return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 }
 
+// Loads the patient's saved children.
 async function getChildren() {
     return (await VaxApi.get('api/children')).children;
 }
 
+// Loads the patient's vaccination records.
 async function getVaccinations() {
     return (await VaxApi.get('api/vaccination-records')).records;
 }
 
+// Loads the vaccines, destinations and child schedule.
 async function getPlannerData() {
     const loaded = await Promise.all([VaxApi.get('api/vaccines'), VaxApi.get('api/destinations'), VaxApi.get('api/child-schedule')]);
     const vaccines = loaded[0].vaccines;
@@ -45,69 +51,83 @@ let childDoctor = null;
 let travelDoctor = null;
 let records = [];
 
+// Escapes text so it is safe to put in HTML.
 function esc(text) {
     const div = document.createElement('div');
     div.textContent = text == null ? '' : text;
     return div.innerHTML;
 }
 
+// Turns a YYYY-MM-DD text into a date.
 function parseISO(iso) {
     const p = iso.split('-');
     return new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
 }
 
+// Returns today's date at midnight.
 function startOfToday() {
     const t = new Date();
     return new Date(t.getFullYear(), t.getMonth(), t.getDate());
 }
 
+// Adds days to a date.
 function addDays(date, n) {
     return new Date(date.getFullYear(), date.getMonth(), date.getDate() + n);
 }
 
+// Adds months to a date.
 function addMonths(date, n) {
     const d = new Date(date.getFullYear(), date.getMonth() + n, date.getDate());
     if (d.getDate() !== date.getDate()) d.setDate(0);
     return d;
 }
 
+// Counts the days between two dates.
 function daysBetween(a, b) {
     return Math.round((b - a) / 86400000);
 }
 
+// Formats a date for display.
 function formatDate(d) {
     return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
+// Adds an s to a word when the number is not 1.
 function plural(n, word) {
     return n + ' ' + word + (n === 1 ? '' : 's');
 }
 
+// Returns the dose number of a vaccine.
 function doseNumber(v) {
     return v.dose_number;
 }
 
+// Finds the newest record for a vaccine.
 function latestRecord(list, name) {
     const found = list.filter(function (r) { return r.vaccine_name === name; });
     found.sort(function (a, b) { return a.date_given < b.date_given ? 1 : -1; });
     return found[0] || null;
 }
 
+// Checks if the patient is already protected.
 function isProtected(v) {
     const rec = latestRecord(records.filter(function (r) { return r.patient_type === 'self'; }), v.name);
     return !!rec && rec.dose_number >= rec.total_doses && (!rec.next_dose_date || rec.next_dose_date >= daysFromToday(0));
 }
 
+// Builds the link to book a vaccine.
 function bookingLink(name, doctorId) {
     return 'booking.html?vaccine=' + encodeURIComponent(name) + (doctorId ? '&doctor_id=' + encodeURIComponent(doctorId) : '');
 }
 
+// Builds the Required or Recommended label.
 function levelBadge(level) {
     return level === 'required'
         ? '<span class="badge-req">Required</span>'
         : '<span class="badge-rec">Recommended</span>';
 }
 
+// Switches between Travel and Child.
 function showTab(which) {
     const travel = which === 'travel';
     tabTravel.classList.toggle('active', travel);
@@ -119,6 +139,7 @@ function showTab(which) {
     clearResults();
 }
 
+// Shows the empty message.
 function clearResults() {
     results.innerHTML =
         '<div class="empty-state" id="emptyState">' +
@@ -128,10 +149,12 @@ function clearResults() {
         '</div>';
 }
 
+// Builds the print button.
 function printButton() {
     return '<button type="button" class="print-btn" id="printBtn">Print schedule</button>';
 }
 
+// Builds the card for one travel vaccine.
 function travelCard(v, departure) {
     const info = travelInfo[v.name] || { lead: 14, doctor: travelDoctor };
     const rec = latestRecord(records.filter(function (r) { return r.patient_type === 'self'; }), v.name);
@@ -177,6 +200,7 @@ function travelCard(v, departure) {
         '</div>';
 }
 
+// Builds the travel vaccine schedule.
 function renderTravel(dest, departure) {
     const required = dest.vaccines.filter(function (v) { return v.level === 'required'; });
     const recommended = dest.vaccines.filter(function (v) { return v.level === 'recommended'; });
@@ -221,12 +245,14 @@ function renderTravel(dest, departure) {
     results.innerHTML = html;
 }
 
+// Works out a child's age in months.
 function ageInMonths(dob, onDate) {
     let m = (onDate.getFullYear() - dob.getFullYear()) * 12 + (onDate.getMonth() - dob.getMonth());
     if (onDate.getDate() < dob.getDate()) m -= 1;
     return m;
 }
 
+// Writes an age in months or years.
 function ageText(months) {
     if (months < 1) return 'under 1 month old';
     if (months < 24) return plural(months, 'month') + ' old';
@@ -234,12 +260,14 @@ function ageText(months) {
     return plural(y, 'year') + (r ? ' ' + plural(r, 'month') : '') + ' old';
 }
 
+// Names an age milestone such as At birth.
 function milestoneName(months) {
     if (months === 0) return 'At birth';
     if (months < 24) return months + (months === 1 ? ' month' : ' months');
     return (months / 12) + ' years';
 }
 
+// Says if a dose is due, soon or past due.
 function childStatus(due) {
     const diff = daysBetween(startOfToday(), due);
     if (diff < -30) return { cls: 'urgent', text: 'Past due since ' + formatDate(due) + ' - check your child\'s record or book a catch-up' };
@@ -247,6 +275,7 @@ function childStatus(due) {
     return { cls: '', text: 'Due ' + formatDate(due) + ' (in ' + plural(diff, 'day') + ')' };
 }
 
+// Builds the card for one child dose.
 function childCard(v, due, rec) {
     if (rec) {
         return '<div class="vax-card done">' +
@@ -267,6 +296,7 @@ function childCard(v, due, rec) {
         '</div>';
 }
 
+// Builds the child vaccine schedule.
 function renderChild(dobIso, childName) {
     const dob = parseISO(dobIso);
     const today = startOfToday();
@@ -277,7 +307,6 @@ function renderChild(dobIso, childName) {
         : [];
     const items = childSchedule.map(function (v) {
         const n = doseNumber(v);
-        // Prefer the record for exactly this dose, so dose 1 shows dose 1's date and not dose 2's.
         const rec = n ? childRecords.filter(function (r) { return r.vaccine_name === v.name && r.dose_number >= n; })
             .sort(function (a, b) { return (a.dose_number - b.dose_number) || (a.date_given < b.date_given ? -1 : 1); })[0] : null;
         return { v: v, due: addMonths(dob, v.months), rec: rec || null };
@@ -323,9 +352,12 @@ function renderChild(dobIso, childName) {
     results.innerHTML = html;
 }
 
+// Shows the Travel tab.
 tabTravel.addEventListener('click', function () { showTab('travel'); });
+// Shows the Child tab.
 tabChild.addEventListener('click', function () { showTab('child'); });
 
+// Builds the travel schedule.
 travelForm.addEventListener('submit', function (e) {
     e.preventDefault();
 
@@ -340,6 +372,7 @@ travelForm.addEventListener('submit', function (e) {
     renderTravel(dest, departure);
 });
 
+// Builds the child schedule.
 childForm.addEventListener('submit', function (e) {
     e.preventDefault();
 
@@ -354,10 +387,12 @@ childForm.addEventListener('submit', function (e) {
     renderChild(childDob.value, '');
 });
 
+// Prints the schedule.
 results.addEventListener('click', function (e) {
     if (e.target.id === 'printBtn') window.print();
 });
 
+// Builds the schedule for a saved child.
 savedChildren.addEventListener('click', function (e) {
     const chip = e.target.closest('.chip');
     if (!chip) return;
@@ -366,6 +401,7 @@ savedChildren.addEventListener('click', function (e) {
     renderChild(childDob.value, chip.dataset.name);
 });
 
+// Loads the data and starts the planner.
 async function init() {
     const planner = await getPlannerData();
     destinations = planner.destinations;

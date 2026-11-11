@@ -1,71 +1,89 @@
+// Profile page.
+
+// Asks the server who is signed in.
 async function getCurrentUser() {
     return VaxAuth.fetchUser();
 }
 
+// Loads the personal details.
 async function getProfile() {
     return (await VaxApi.get('api/me')).profile;
 }
 
+// Saves the personal details.
 async function saveProfile(data) {
     return VaxApi.put('api/me', data);
 }
 
+// Loads the health profile.
 async function getHealthProfile() {
     return (await VaxApi.get('api/me/health')).health;
 }
 
+// Saves the health profile.
 async function saveHealthProfile(data) {
     return VaxApi.put('api/me/health', data);
 }
 
+// Loads the patient's saved children.
 async function getChildren() {
     return (await VaxApi.get('api/children')).children;
 }
 
+// Adds a child.
 async function addChild(child) {
     return VaxApi.post('api/children', child);
 }
 
+// Removes a child.
 async function deleteChild(id) {
     return VaxApi.delete('api/children/' + encodeURIComponent(id));
 }
 
+// Changes the password.
 async function changePassword(current, next) {
     return VaxApi.put('api/me/password', { current: current, new: next });
 }
 
 const reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-const RING_LENGTH = 226.2;      // 2 * PI * r (r = 36)
+const RING_LENGTH = 226.2;
 const MAX_TAGS = 20;
 
 let profile = {};
 let health = { allergies: [], conditions: [], medications: [] };
 let children = [];
 
+// Adds a leading zero to numbers under 10.
 function pad(n) { return String(n).padStart(2, '0'); }
 
+// Escapes text so it is safe to put in HTML.
 function esc(text) {
     const div = document.createElement('div');
     div.textContent = text == null ? '' : text;
     return div.innerHTML;
 }
 
+// Formats a date as YYYY-MM-DD.
 function isoDate(d) {
     return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
 }
 
+// Turns a YYYY-MM-DD text into a date.
 function parseISO(s) {
     const p = s.split('-').map(Number);
     return new Date(p[0], p[1] - 1, p[2]);
 }
 
+// Returns the date n days from today as YYYY-MM-DD.
 function daysFromToday(n) {
     const d = new Date();
     return isoDate(new Date(d.getFullYear(), d.getMonth(), d.getDate() + n));
 }
 
+// Reads and trims a field's value.
 function val(id) { return document.getElementById(id).value.trim(); }
 
+// Shows an error message.
 function showError(id, message) {
     const box = document.getElementById(id);
     box.textContent = message;
@@ -73,16 +91,18 @@ function showError(id, message) {
     box.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
-// Shows the server's own field message (for example a bad phone number) when it sent one.
+// Gets the best error message from an API error.
 function apiMessage(err, fallback) {
     if (!err.status || err.status >= 500) return fallback;
     const fields = err.fields ? Object.values(err.fields) : [];
     return fields.length ? fields[0] : err.message;
 }
 
+// Hides an error message.
 function hideError(id) { document.getElementById(id).classList.add('d-none'); }
 
 let toastTimer = null;
+// Shows a short pop-up message.
 function toast(message) {
     const t = document.getElementById('toast');
     t.textContent = message;
@@ -91,6 +111,7 @@ function toast(message) {
     toastTimer = setTimeout(function () { t.classList.remove('show'); }, 3200);
 }
 
+// Writes a child's age from the date of birth.
 function ageText(dob) {
     const b = parseISO(dob), n = new Date();
     let months = (n.getFullYear() - b.getFullYear()) * 12 + (n.getMonth() - b.getMonth());
@@ -100,15 +121,18 @@ function ageText(dob) {
     return Math.floor(months / 12) + ' years old';
 }
 
+// Formats a date for display.
 function niceDate(s) {
     return parseISO(s).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
+// Calculates BMI from height and weight.
 function bmiOf(h, w) {
     if (!h || !w) return null;
     return w / Math.pow(h / 100, 2);
 }
 
+// Describes a BMI value.
 function bmiLabel(b) {
     if (b < 18.5) return 'Underweight range';
     if (b < 25) return 'Healthy range';
@@ -116,6 +140,7 @@ function bmiLabel(b) {
     return 'Obese range';
 }
 
+// Works out how complete the profile is.
 function completion() {
     const checks = [
         profile.first_name, profile.last_name, profile.phone, profile.dob, profile.gender,
@@ -127,6 +152,7 @@ function completion() {
     return Math.round(done / checks.length * 100);
 }
 
+// Updates the name, email and progress at the top.
 function updateHeader() {
     const first = profile.first_name || '', last = profile.last_name || '';
     document.getElementById('fullName').textContent = (first + ' ' + last).trim() || 'Your profile';
@@ -143,6 +169,7 @@ function updateHeader() {
 
 const tabButtons = document.querySelectorAll('.tab-btn');
 
+// Switches between the profile tabs.
 function showTab(name) {
     tabButtons.forEach(function (b) {
         const on = b.dataset.tab === name;
@@ -157,6 +184,7 @@ tabButtons.forEach(function (b) {
     b.addEventListener('click', function () { showTab(b.dataset.tab); });
 });
 
+// Fills the personal details form.
 function fillPersonal() {
     ['first_name', 'last_name', 'email', 'phone', 'dob', 'gender', 'address',
      'emergency_contact_name', 'emergency_contact_phone'].forEach(function (f) {
@@ -165,6 +193,7 @@ function fillPersonal() {
     document.getElementById('dob').max = daysFromToday(0);
 }
 
+// Saves the personal details.
 document.getElementById('personalForm').addEventListener('submit', async function (e) {
     e.preventDefault();
     hideError('personalError');
@@ -174,7 +203,7 @@ document.getElementById('personalForm').addEventListener('submit', async functio
         dob: val('dob'), gender: val('gender'), address: val('address'),
         emergency_contact_name: val('emergency_contact_name'), emergency_contact_phone: val('emergency_contact_phone')
     };
-    const phoneOk = /^[0-9+\s-]{8,15}$/;   // same rule the server uses
+    const phoneOk = /^[0-9+\s-]{8,15}$/;
 
     if (!data.first_name || !data.last_name) return showError('personalError', 'Please enter your first and last name.');
     if (!phoneOk.test(data.phone)) return showError('personalError', 'Please enter a valid phone number.');
@@ -203,6 +232,7 @@ const TAG_EMPTY = {
     allergies: 'No allergies added', conditions: 'No conditions added', medications: 'No medications added'
 };
 
+// Draws the allergy, condition or medicine tags.
 function renderTags(kind) {
     const box = document.getElementById(TAG_BOXES[kind]);
     const items = health[kind];
@@ -214,6 +244,7 @@ function renderTags(kind) {
         : '<span class="tag-empty">' + TAG_EMPTY[kind] + '</span>';
 }
 
+// Disables the allergy box when no known allergies is ticked.
 function syncAllergyState() {
     const none = document.getElementById('no_known_allergies').checked;
     document.getElementById('allergyInput').disabled = none;
@@ -221,6 +252,7 @@ function syncAllergyState() {
     document.getElementById('allergiesBox').style.opacity = none ? '0.4' : '1';
 }
 
+// Adds an allergy, condition or medicine.
 function addTag(kind, inputId) {
     const input = document.getElementById(inputId);
     const text = input.value.trim().replace(/\s+/g, ' ');
@@ -233,6 +265,7 @@ function addTag(kind, inputId) {
     renderTags(kind);
 }
 
+// Fills the health form.
 function fillHealth() {
     document.getElementById('blood_type').value = health.blood_type || '';
     document.getElementById('height_cm').value = health.height_cm || '';
@@ -243,6 +276,7 @@ function fillHealth() {
     updateBmi();
 }
 
+// Updates the BMI shown.
 function updateBmi() {
     const b = bmiOf(parseFloat(document.getElementById('height_cm').value), parseFloat(document.getElementById('weight_kg').value));
     document.getElementById('bmiBox').innerHTML = b
@@ -250,13 +284,17 @@ function updateBmi() {
         : 'Enter height and weight';
 }
 
+// Updates the BMI.
 document.getElementById('height_cm').addEventListener('input', updateBmi);
+// Updates the BMI.
 document.getElementById('weight_kg').addEventListener('input', updateBmi);
+// Updates the allergy box.
 document.getElementById('no_known_allergies').addEventListener('change', function () {
     if (this.checked) { health.allergies = []; renderTags('allergies'); }
     syncAllergyState();
 });
 
+// Adds or removes an allergy, condition or medicine.
 document.getElementById('panel-health').addEventListener('click', function (e) {
     const add = e.target.closest('button[data-add]');
     if (add) { addTag(add.dataset.add, add.dataset.input); return; }
@@ -276,6 +314,7 @@ document.getElementById('panel-health').addEventListener('click', function (e) {
     });
 });
 
+// Saves the health profile.
 document.getElementById('healthForm').addEventListener('submit', async function (e) {
     e.preventDefault();
     hideError('healthError');
@@ -309,6 +348,7 @@ document.getElementById('healthForm').addEventListener('submit', async function 
     btn.disabled = false; btn.textContent = 'Save health profile';
 });
 
+// Draws the list of saved children.
 function renderChildren() {
     const list = document.getElementById('childList');
     list.innerHTML = children.length
@@ -324,6 +364,7 @@ function renderChildren() {
         : '<div class="empty-note">No children added yet.<br>Add one using the form to book vaccines for them.</div>';
 }
 
+// Removes a child when the button is clicked.
 document.getElementById('childList').addEventListener('click', async function (e) {
     const btn = e.target.closest('button[data-delete]');
     if (!btn) return;
@@ -344,6 +385,7 @@ document.getElementById('childList').addEventListener('click', async function (e
     }
 });
 
+// Adds a child.
 document.getElementById('childForm').addEventListener('submit', async function (e) {
     e.preventDefault();
     hideError('childError');
@@ -369,6 +411,7 @@ document.getElementById('childForm').addEventListener('submit', async function (
     btn.disabled = false; btn.textContent = 'Add child';
 });
 
+// Scores how strong a new password is.
 function strengthScore(pw) {
     let s = 0;
     if (pw.length >= 8) s++;
@@ -378,6 +421,7 @@ function strengthScore(pw) {
     return pw.length < 8 ? Math.min(s, 1) : s;
 }
 
+// Shows the password strength.
 document.getElementById('new_password').addEventListener('input', function () {
     const pw = this.value;
     const s = pw ? strengthScore(pw) : 0;
@@ -395,6 +439,7 @@ document.getElementById('new_password').addEventListener('input', function () {
     document.getElementById('strengthText').textContent = lv.t;
 });
 
+// Shows or hides the password.
 document.getElementById('togglePw').addEventListener('click', function () {
     const input = document.getElementById('new_password');
     const show = input.type === 'password';
@@ -402,6 +447,7 @@ document.getElementById('togglePw').addEventListener('click', function () {
     this.textContent = show ? 'Hide' : 'Show';
 });
 
+// Changes the password.
 document.getElementById('passwordForm').addEventListener('submit', async function (e) {
     e.preventDefault();
     hideError('passwordError');

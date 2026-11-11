@@ -1,6 +1,7 @@
 <?php
-// Notifications, notification settings and the pre-consultation forms.
+// Notifications, settings and pre-consultation forms.
 
+// Lists the patient's notifications.
 function notifications_list(array $p, array $in): void
 {
     $patient = require_login();
@@ -9,19 +10,19 @@ function notifications_list(array $p, array $in): void
     $stmt->execute([$patient['patient_id']]);
     out(['notifications' => array_map(function ($n) {
         return [
-            'id' => (int) $n['notification_id'], 
-            'type' => strtolower($n['type']), 
-            'title' => $n['title'], 
+            'id' => (int) $n['notification_id'],
+            'type' => strtolower($n['type']),
+            'title' => $n['title'],
             'message' => (string) $n['body'],
-            'action_url' => (string) $n['action_url'], 
+            'action_url' => (string) $n['action_url'],
             'action_label' => (string) $n['action_label'],
-            'is_read' => (int) $n['is_read'], 
+            'is_read' => (int) $n['is_read'],
             'created_at' => iso_time($n['created_at']),
         ];
     }, $stmt->fetchAll())]);
 }
 
-// PATCH /notifications {is_read: true} = mark them all read
+// Marks all notifications as read.
 function notifications_update_all(array $p, array $in): void
 {
     $patient = require_login();
@@ -30,7 +31,7 @@ function notifications_update_all(array $p, array $in): void
     out(null, 204);
 }
 
-// PATCH /notifications/{id} {is_read: true}
+// Marks one notification as read.
 function notifications_update(array $p, array $in): void
 {
     $patient = require_login();
@@ -40,6 +41,7 @@ function notifications_update(array $p, array $in): void
     out(null, 204);
 }
 
+// Deletes one notification.
 function notifications_delete(array $p, array $in): void
 {
     $patient = require_login();
@@ -49,6 +51,7 @@ function notifications_delete(array $p, array $in): void
     out(null, 204);
 }
 
+// Returns the notification settings.
 function preferences_show(array $p, array $in): void
 {
     $patient = require_login();
@@ -59,6 +62,7 @@ function preferences_show(array $p, array $in): void
     out(['preferences' => array_map('boolval', $row)]);
 }
 
+// Saves the notification settings.
 function preferences_update(array $p, array $in): void
 {
     $patient = require_login();
@@ -72,6 +76,7 @@ function preferences_update(array $p, array $in): void
     out(null, 204);
 }
 
+// Lists the patient's pre-consultation forms.
 function precheck_list(array $p, array $in): void
 {
     $patient = require_login();
@@ -87,6 +92,7 @@ function precheck_list(array $p, array $in): void
     }, $stmt->fetchAll())]);
 }
 
+// Saves a pre-consultation form.
 function precheck_create(array $p, array $in): void
 {
     $patient = require_login();
@@ -115,7 +121,6 @@ function precheck_create(array $p, array $in): void
         $vaccineId = $v->fetchColumn() ?: null;
     }
 
-    // If this person already has an upcoming visit, attach the form to it so the doctor sees it.
     $visit = $pdo->prepare(
         "SELECT appointment_id, doctor_id, appointment_date, appointment_time FROM appointments
           WHERE patient_id = ? AND child_id <=> ? AND status IN ('Scheduled', 'Confirmed') AND appointment_date >= CURDATE()

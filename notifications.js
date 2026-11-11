@@ -1,27 +1,36 @@
+// Notifications page.
+
+// Asks the server who is signed in.
 async function getCurrentUser() {
     return VaxAuth.fetchUser();
 }
 
+// Loads the patient's notifications.
 async function getNotifications() {
     return (await VaxApi.get('api/notifications')).notifications;
 }
 
+// Marks one notification as read.
 async function markNotificationRead(id) {
     return VaxApi.patch('api/notifications/' + encodeURIComponent(id), { is_read: true });
 }
 
+// Marks all notifications as read.
 async function markAllRead() {
     return VaxApi.patch('api/notifications', { is_read: true });
 }
 
+// Deletes one notification.
 async function deleteNotification(id) {
     return VaxApi.delete('api/notifications/' + encodeURIComponent(id));
 }
 
+// Loads the notification settings.
 async function getPreferences() {
     return (await VaxApi.get('api/notification-preferences')).preferences;
 }
 
+// Saves the notification settings.
 async function savePreferences(prefs) {
     return VaxApi.put('api/notification-preferences', prefs);
 }
@@ -45,16 +54,19 @@ let notifications = [];
 let filter = 'all';
 let lastUnread = null;
 
+// Escapes text so it is safe to put in HTML.
 function esc(text) {
     const div = document.createElement('div');
     div.textContent = text == null ? '' : text;
     return div.innerHTML;
 }
 
+// Allows only links to local .html pages.
 function safeUrl(u) {
     return /^[a-z]+\.html(\?[\w%&=.()\-]*)?$/i.test(String(u || '')) ? u : '';
 }
 
+// Shows how long ago something happened.
 function timeAgo(iso) {
     const mins = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60000));
     if (mins < 1) return 'Just now';
@@ -66,6 +78,7 @@ function timeAgo(iso) {
     return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
+// Groups a notification as Today, This week or Earlier.
 function groupOf(iso) {
     const hrs = (Date.now() - new Date(iso).getTime()) / 3600000;
     if (hrs < 24) return 'Today';
@@ -74,6 +87,7 @@ function groupOf(iso) {
 }
 
 let toastTimer = null;
+// Shows a short pop-up message.
 function toast(message) {
     const t = document.getElementById('toast');
     t.textContent = message;
@@ -82,17 +96,19 @@ function toast(message) {
     toastTimer = setTimeout(function () { t.classList.remove('show'); }, 3000);
 }
 
+// Counts unread notifications.
 function unreadCount() {
     return notifications.filter(function (n) { return !n.is_read; }).length;
 }
 
+// Updates the unread count on the bell.
 function updateBell() {
     const n = unreadCount();
     bellCount.textContent = n;
     bellCount.classList.toggle('zero', n === 0);
     if (lastUnread !== null && n !== lastUnread && !reduceMotion) {
         bellCount.classList.remove('bump');
-        void bellCount.offsetWidth;          // restart the animation
+        void bellCount.offsetWidth;
         bellCount.classList.add('bump');
     }
     lastUnread = n;
@@ -100,6 +116,7 @@ function updateBell() {
     document.title = (n ? '(' + n + ') ' : '') + 'VaxAssist | Notifications';
 }
 
+// Draws the filter buttons.
 function renderChips() {
     filterChips.innerHTML = FILTERS.map(function (f) {
         const count = f.key === 'unread' ? ' (' + unreadCount() + ')' : '';
@@ -107,12 +124,14 @@ function renderChips() {
     }).join('');
 }
 
+// Checks if a notification passes the current filter.
 function matches(n) {
     if (filter === 'all') return true;
     if (filter === 'unread') return !n.is_read;
     return n.type === filter || (filter === 'reminder' && n.type === 'late');
 }
 
+// Builds the HTML for one notification.
 function noteHtml(n, index) {
     const url = safeUrl(n.action_url);
     return '<article class="note' + (n.is_read ? '' : ' unread') + '" style="--i:' + index + '" data-id="' + esc(n.id) + '">' +
@@ -132,6 +151,7 @@ function noteHtml(n, index) {
     '</article>';
 }
 
+// Draws the notification list.
 function render() {
     updateBell();
     renderChips();
@@ -156,6 +176,7 @@ function render() {
     }).join('');
 }
 
+// Marks one notification as read.
 async function readOne(id, quiet) {
     const n = notifications.find(function (x) { return String(x.id) === String(id); });
     if (!n || n.is_read) return;
@@ -168,6 +189,7 @@ async function readOne(id, quiet) {
     }
 }
 
+// Changes the filter.
 filterChips.addEventListener('click', function (e) {
     const btn = e.target.closest('button[data-filter]');
     if (!btn) return;
@@ -175,6 +197,7 @@ filterChips.addEventListener('click', function (e) {
     render();
 });
 
+// Handles mark read, delete and link clicks.
 feed.addEventListener('click', async function (e) {
     const readBtn = e.target.closest('button[data-read]');
     if (readBtn) { await readOne(readBtn.dataset.read); return; }
@@ -202,6 +225,7 @@ feed.addEventListener('click', async function (e) {
     if (link) { readOne(link.dataset.open, true); }
 });
 
+// Marks all notifications as read.
 markAllBtn.addEventListener('click', async function () {
     markAllBtn.disabled = true;
     try {
@@ -217,6 +241,7 @@ markAllBtn.addEventListener('click', async function () {
 
 const PREF_FIELDS = ['email_reminders', 'sms_reminders', 'booster_alerts', 'clinic_news'];
 
+// Saves the notification settings.
 document.getElementById('prefForm').addEventListener('submit', async function (e) {
     e.preventDefault();
     const prefs = {};
@@ -235,13 +260,13 @@ document.getElementById('prefForm').addEventListener('submit', async function (e
     btn.disabled = false; btn.textContent = 'Save preferences';
 });
 
-// A new notification arrived while this page is open: show it straight away.
+// Reloads notifications when new ones arrive.
 window.addEventListener('vax:refresh', async function (e) {
     if (!e.detail || !e.detail.notifications) return;
     try {
         notifications = await getNotifications();
         render();
-    } catch (err) { /* the next refresh will try again */ }
+    } catch (err) {  }
 });
 
 (async function init() {

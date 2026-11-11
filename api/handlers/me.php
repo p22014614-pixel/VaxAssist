@@ -1,6 +1,7 @@
 <?php
-// The logged-in patient: profile, health details, password, children.
+// Patient profile, health details, password and children.
 
+// Returns the patient's profile.
 function me_show(array $p, array $in): void
 {
     $patient = require_login();
@@ -14,6 +15,7 @@ function me_show(array $p, array $in): void
     ]]);
 }
 
+// Saves changes to the profile.
 function me_update(array $p, array $in): void
 {
     $patient = require_login();
@@ -40,6 +42,7 @@ function me_update(array $p, array $in): void
     out(null, 204);
 }
 
+// Returns the health profile.
 function health_show(array $p, array $in): void
 {
     $patient = require_login();
@@ -58,6 +61,7 @@ function health_show(array $p, array $in): void
     ]]);
 }
 
+// Saves the health profile.
 function health_update(array $p, array $in): void
 {
     $patient = require_login();
@@ -95,6 +99,7 @@ function health_update(array $p, array $in): void
     out(null, 204);
 }
 
+// Changes the patient's password.
 function password_update(array $p, array $in): void
 {
     $patient = require_login();
@@ -114,6 +119,7 @@ function password_update(array $p, array $in): void
     out(null, 204);
 }
 
+// Lists the patient's children.
 function children_list(array $p, array $in): void
 {
     $patient = require_login();
@@ -124,6 +130,7 @@ function children_list(array $p, array $in): void
     }, $stmt->fetchAll())]);
 }
 
+// Adds a child.
 function children_create(array $p, array $in): void
 {
     $patient = require_login();
@@ -148,13 +155,12 @@ function children_create(array $p, array $in): void
     created('/api/children/' . $childId, ['id' => $childId]);
 }
 
+// Removes a child who has no history.
 function children_delete(array $p, array $in): void
 {
     $patient = require_login();
     $pdo = db();
 
-    // Removing a child would also erase their vaccination records and turn their visits into the
-    // parent's own, so a child with any history cannot be removed.
     $own = $pdo->prepare('SELECT first_name FROM children WHERE child_id = ? AND patient_id = ?');
     $own->execute([(int) $p['id'], $patient['patient_id']]);
     $name = $own->fetchColumn();

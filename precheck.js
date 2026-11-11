@@ -1,3 +1,5 @@
+// Pre-consultation form page.
+
 const QUESTIONS = [
     { id: 'fever',    text: 'Do you have a fever (38\u00B0C or higher) or feel unwell today?' },
     { id: 'reaction', text: 'Have you ever had a severe allergic reaction (anaphylaxis) to a vaccine or to something in it?' },
@@ -11,14 +13,17 @@ const VACCINE_NAMES = ['Yellow Fever', 'Typhoid', 'Hepatitis A', 'Rabies', 'Japa
     'Cholera', 'Polio (IPV)', 'BCG', 'Hepatitis B', 'DTaP-IPV-Hib', 'Pneumococcal (PCV)', 'Rotavirus', 'MMR',
     'Varicella', 'Td Booster', 'Influenza'];
 
+// Loads the patient's saved children.
 async function getChildren() {
     return (await VaxApi.get('api/children')).children;
 }
 
+// Loads the patient's earlier forms.
 async function getPreconsultations() {
     return (await VaxApi.get('api/precheck-forms')).forms;
 }
 
+// Sends the form to the API.
 async function savePreconsultation(form) {
     await VaxApi.post('api/precheck-forms', form);
     return form;
@@ -33,12 +38,14 @@ const resultArea = document.getElementById('resultArea');
 const historyBox = document.getElementById('history');
 const consent = document.getElementById('consent');
 
+// Escapes text so it is safe to put in HTML.
 function esc(text) {
     const div = document.createElement('div');
     div.textContent = text == null ? '' : text;
     return div.innerHTML;
 }
 
+// Draws the health questions.
 function renderQuestions() {
     const self = patientSel.value === 'self';
     questionsBox.innerHTML = QUESTIONS.filter(function (q) { return !q.selfOnly || self; }).map(function (q) {
@@ -50,11 +57,13 @@ function renderQuestions() {
     }).join('');
 }
 
+// Reads the answer chosen for a question.
 function answer(id) {
     const checked = formEl.querySelector('input[name="' + id + '"]:checked');
     return checked ? checked.value : null;
 }
 
+// Turns yes answers into safety notes.
 function buildFlags(a) {
     const flags = [];
     if (a.fever === 'yes') flags.push({ serious: true, text: 'You feel unwell or have a fever. Vaccines are usually postponed until you recover, so please reschedule or call the clinic.' });
@@ -66,6 +75,7 @@ function buildFlags(a) {
     return flags;
 }
 
+// Shows the result after sending the form.
 function renderResult(saved, flags) {
     const bookHref = 'booking.html' + (saved.vaccine ? '?vaccine=' + encodeURIComponent(saved.vaccine) : '');
     let html = '<div class="result-card fade-in"><h2>Form received</h2>' +
@@ -85,6 +95,7 @@ function renderResult(saved, flags) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+// Lists the forms sent before.
 async function renderHistory() {
     const all = await getPreconsultations();
     if (!all.length) {
@@ -97,8 +108,10 @@ async function renderHistory() {
     }).join('');
 }
 
+// Redraws the questions for the chosen person.
 patientSel.addEventListener('change', renderQuestions);
 
+// Checks and sends the form.
 formEl.addEventListener('submit', async function (e) {
     e.preventDefault();
     formError.classList.add('d-none');
@@ -142,6 +155,7 @@ formEl.addEventListener('submit', async function (e) {
     renderHistory();
 });
 
+// Starts another form.
 resultArea.addEventListener('click', function (e) {
     if (e.target.id !== 'anotherBtn') return;
     formEl.reset();
@@ -171,6 +185,7 @@ resultArea.addEventListener('click', function (e) {
     renderHistory();
 })();
 
+// Asks the server who is signed in.
 async function getCurrentUser() {
     return VaxAuth.fetchUser();
 }

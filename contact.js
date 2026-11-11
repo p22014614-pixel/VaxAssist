@@ -1,3 +1,5 @@
+// Contact page.
+
 const form = document.getElementById('contactForm');
 const formCard = document.getElementById('formCard');
 const successCard = document.getElementById('successCard');
@@ -6,15 +8,18 @@ const sendBtn = document.getElementById('sendBtn');
 const message = document.getElementById('message');
 const counter = document.getElementById('counter');
 
+// Shows a form error message.
 function showError(text) {
     formError.textContent = text;
     formError.classList.remove('d-none');
 }
 
+// Updates the character counter.
 message.addEventListener('input', function () {
     counter.textContent = message.value.length + ' / 1000';
 });
 
+// Resets the form to send another message.
 document.getElementById('againBtn').addEventListener('click', function () {
     form.reset();
     counter.textContent = '0 / 1000';
@@ -23,6 +28,7 @@ document.getElementById('againBtn').addEventListener('click', function () {
     formCard.classList.remove('d-none');
 });
 
+// Checks the form and sends the message.
 form.addEventListener('submit', async function (e) {
     e.preventDefault();
     formError.classList.add('d-none');
@@ -58,6 +64,7 @@ form.addEventListener('submit', async function (e) {
     successCard.classList.remove('d-none');
 });
 
+// Fills name and email from the signed-in account.
 async function fillFromAccount() {
     const user = await VaxAuth.fetchUser();
     if (!user) return;

@@ -1,7 +1,11 @@
+// Vaccination history page.
+
+// Asks the server who is signed in.
 async function getCurrentUser() {
     return VaxAuth.fetchUser();
 }
 
+// Loads the patient's vaccination records.
 async function getVaccinations() {
     return (await VaxApi.get('api/vaccination-records')).records;
 }
@@ -20,42 +24,48 @@ const SOON_DAYS = 60;
 const reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
 let records = [];
-let latestIds = {};            // ids of the newest dose of each vaccine for each person
-let patientFilter = 'all';     // 'all' or a patient_name
+let latestIds = {};
+let patientFilter = 'all';
 
+// Adds a leading zero to numbers under 10.
 function pad(n) { return String(n).padStart(2, '0'); }
 
+// Escapes text so it is safe to put in HTML.
 function esc(text) {
     const div = document.createElement('div');
     div.textContent = text == null ? '' : text;
     return div.innerHTML;
 }
 
+// Formats a date as YYYY-MM-DD.
 function isoDate(d) {
     return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
 }
 
+// Turns a YYYY-MM-DD text into a date.
 function parseISO(s) {
     const p = s.split('-').map(Number);
     return new Date(p[0], p[1] - 1, p[2]);
 }
 
+// Returns the date n days from today as YYYY-MM-DD.
 function daysFromToday(n) {
     const d = new Date();
     return isoDate(new Date(d.getFullYear(), d.getMonth(), d.getDate() + n));
 }
 
+// Counts the days until a date.
 function daysUntil(s) {
     const today = parseISO(daysFromToday(0));
     return Math.round((parseISO(s) - today) / 86400000);
 }
 
+// Formats a date for display.
 function niceDate(s) {
     return parseISO(s).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
-// Only the newest dose of each vaccine, for each person, can be due or overdue.
-// Earlier doses of the same course are finished once a later dose has been given.
+// Finds the newest dose of each vaccine for each person.
 function latestDoseIds() {
     const latest = {};
     records.forEach(function (r) {
@@ -69,6 +79,7 @@ function latestDoseIds() {
     return ids;
 }
 
+// Works out the next dose status.
 function dueState(r) {
     if (!latestIds[r.id]) return { cls: 'none', text: 'Dose completed', days: null };
     if (!r.next_dose_date) {
@@ -82,14 +93,17 @@ function dueState(r) {
     return { cls: 'ok', text: 'Next dose ' + niceDate(r.next_dose_date), days: d };
 }
 
+// Builds the link to book the next dose.
 function bookLink(r) {
     return 'booking.html?vaccine=' + encodeURIComponent(r.vaccine_name);
 }
 
+// Counts a number up to its target.
 function countUp(el, target) {
     if (reduceMotion || !window.requestAnimationFrame) { el.textContent = target; return; }
     const start = performance.now();
     const duration = 800;
+    // Moves the counter one step.
     function step(now) {
         const t = Math.min(1, (now - start) / duration);
         const eased = 1 - Math.pow(1 - t, 3);
@@ -100,6 +114,7 @@ function countUp(el, target) {
 }
 
 let observer = null;
+// Fades the cards in as they appear.
 function revealCards() {
     const cards = recordList.querySelectorAll('.rec');
     if (!('IntersectionObserver' in window)) {
@@ -118,6 +133,7 @@ function revealCards() {
     cards.forEach(function (c) { observer.observe(c); });
 }
 
+// Applies the search, filters and sort.
 function filtered() {
     const q = searchBox.value.trim().toLowerCase();
     const cat = categoryFilter.value;
@@ -137,6 +153,7 @@ function filtered() {
     return list;
 }
 
+// Builds the dose progress dots.
 function pips(r) {
     let out = '';
     for (let i = 1; i <= r.total_doses; i++) {
@@ -146,6 +163,7 @@ function pips(r) {
         '<span class="pip-text">Dose ' + esc(r.dose_number) + ' of ' + esc(r.total_doses) + '</span></div>';
 }
 
+// Builds the card for one record.
 function recordCard(r, index) {
     const due = dueState(r);
     const showBook = due.cls === 'overdue' || due.cls === 'soon' || due.cls === 'unscheduled';
@@ -190,6 +208,7 @@ function recordCard(r, index) {
     '</article>';
 }
 
+// Updates the summary numbers.
 function renderStats(list) {
     const names = {};
     list.forEach(function (r) { names[r.patient_name + '|' + r.vaccine_name] = true; });
@@ -205,6 +224,7 @@ function renderStats(list) {
     countUp(document.getElementById('statOverdue'), overdue);
 }
 
+// Shows the most urgent next dose.
 function renderBanner(list) {
     const withNext = list.filter(function (r) { return r.next_dose_date && latestIds[r.id]; });
     if (!withNext.length) { nextBanner.innerHTML = ''; return; }
@@ -222,6 +242,7 @@ function renderBanner(list) {
     '</div>';
 }
 
+// Draws the person filter buttons.
 function renderChips() {
     const names = [];
     records.forEach(function (r) { if (names.indexOf(r.patient_name) === -1) names.push(r.patient_name); });
@@ -232,6 +253,7 @@ function renderChips() {
     patientChips.innerHTML = html;
 }
 
+// Draws the records list.
 function render() {
     const list = filtered();
 
@@ -265,6 +287,7 @@ function render() {
     revealCards();
 }
 
+// Filters the records by person.
 patientChips.addEventListener('click', function (e) {
     const btn = e.target.closest('button[data-patient]');
     if (!btn) return;
@@ -273,10 +296,14 @@ patientChips.addEventListener('click', function (e) {
     render();
 });
 
+// Filters the records by search text.
 searchBox.addEventListener('input', render);
+// Filters the records by category.
 categoryFilter.addEventListener('change', render);
+// Changes the sort order.
 sortOrder.addEventListener('change', render);
 
+// Opens and closes the record details.
 recordList.addEventListener('click', function (e) {
     const btn = e.target.closest('button[data-toggle]');
     if (!btn) return;
@@ -286,12 +313,13 @@ recordList.addEventListener('click', function (e) {
     panel.classList.toggle('open', open);
 });
 
+// Prints or saves the records as PDF.
 document.getElementById('printBtn').addEventListener('click', function () {
     recordList.querySelectorAll('.rec-details').forEach(function (p) { p.classList.add('open'); });
     window.print();
 });
 
-// A doctor recorded a new dose while this page is open: show it straight away.
+// Reloads the records when the server reports a change.
 window.addEventListener('vax:refresh', async function (e) {
     if (!e.detail || !e.detail.data) return;
     try {
@@ -299,7 +327,7 @@ window.addEventListener('vax:refresh', async function (e) {
         latestIds = latestDoseIds();
         renderChips();
         render();
-    } catch (err) { /* the next refresh will try again */ }
+    } catch (err) {  }
 });
 
 (async function init() {

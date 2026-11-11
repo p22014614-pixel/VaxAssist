@@ -1,7 +1,11 @@
+// Reviews page.
+
+// Asks the server who is signed in.
 async function getCurrentUser() {
     return VaxAuth.fetchUser();
 }
 
+// Loads the visits that can be reviewed.
 async function getCompletedVisits() {
     const appointments = (await VaxApi.get('api/appointments')).appointments;
     return appointments.filter(function (a) { return a.status === 'completed'; }).map(function (a) {
@@ -12,10 +16,12 @@ async function getCompletedVisits() {
     });
 }
 
+// Loads the patient's reviews.
 async function getMyReviews() {
     return (await VaxApi.get('api/reviews')).reviews;
 }
 
+// Saves a review.
 async function saveReview(visitId, review) {
     await VaxApi.put('api/appointments/' + encodeURIComponent(visitId) + '/review', { rating: review.rating, comment: review.comment });
     return review;
@@ -29,18 +35,21 @@ let reviews = {};
 let editing = {};
 let draft = {};
 
+// Escapes text so it is safe to put in HTML.
 function esc(text) {
     const div = document.createElement('div');
     div.textContent = text == null ? '' : text;
     return div.innerHTML;
 }
 
+// Formats a date for display.
 function niceDate(iso) {
     const p = iso.split('-');
     return new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]))
         .toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
+// Builds the five star buttons.
 function starButtons(visitId, value) {
     let html = '<div class="stars" role="radiogroup" aria-label="Rating">';
     for (let i = 1; i <= 5; i++) {
@@ -50,6 +59,7 @@ function starButtons(visitId, value) {
     return html + '</div>';
 }
 
+// Draws the visits with their review forms.
 function render() {
     if (!visits.length) {
         visitList.innerHTML = '<div class="empty-box">You have no completed visits to review yet.</div>';
@@ -74,7 +84,7 @@ function render() {
     }).join('');
 }
 
-// Keep what has been typed, so choosing stars on another card does not wipe it.
+// Keeps the comment as a draft.
 visitList.addEventListener('input', function (e) {
     const box = e.target.closest('[data-comment]');
     if (!box) return;
@@ -83,6 +93,7 @@ visitList.addEventListener('input', function (e) {
     draft[id] = { rating: current.rating, comment: box.value };
 });
 
+// Handles the stars, edit and submit buttons.
 visitList.addEventListener('click', async function (e) {
     const star = e.target.closest('[data-star]');
     if (star) {

@@ -1,15 +1,14 @@
 <?php
-// Routes browser API requests to the shared login, patient, appointment, and messaging handlers.
-// Front controller: every request to /api/... comes through here.
-// METHOD + path -> handler, using real HTTP verbs on named resources.
+// Front controller: matches each request to a handler.
+
 require __DIR__ . '/lib.php';
 
 foreach (glob(__DIR__ . '/handlers/*.php') as $file) {
     require $file;
 }
 
+// Route table: method, path and handler function.
 $routes = [
-    // session and accounts
     ['GET',    '/session',                          'session_show'],
     ['POST',   '/session',                          'session_create'],
     ['DELETE', '/session',                          'session_delete'],
@@ -17,7 +16,6 @@ $routes = [
     ['POST',   '/password-resets',                  'reset_request'],
     ['PUT',    '/password-resets/{token}',          'reset_complete'],
 
-    // public reference data
     ['GET',    '/doctors',                          'doctors_list'],
     ['GET',    '/doctors/{id}/slots',               'doctor_slots'],
     ['GET',    '/vaccines',                         'vaccines_list'],
@@ -25,7 +23,6 @@ $routes = [
     ['GET',    '/child-schedule',                   'schedule_list'],
     ['POST',   '/contact-messages',                 'contact_create'],
 
-    // the logged-in patient
     ['GET',    '/me',                               'me_show'],
     ['PUT',    '/me',                               'me_update'],
     ['GET',    '/me/health',                        'health_show'],
@@ -61,10 +58,12 @@ $routes = [
     ['PATCH',  '/conversations/{id}/messages',      'messages_mark_read'],
 ];
 
+// Reads the request method and path.
 $method = $_SERVER['REQUEST_METHOD'];
 $path = rtrim(preg_replace('#^.*?/api#', '', parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH)), '/') ?: '/';
 
 $allowed = [];
+// Finds the route that matches and calls its handler.
 foreach ($routes as [$verb, $pattern, $handler]) {
     $regex = '#^' . preg_replace('#\{(\w+)\}#', '(?P<$1>[^/]+)', $pattern) . '$#';
     if (!preg_match($regex, $path, $m)) continue;
@@ -81,6 +80,7 @@ foreach ($routes as [$verb, $pattern, $handler]) {
     exit;
 }
 
+// Path exists but the method is wrong (405), otherwise no route (404).
 if ($allowed) {
     header('Allow: ' . implode(', ', array_unique($allowed)));
     fail(405, 'Method not allowed.');

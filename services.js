@@ -1,3 +1,6 @@
+// Services page price list.
+
+// Loads the vaccine list from the API.
 async function getVaccines() {
     return (await VaxApi.get('api/vaccines')).vaccines;
 }
@@ -6,12 +9,14 @@ const catalogue = document.getElementById('catalogue');
 
 const CATEGORY_ORDER = ['Travel vaccines', 'Childhood vaccines', 'Boosters', 'Consultation'];
 
+// Escapes text so it is safe to put in HTML.
 function esc(text) {
     const div = document.createElement('div');
     div.textContent = text == null ? '' : text;
     return div.innerHTML;
 }
 
+// Builds the link to book a vaccine.
 function bookHref(v) {
     return 'booking.html?vaccine=' + encodeURIComponent(v.name) + (v.doctor_id ? '&doctor_id=' + encodeURIComponent(v.doctor_id) : '');
 }
@@ -32,6 +37,7 @@ let allVaccines = [];
 let activeTab = CATEGORY_ORDER[0];
 let query = '';
 
+// Builds one row of the price list.
 function item(v, i) {
     const note = v.category === 'Travel vaccines' ? '<div class="catalogue-note">Best booked ' + esc(v.lead_days) + ' days before you travel</div>' : '';
     return '<div class="catalogue-item ' + CLASSES[v.category] + '" style="--i:' + Math.min(i || 0, 9) + '">' +
@@ -42,6 +48,7 @@ function item(v, i) {
         '</div>';
 }
 
+// Returns the vaccines that match the tab or search.
 function visibleList() {
     const q = query.trim().toLowerCase();
     if (q) return allVaccines.filter(function (v) { return v.name.toLowerCase().indexOf(q) !== -1; });
@@ -50,7 +57,7 @@ function visibleList() {
 
 const ARROW_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
 
-// animate = true on first paint and tab switches; typing in the search box updates without replaying the motion.
+// Draws the price list rows.
 function renderList(animate) {
     const list = visibleList();
     const hint = query.trim() ? '<div class="catalogue-hint">Showing ' + list.length + ' result' + (list.length === 1 ? '' : 's') + ' from all vaccines</div>' : '';
@@ -61,6 +68,7 @@ function renderList(animate) {
         : '<div class="catalogue-empty">No vaccines match your search.</div>';
 }
 
+// Builds the category tabs.
 function buildTabs() {
     const counts = {};
     allVaccines.forEach(function (v) { counts[v.category] = (counts[v.category] || 0) + 1; });
@@ -71,7 +79,7 @@ function buildTabs() {
         }).join('');
 }
 
-// Sets the selected tab directly, then slides the highlight under it. The state never waits on the animation.
+// Highlights the chosen tab.
 function updateTabs() {
     const holder = document.getElementById('catalogueTabs');
     const pill = holder.querySelector('.catalogue-pill');
@@ -92,6 +100,7 @@ function updateTabs() {
     }
 }
 
+// Builds the price panel.
 function render(vaccines) {
     allVaccines = vaccines;
     catalogue.innerHTML =

@@ -1,13 +1,18 @@
+// Payments and receipts page.
+
+// Asks the server who is signed in.
 async function getCurrentUser() {
     return VaxAuth.fetchUser();
 }
 
 let payments = [];
 
+// Loads the patient's payments.
 async function getPayments() {
     return (await VaxApi.get('api/payments')).payments;
 }
 
+// Pays a pending payment.
 async function payNow(id, method) {
     await VaxApi.patch('api/payments/' + encodeURIComponent(id), { status: 'paid', method: method });
     payments = await getPayments();
@@ -20,20 +25,24 @@ const resultCount = document.getElementById('resultCount');
 const receiptBody = document.getElementById('receiptBody');
 const receiptModal = new bootstrap.Modal(document.getElementById('receiptModal'));
 
+// Escapes text so it is safe to put in HTML.
 function esc(text) {
     const div = document.createElement('div');
     div.textContent = text == null ? '' : text;
     return div.innerHTML;
 }
 
+// Formats an amount as RM.
 function money(n) {
     return 'RM ' + Number(n).toFixed(2);
 }
 
+// Adds up the lines of a payment.
 function total(p) {
     return p.items.reduce(function (sum, i) { return sum + i.amount; }, 0);
 }
 
+// Formats a date for display.
 function niceDate(iso) {
     const p = iso.split('-');
     return new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]))
@@ -42,6 +51,7 @@ function niceDate(iso) {
 
 const STATUS_TEXT = { paid: 'Paid', pending: 'Waiting for payment', refunded: 'Refunded' };
 
+// Updates the paid, pending and insured totals.
 function renderStats() {
     const paid = payments.filter(function (p) { return p.status === 'paid'; });
     const pending = payments.filter(function (p) { return p.status === 'pending'; });
@@ -50,6 +60,7 @@ function renderStats() {
     document.getElementById('statInsured').textContent = money(paid.reduce(function (s, p) { return s + p.insurance_covered; }, 0));
 }
 
+// Draws the payment list.
 function render() {
     const want = statusFilter.value;
     const list = payments.filter(function (p) { return want === 'all' || p.status === want; });
@@ -75,6 +86,7 @@ function render() {
     }).join('');
 }
 
+// Shows the receipt window.
 function showReceipt(p) {
     const lines = p.items.map(function (i) {
         return '<div class="receipt-line"><span>' + esc(i.label) + '</span><span>' + money(i.amount) + '</span></div>';
@@ -90,6 +102,7 @@ function showReceipt(p) {
     receiptModal.show();
 }
 
+// Opens a receipt or pays a pending payment.
 payList.addEventListener('click', async function (e) {
     const receiptBtn = e.target.closest('[data-receipt]');
     if (receiptBtn) {
@@ -107,7 +120,6 @@ payList.addEventListener('click', async function (e) {
             render();
             showReceipt(done);
         } catch (err) {
-            // Reload so the list matches the server (for example the visit was cancelled meanwhile).
             try { payments = await getPayments(); renderStats(); } catch (ignore) {}
             render();
             window.alert(err.status && err.status < 500 ? err.message : 'Sorry, the payment could not be completed. Please try again.');
@@ -115,17 +127,19 @@ payList.addEventListener('click', async function (e) {
     }
 });
 
+// Filters the payments by status.
 statusFilter.addEventListener('change', render);
+// Prints the receipt.
 document.getElementById('printReceipt').addEventListener('click', function () { window.print(); });
 
-// A visit changed while this page is open: reload the payments so the list stays correct.
+// Reloads the payments when the server reports a change.
 window.addEventListener('vax:refresh', async function (e) {
     if (!e.detail || !(e.detail.data || e.detail.notifications)) return;
     try {
         payments = await getPayments();
         renderStats();
         render();
-    } catch (err) { /* the next refresh will try again */ }
+    } catch (err) {  }
 });
 
 (async function init() {

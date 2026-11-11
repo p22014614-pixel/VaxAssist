@@ -1,20 +1,27 @@
+// Messages page: chat with doctors.
+
+// Asks the server who is signed in.
 async function getCurrentUser() {
     return VaxAuth.fetchUser();
 }
 
+// Loads the conversation list.
 async function getConversations() {
     const loaded = await Promise.all([VaxApi.get('api/conversations'), VaxApi.get('api/doctors?all=1')]);
     return { conversations: loaded[0].conversations, doctors: loaded[1].doctors };
 }
 
+// Loads the messages of one conversation.
 async function getThread(doctorId, afterId) {
     return VaxApi.get('api/conversations/' + encodeURIComponent(doctorId) + '/messages' + (afterId ? '?after=' + encodeURIComponent(afterId) : ''));
 }
 
+// Marks the doctor's messages as read.
 async function markThreadRead(doctorId) {
     return VaxApi.patch('api/conversations/' + encodeURIComponent(doctorId) + '/messages', { is_read: true });
 }
 
+// Sends a message to a doctor.
 async function sendMessage(doctorId, text) {
     return (await VaxApi.post('api/conversations/' + encodeURIComponent(doctorId) + '/messages', { text: text })).message;
 }
@@ -45,20 +52,24 @@ let messages = [];
 let threadTimer = null;
 let listTimer = null;
 
+// Escapes text so it is safe to put in HTML.
 function esc(text) {
     const div = document.createElement('div');
     div.textContent = text == null ? '' : text;
     return div.innerHTML;
 }
 
+// Makes the initials shown in an avatar.
 function initials(name) {
     return name.replace('Dr. ', '').split(' ').map(function (p) { return p[0]; }).slice(0, 2).join('').toUpperCase();
 }
 
+// Checks if two dates are on the same day.
 function sameDay(a, b) {
     return a.toDateString() === b.toDateString();
 }
 
+// Formats a time for the conversation list.
 function shortTime(iso) {
     const d = new Date(iso);
     const now = new Date();
@@ -66,6 +77,7 @@ function shortTime(iso) {
     return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
 }
 
+// Labels a day as Today, Yesterday or a date.
 function dayLabel(iso) {
     const d = new Date(iso);
     const now = new Date();
@@ -75,6 +87,7 @@ function dayLabel(iso) {
     return d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
 }
 
+// Draws the conversation list.
 function renderList() {
     if (!conversations.length) {
         convList.innerHTML = '<p class="list-empty">No messages yet. Choose "+ New" to write to a doctor.</p>';
@@ -91,6 +104,7 @@ function renderList() {
     }).join('');
 }
 
+// Draws the messages of the open conversation.
 function renderMessages(stickToBottom) {
     if (!messages.length) {
         threadBody.innerHTML = '<p class="thread-hint">No messages yet. Say hello to ' + esc(active.name) + '.</p>';
@@ -111,10 +125,12 @@ function renderMessages(stickToBottom) {
     if (stickToBottom) threadBody.scrollTop = threadBody.scrollHeight;
 }
 
+// Counts all unread messages.
 function totalUnread() {
     return conversations.reduce(function (sum, c) { return sum + c.unread; }, 0);
 }
 
+// Reloads the conversation list.
 async function refreshList() {
     try {
         const data = await getConversations();
@@ -131,12 +147,14 @@ async function refreshList() {
     }
 }
 
+// Fills the doctor list for a new message.
 function fillNewList() {
     newDoctor.innerHTML = '<option value="">Choose a doctor</option>' + doctors.map(function (d) {
         return '<option value="' + esc(d.id) + '">' + esc(d.name) + ' - ' + esc(d.specialty) + '</option>';
     }).join('');
 }
 
+// Opens a conversation and starts checking for new messages.
 async function openThread(doctorId) {
     window.clearInterval(threadTimer);
     composerError.classList.add('d-none');
@@ -164,6 +182,7 @@ async function openThread(doctorId) {
     threadTimer = window.setInterval(pollThread, THREAD_REFRESH_MS);
 }
 
+// Checks for new messages in the open conversation.
 async function pollThread() {
     if (!active || document.hidden) return;
     const lastId = messages.length ? messages[messages.length - 1].id : 0;
@@ -171,7 +190,6 @@ async function pollThread() {
         const data = await getThread(active.id, lastId);
         if (data.messages.length) {
             const nearBottom = threadBody.scrollHeight - threadBody.scrollTop - threadBody.clientHeight < 80;
-            // A message we just sent may already be in the list; never show it twice.
             const fresh = data.messages.filter(function (m) { return !messages.some(function (x) { return x.id === m.id; }); });
             if (!fresh.length) return;
             messages = messages.concat(fresh);
@@ -180,30 +198,34 @@ async function pollThread() {
             refreshList();
         }
     } catch (err) {
-        /* try again on the next tick */
     }
 }
 
+// Makes the message box grow as the patient types.
 function autoGrow() {
     messageText.style.height = 'auto';
     messageText.style.height = Math.min(messageText.scrollHeight, 120) + 'px';
 }
 
+// Opens the clicked conversation.
 convList.addEventListener('click', function (e) {
     const btn = e.target.closest('[data-doctor]');
     if (btn) openThread(Number(btn.dataset.doctor));
 });
 
+// Shows the new message box.
 newBtn.addEventListener('click', function () {
     fillNewList();
     newBox.classList.toggle('d-none');
     if (!newBox.classList.contains('d-none')) newDoctor.focus();
 });
 
+// Starts a conversation with the chosen doctor.
 newDoctor.addEventListener('change', function () {
     if (newDoctor.value) openThread(Number(newDoctor.value));
 });
 
+// Returns to the conversation list on small screens.
 document.getElementById('backBtn').addEventListener('click', function () {
     chatShell.classList.remove('thread-open');
     window.clearInterval(threadTimer);
@@ -211,8 +233,10 @@ document.getElementById('backBtn').addEventListener('click', function () {
     renderList();
 });
 
+// Grows the box as the patient types.
 messageText.addEventListener('input', autoGrow);
 
+// Sends with Enter, new line with Shift+Enter.
 messageText.addEventListener('keydown', function (e) {
     if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
@@ -220,6 +244,7 @@ messageText.addEventListener('keydown', function (e) {
     }
 });
 
+// Sends the message.
 composer.addEventListener('submit', async function (e) {
     e.preventDefault();
     const text = messageText.value.trim();
