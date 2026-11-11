@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="admin_DoctorSchedule.css?v=5">
 
     <link rel="stylesheet" href="admin-footer.css?v=1">
-    <link rel="stylesheet" href="admin-nav.css?v=4">
+    <link rel="stylesheet" href="admin-nav.css?v=6">
     <script src="admin-nav.js?v=1" defer></script>
 </head>
 <body class="doctor-schedule-page">
@@ -21,7 +21,7 @@
     <div class="page-content">
         <header class="schedule-banner">
             <div>
-                <p class="eyebrow">VAXASSIST · CLINIC ADMINISTRATION</p>
+                <p class="eyebrow">VAXASSIST / CLINIC ADMINISTRATION</p>
                 <h1>Doctor working days</h1>
                 <p>Set the weekdays each doctor is available at the clinic.</p>
             </div>
@@ -34,7 +34,7 @@
                     <span class="summary-icon" aria-hidden="true">&#129489;&#8205;&#9877;&#65039;</span>
                     <div>
                         <p>Doctors</p>
-                        <strong id="doctorCount">â€”</strong>
+                        <strong id="doctorCount">—</strong>
                     </div>
                 </article>
 
@@ -42,7 +42,7 @@
                     <span class="summary-icon" aria-hidden="true">&#128337;</span>
                     <div>
                         <p>Doctors available today</p>
-                        <strong id="todayDoctorCount">â€”</strong>
+                        <strong id="todayDoctorCount">—</strong>
                     </div>
                 </article>
 
@@ -50,7 +50,7 @@
                     <span class="summary-icon" aria-hidden="true">&#128197;</span>
                     <div>
                         <p>Weekdays covered</p>
-                        <strong id="coveredCount">â€”</strong>
+                        <strong id="coveredCount">—</strong>
                     </div>
                 </article>
             </section>
@@ -63,7 +63,7 @@
                 <p class="panel-description">Select a doctor to edit their working weekdays.</p>
                 <div class="toolbar">
                     <label class="search-field">
-                        <span aria-hidden="true">âŒ•</span>
+                        <span aria-hidden="true"></span>
                         <span class="sr-only">Search doctors</span>
                         <input id="searchInput" type="search" placeholder="Search doctors">
                     </label>
@@ -89,7 +89,7 @@
                                 <th></th>
                             </tr>
                         </thead>
-                        <tbody id="doctorRows"><tr><td colspan="5" class="empty-cell">Loading doctorsâ€¦</td></tr></tbody>
+                        <tbody id="doctorRows"><tr><td colspan="5" class="empty-cell">Loading doctors…</td></tr></tbody>
                     </table>
                 </div>
                 <p id="statusMessage" class="status-message" role="status" aria-live="polite"></p>
@@ -166,7 +166,7 @@
         function openEditor(id) {
             activeDoctor = doctors.find(doctor => doctor.id === id);
             if (!activeDoctor) return;
-            document.getElementById('doctorLabel').textContent = `${activeDoctor.name} Â· ${activeDoctor.specialization}`;
+            document.getElementById('doctorLabel').textContent = `${activeDoctor.name} · ${activeDoctor.specialization}`;
             document.querySelectorAll('input[name="weekday"]').forEach(input => { input.checked = activeDoctor.weekdays.includes(Number(input.value)); });
             document.getElementById('editDialog').showModal();
         }
@@ -176,7 +176,7 @@
             if (!activeDoctor) return;
             const button = document.getElementById('saveButton');
             button.disabled = true;
-            button.textContent = 'Savingâ€¦';
+            button.textContent = 'Saving…';
             const weekdays = [...document.querySelectorAll('input[name="weekday"]:checked')].map(input => Number(input.value));
             try {
                 const response = await fetch('api_DoctorAvailability.php', {

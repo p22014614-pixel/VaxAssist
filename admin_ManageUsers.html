@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="admin_ManageUsers.css?v=4">
 
     <link rel="stylesheet" href="admin-footer.css?v=1">
-    <link rel="stylesheet" href="admin-nav.css?v=4">
+    <link rel="stylesheet" href="admin-nav.css?v=6">
     <script src="admin-nav.js?v=1" defer></script>
 </head>
 <body class="staff-page">
@@ -19,7 +19,7 @@
 
     <header class="staff-banner">
         <div>
-            <p class="staff-eyebrow">VAXASSIST · CLINIC ADMINISTRATION</p>
+            <p class="staff-eyebrow">VAXASSIST / CLINIC ADMINISTRATION</p>
             <h1>Manage Staff &amp; Users</h1>
             <p>Manage your clinic team and user access.</p>
         </div>
@@ -186,7 +186,7 @@
                 department.textContent = member.department;
 
                 const phone = document.createElement('td');
-                phone.textContent = member.phone || 'â€”';
+                phone.textContent = member.phone || '—';
 
                 const actions = document.createElement('td');
                 const actionGroup = document.createElement('div');

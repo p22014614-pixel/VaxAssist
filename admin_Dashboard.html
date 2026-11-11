@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="admin_Dashboard.css?v=2">
 
     <link rel="stylesheet" href="admin-footer.css?v=1">
-    <link rel="stylesheet" href="admin-nav.css?v=4">
+    <link rel="stylesheet" href="admin-nav.css?v=6">
     <script src="admin-nav.js?v=1" defer></script>
 </head>
 
@@ -21,7 +21,7 @@
     <div class="admin-main-content">
         <header class="dashboard-banner">
             <div class="banner-copy">
-                <p class="eyebrow">VAXASSIST · CLINIC ADMINISTRATION</p>
+                <p class="eyebrow">VAXASSIST / CLINIC ADMINISTRATION</p>
                 <h1>Admin Dashboard Overview</h1>
                 <p>
                     Monitor appointments, staff, and vaccine stock in one place.
@@ -29,7 +29,7 @@
             </div>
 
             <a class="primary-action" href="admin_ViewAppointment.html">
-                View appointments <span aria-hidden="true">🡪</span>
+                View appointments <span aria-hidden="true">&#10140;</span>
             </a>
         </header>
 
@@ -48,7 +48,7 @@
                         aria-label="View all appointments">
                         <span class="stat-mark" aria-hidden="true">01</span>
                         <h3>Total appointments</h3>
-                        <strong id="dashboardAppointmentsToday" aria-live="polite">—</strong>
+                        <strong id="dashboardAppointmentsToday" aria-live="polite"></strong>
                         <p>Scheduled across the clinic</p>
                     </a>
 
@@ -57,7 +57,7 @@
                         <span class="stat-mark" aria-hidden="true">02</span>
                         <h3>Pending leave requests</h3>
                         <strong id="pendingLeaveCount" aria-live="polite">-</strong>
-                        <p>Requests awaiting review · Review leave</p>
+                        <p>Requests awaiting review</p>
                     </a>
 
                     <a class="stat-card"
@@ -88,7 +88,7 @@
                             <h2 id="appointments-title">Today's appointments</h2>
                         </div>
                         <a href="admin_ViewAppointment.html">
-                            Full schedule <span aria-hidden="true"></span>
+                            Full schedule <span aria-hidden="true">&#10140;</span>
                         </a>
                     </div>
 
@@ -110,7 +110,7 @@
                             <tbody 
                                 id="dashboardAppointmentRows">
                                 <tr>    
-                                    <td colspan="5">Loading appointmentsâ€¦</td>
+                                    <td colspan="5">Loading appointments...</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -132,7 +132,7 @@
                                     <strong>Find Your Schedule</strong>
                                     <small>View and manage appointments</small>
                                 </span>
-                                <span class="shortcut-arrow" aria-hidden="true">🡪</span>
+                                <span class="shortcut-arrow" aria-hidden="true">&#10140;</span>
                             </a>
 
                             <a class="shortcut-link" href="admin_DoctorSchedule.html">
@@ -141,7 +141,7 @@
                                     <strong>Schedule a doctor</strong>
                                     <small>Arrange doctor working days</small>
                                 </span>
-                                <span class="shortcut-arrow" aria-hidden="true">🡪</span>
+                                <span class="shortcut-arrow" aria-hidden="true">&#10140;</span>
                             </a>
 
                             <a class="shortcut-link" href="admin_ViewLeave.html">
@@ -150,7 +150,7 @@
                                     <strong>View Leave Requests</strong>
                                     <small>View and manage leave requests</small>
                                 </span>
-                                <span class="shortcut-arrow" aria-hidden="true">🡪</span>
+                                <span class="shortcut-arrow" aria-hidden="true">&#10140;</span>
                             </a>
 
                             <a class="shortcut-link" href="admin_ManageUsers.html">
@@ -159,7 +159,7 @@
                                     <strong>Manage Users</strong>
                                     <small>Roles and account access</small>
                                 </span>
-                                <span class="shortcut-arrow" aria-hidden="true">🡪</span>
+                                <span class="shortcut-arrow" aria-hidden="true">&#10140;</span>
                             </a>
 
                             <a class="shortcut-link" href="admin_VaccineInventory.html">
@@ -168,7 +168,7 @@
                                     <strong>Vaccine stock</strong>
                                     <small>Inventory and quantities</small>
                                 </span>
-                                <span class="shortcut-arrow" aria-hidden="true">🡪</span>
+                                <span class="shortcut-arrow" aria-hidden="true">&#10140;</span>
                             </a>
 
                         </div>
@@ -188,7 +188,7 @@
                                 href="admin_VaccineInventory.html"
                                 aria-label="View full vaccine inventory"
                             >
-                                View all <span aria-hidden="true">🡪</span>
+                                View all <span aria-hidden="true">&#10140;</span>
                             </a>
                         </div>
 
@@ -198,13 +198,13 @@
                             aria-live="polite"
                         >
                             <li>
-                                <span>Loading vaccine stockâ€¦</span>
+                                <span>Loading vaccine stock�</span>
                                 <span></span>
                             </li>
                         </ul>
 
                         <p class="inventory-note" id="dashboardVaccineNote">
-                            Loading inventory summaryâ€¦
+                            Loading inventory summary...
                         </p>
                     </section>
                 </aside>
@@ -264,7 +264,7 @@
                     `).join('')
                     : '<tr><td colspan="5">No appointments scheduled for today.</td></tr>';
             } catch (error) {
-                if (count) count.textContent = 'â€”';
+                if (count) count.textContent = '�';
                 rows.innerHTML = `<tr><td colspan="5">${escapeHtml(error.message)}</td></tr>`;
             }
         }
@@ -362,7 +362,7 @@
             })
             .catch(error => {
                 console.error(error);
-                document.getElementById('activeStaffCount').textContent = 'â€”';
+                document.getElementById('activeStaffCount').textContent = '�';
             });
 
         fetch('api_DoctorAvailability.php', {
@@ -382,7 +382,7 @@
             })
             .catch(error => {
                 console.error(error);
-                document.getElementById('doctorsAvailableToday').textContent = 'Ã¢â‚¬â€';
+                document.getElementById('doctorsAvailableToday').textContent = '—';
             });
 
         fetch('api_LiveNumber.php?count=pending', {
